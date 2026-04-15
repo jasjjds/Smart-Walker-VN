@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Ép chết màu nền bằng CSS thuần với !important để vô hiệu hóa mọi Dark Mode */
+body {
+  background-color: #f0f9ff !important;
+  color: #075985 !important;
+}
