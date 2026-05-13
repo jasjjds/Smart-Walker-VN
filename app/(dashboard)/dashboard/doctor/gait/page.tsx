@@ -1,205 +1,208 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { fetchDistanceData } from '@/services/analyticsService';
 
-const MAX_FORCE = 30; // Max lực 30kg
-const HISTORY_LENGTH = 100; // Số điểm dữ liệu
-const UPDATE_INTERVAL = 100; // Tốc độ cập nhật 10Hz
+const DEVICE_ID = '123e4567-e89b-12d3-a456-426614174000';
 
-// Hàm tạo điểm sóng ban đầu
-const generateInitialWave = () => {
-  return Array.from({ length: HISTORY_LENGTH }, (_, i) => {
-    const t = (i - HISTORY_LENGTH) * 0.1;
-    const baseLeft = Math.max(0, Math.sin(t * 3)) * 15;
-    const baseRight = Math.max(0, Math.sin(t * 3 - Math.PI)) * 15;
-    return {
-      left: baseLeft > 0 ? baseLeft + 5 : 5,
-      right: baseRight > 0 ? baseRight + 5 : 5
-    };
-  });
-};
+interface ProcessedData {
+  date_bucket: string;
+  label: string;
+  subLabel: string;
+  total_distance: number;
+}
 
-export default function GaitCyclePage() {
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [timeStep, setTimeStep] = useState(0);
+export default function DistanceAnalyticsPage() {
+  const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day'>('day');
+  const [data, setData] = useState<ProcessedData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [history, setHistory] = useState<{ left: number; right: number }[]>(
-    generateInitialWave()
-  );
-
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
+  // Gọi API mỗi khi người dùng đổi bộ lọc thời gian
   useEffect(() => {
-    if (isSimulating) {
-      timerRef.current = setInterval(() => {
-        setTimeStep((prev) => {
-          const t = prev + 0.1;
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Backend giờ đã trả data chuẩn 100%
+        const result = await fetchDistanceData(DEVICE_ID, intervalType);
 
-          const baseLeft = Math.max(0, Math.sin(t * 3)) * 15;
-          const baseRight = Math.max(0, Math.sin(t * 3 - Math.PI)) * 15;
+        if (!result || result.length === 0) {
+          setData([]);
+          return;
+        }
 
-          const noiseL = Math.random() * 2;
-          const noiseR = Math.random() * 2;
+        // FE chỉ việc bóc data ra và format lại cái text hiển thị (nhãn trục X)
+        const formattedData = result.map((item: any) => {
+          const dateObj = new Date(item.date_bucket);
+          const pad = (n: number) => n.toString().padStart(2, '0');
 
-          const newLeft = baseLeft > 0 ? baseLeft + 5 + noiseL : 5 + noiseL;
-          const newRight = baseRight > 0 ? baseRight + 5 + noiseR : 5 + noiseR;
+          const timeStr = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
+          const dateStr = `${pad(dateObj.getDate())}/${pad(dateObj.getMonth() + 1)}`;
 
-          setHistory(currentHistory => [
-            ...currentHistory.slice(1),
-            { left: newLeft, right: newRight }
-          ]);
-
-          return t;
+          return {
+            date_bucket: item.date_bucket,
+            label: intervalType === 'day' ? dateStr : timeStr,
+            subLabel: intervalType !== 'day' ? dateStr : '',
+            total_distance: Number(item.total_distance)
+          };
         });
-      }, UPDATE_INTERVAL);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+        setData(formattedData);
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu", error);
+        setData([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [isSimulating]);
 
-  const createSvgPath = (key: 'left' | 'right') => {
-    return history.map((data, index) => {
-      const x = (index / (HISTORY_LENGTH - 1)) * 100;
-      const y = 100 - (data[key] / MAX_FORCE) * 100;
-      return `${x},${y}`;
-    }).join(' L ');
-  };
+    loadData();
+  }, [intervalType]);
+
+  const maxDistance = data.length > 0 ? Math.max(...data.map(d => d.total_distance)) : 1;
+  const totalDistance = data.reduce((sum, item) => sum + item.total_distance, 0);
+  const avgDistance = data.length > 0 ? (totalDistance / data.length).toFixed(2) : "0.00";
 
   return (
     <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden">
 
       {/* 0. NÚT QUAY LẠI */}
-      <Link
-        href="/dashboard/doctor"
-        className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0"
-      >
+      <Link href="/dashboard/doctor" className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
         Quay lại tổng quan
       </Link>
 
-      {/* 1. HEADER */}
+      {/* 1. HEADER & BỘ LỌC */}
       <div className="flex justify-between items-center shrink-0">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Phân tích Chu kỳ dáng đi (Gait)</h1>
-          <p className="text-[#0c4a6e]/70 mt-0.5 text-sm font-medium italic">
-            Biểu diễn lực tỳ theo thời gian trên hệ trục tọa độ chuẩn.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Thống kê Quãng đường</h1>
+          <p className="text-[#0c4a6e]/70 mt-0.5 text-sm font-medium italic">Theo dõi mức độ vận động của bệnh nhân qua các mốc thời gian.</p>
         </div>
-        <button
-          onClick={() => setIsSimulating(!isSimulating)}
-          className={`px-5 py-2 text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2 ${isSimulating ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'
-            }`}
-        >
-          {isSimulating ? 'Dừng theo dõi' : 'Bắt đầu theo dõi'}
-        </button>
+
+        <div className="flex bg-white rounded-xl shadow-sm border border-gray-200 p-1">
+          {(['minute', 'hour', 'day'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setIntervalType(type)}
+              className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-all ${intervalType === type ? 'bg-[#0ea5e9] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
+                }`}
+            >
+              {type === 'minute' ? 'Theo Phút' : type === 'hour' ? 'Theo Giờ' : 'Theo Ngày'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex-1 min-h-0 flex flex-col gap-4">
 
-        {/* KHU VỰC BIỂU ĐỒ */}
         <div className="flex-1 min-h-0 bg-white rounded-2xl p-5 border border-gray-300 shadow-sm flex flex-col relative">
-
-          <div className="flex justify-between items-center mb-4 shrink-0 z-10">
-            <h3 className="text-base font-bold text-gray-800">Biểu đồ Lực F(t)</h3>
-            <div className="flex gap-6 text-sm font-bold">
-              <div className="flex items-center gap-2"><span className="w-6 h-0.5 bg-[#0ea5e9]"></span> Tay Trái</div>
-              <div className="flex items-center gap-2"><span className="w-6 h-0.5 bg-[#0c4a6e]"></span> Tay Phải</div>
-            </div>
+          <div className="flex justify-between items-center mb-6 shrink-0 z-10">
+            <h3 className="text-base font-bold text-gray-800">Biểu đồ Vận động (m)</h3>
           </div>
 
-          {/* VÙNG CHỨA SVG (Đã được bọc lồng ép cứng chiều cao) */}
           <div className="flex-1 w-full relative min-h-0">
 
-            {/* 1. Lớp nền kẻ ngang */}
-            <div className="absolute inset-0 pl-8 pb-6 flex flex-col justify-between pointer-events-none z-0">
-              {[30, 20, 10, 0].map((val) => (
-                <div key={val} className="w-full flex items-center relative h-0">
-                  <div className={`w-full absolute ${val === 0 ? 'border-b-2 border-gray-800' : 'border-b border-gray-200'}`}></div>
-                  <span className="absolute -left-8 text-[10px] font-mono text-gray-500 bg-white pr-1 -translate-y-1/2">{val}</span>
-                </div>
-              ))}
+            {/* Lớp nền chia vạch Y-axis (Dịch không gian pb-10 để nhường chỗ cho nhãn) */}
+            <div className="absolute inset-0 pl-10 pb-10 flex flex-col justify-between pointer-events-none z-0">
+              {[1, 0.75, 0.5, 0.25, 0].map((ratio) => {
+                const val = (maxDistance * ratio).toFixed(2);
+                return (
+                  <div key={ratio} className="w-full flex items-center relative h-0">
+                    <div className={`w-full absolute ${ratio === 0 ? 'border-b-2 border-gray-800' : 'border-b border-dashed border-gray-200'}`}></div>
+                    <span className="absolute -left-10 text-[10px] font-mono text-gray-500 bg-white pr-2 -translate-y-1/2">{val}m</span>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* 2. Trục dọc */}
-            <div className="absolute top-0 bottom-6 left-8 border-l-2 border-gray-800 pointer-events-none z-10"></div>
+            {/* Trục dọc */}
+            <div className="absolute top-0 bottom-10 left-10 border-l-2 border-gray-800 pointer-events-none z-10"></div>
 
-            {/* Nhãn hệ trục */}
-            <span className="absolute top-0 left-0 text-xs font-bold italic text-gray-600 -translate-y-2">F(kg)</span>
-            <span className="absolute bottom-0 right-0 text-xs font-bold italic text-gray-600 translate-y-2">t(s)</span>
+            {/* LỚP VẼ CỘT DIV FLEXBOX */}
+            <div className="absolute inset-0 pl-10 flex">
+              {isLoading ? (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10">Đang tải dữ liệu...</div>
+              ) : data.length === 0 ? (
+                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10">Chưa có dữ liệu.</div>
+              ) : (
+                data.map((item) => {
+                  const heightPercent = (item.total_distance / maxDistance) * 85;
 
-            {/* 3. Lớp đồ thị sóng (Ép cứng trong padding) */}
-            <div className="absolute inset-0 pl-8 pb-6">
-              <svg className="w-full h-full block overflow-hidden" preserveAspectRatio="none" viewBox="0 0 100 100">
-                <path
-                  d={`M 0,${100 - (history[0].left / MAX_FORCE) * 100} L ${createSvgPath('left')}`}
-                  fill="none"
-                  stroke="#0ea5e9"
-                  strokeWidth="2.5"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <path
-                  d={`M 0,${100 - (history[0].right / MAX_FORCE) * 100} L ${createSvgPath('right')}`}
-                  fill="none"
-                  stroke="#0c4a6e"
-                  strokeWidth="2.5"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
+                  return (
+                    // Vùng chứa 1 cột (Giữ cố định pb-10 làm đáy an toàn)
+                    <div key={item.date_bucket} className="flex-1 flex flex-col items-center justify-end h-full pb-10 relative group px-1">
+
+                      {/* SỐ TRÊN ĐỈNH CỘT */}
+                      <span className="text-[10px] sm:text-[11px] font-black text-[#0ea5e9] mb-1 opacity-90 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
+                        {item.total_distance.toFixed(2)}
+                      </span>
+
+                      {/* KHỐI CỘT MÀU XANH */}
+                      <div
+                        className="bg-[#0ea5e9] w-full max-w-[48px] rounded-t-md shadow-sm transition-all duration-300 group-hover:bg-[#0c4a6e]"
+                        style={{ height: `${Math.max(heightPercent, 1)}%` }}
+                      ></div>
+
+                      {/* NHÃN THỜI GIAN TRỤC X (Nằm trọn trong vùng pb-10 của đáy) */}
+                      <div className="absolute bottom-1 w-full flex flex-col items-center justify-center">
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-600 whitespace-nowrap">
+                          {item.label}
+                        </span>
+                        {item.subLabel && (
+                          <span className="text-[8px] sm:text-[9px] font-medium text-gray-400 mt-[1px]">
+                            {item.subLabel}
+                          </span>
+                        )}
+                      </div>
+
+                    </div>
+                  );
+                })
+              )}
             </div>
 
           </div>
         </div>
 
-        {/* 3. KHỐI CHỈ SỐ ĐỘNG HỌC (Thu gọn dạng lưới ngang) */}
+        {/* 3. KHỐI CHỈ SỐ */}
         <div className="h-28 shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
-
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Nhịp độ (Cadence)</h3>
-              <p className="text-xs font-medium text-gray-600">Tần số bước đi.</p>
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Tổng quãng đường</h3>
+              <p className="text-xs font-medium text-gray-600">Lũy kế theo bộ lọc.</p>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-2xl font-black text-[#0c4a6e]">{isSimulating ? "58" : "--"}</span>
-              <span className="text-[10px] font-bold text-gray-400">bước/phút</span>
+              <span className="text-2xl font-black text-[#0ea5e9]">{totalDistance.toFixed(2)}</span>
+              <span className="text-[10px] font-bold text-gray-400">mét</span>
             </div>
           </div>
 
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Stance / Swing</h3>
-              <p className="text-xs font-medium text-gray-600">Tỷ lệ Tỳ / Lăng.</p>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-2xl font-black text-[#0c4a6e]">{isSimulating ? "62" : "--"}</span>
-              <span className="text-lg font-bold text-gray-300">/</span>
-              <span className="text-2xl font-black text-[#0ea5e9]">{isSimulating ? "38" : "--"}</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Lực đỉnh (Peak)</h3>
-              <p className="text-xs font-medium text-gray-600">Lực tối đa ghi nhận.</p>
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Thành tích cao nhất</h3>
+              <p className="text-xs font-medium text-gray-600">Trong một chu kỳ.</p>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-2xl font-black text-[#0ea5e9]">{isSimulating ? "22.4" : "--"}</span>
-              <span className="text-[10px] font-bold text-gray-400">kg</span>
+              <span className="text-2xl font-black text-[#0c4a6e]">{maxDistance === 1 && totalDistance === 0 ? "0.00" : maxDistance.toFixed(2)}</span>
+              <span className="text-[10px] font-bold text-gray-400">mét</span>
             </div>
           </div>
 
+          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
+            <div>
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Trung bình</h3>
+              <p className="text-xs font-medium text-gray-600">Mỗi {intervalType === 'day' ? 'ngày' : intervalType === 'hour' ? 'giờ' : 'phút'}.</p>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-2xl font-black text-emerald-600">{avgDistance}</span>
+              <span className="text-[10px] font-bold text-gray-400">mét</span>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
