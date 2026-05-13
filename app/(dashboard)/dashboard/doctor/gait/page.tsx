@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { fetchDistanceData } from '@/services/analyticsService';
 
-const DEVICE_ID = '123e4567-e89b-12d3-a456-426614174000';
+const DEVICE_ID = '14:33:5C:02:39:98';
 
 interface ProcessedData {
   date_bucket: string;
