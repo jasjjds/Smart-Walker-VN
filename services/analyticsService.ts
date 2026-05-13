@@ -15,6 +15,11 @@ export const fetchDistanceData = async (
         params: {
           device_id: deviceId,
           interval: interval
+        },
+        // 👇 THÊM HEADER VƯỢT NGROK VÀO ĐÂY 👇
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Accept': 'application/json'
         }
       }
     );
