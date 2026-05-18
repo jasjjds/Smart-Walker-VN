@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { fetchDistanceData } from '@/services/analyticsService';
+import axios from 'axios'; // <== Chuyển sang dùng axios trực tiếp để đồng bộ bộ lọc nâng cao
 
 const DEVICE_ID = '14:33:5C:02:39:98';
+const API_URL = 'https://breeze-fencing-elaborate.ngrok-free.dev';
 
 interface ProcessedData {
   date_bucket: string;
@@ -14,57 +15,84 @@ interface ProcessedData {
 }
 
 export default function DistanceAnalyticsPage() {
-  const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day'>('day');
+  // Mở rộng bộ lọc bao gồm cả Tháng và Tự chọn giống API Backend mới
+  const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day' | 'month' | 'custom'>('day');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   const [data, setData] = useState<ProcessedData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Gọi API mỗi khi người dùng đổi bộ lọc thời gian
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        // Backend giờ đã trả data chuẩn 100%
-        const result = await fetchDistanceData(DEVICE_ID, intervalType);
+  // Hàm gọi API dùng chung
+  const loadData = async (type: string, start?: string, end?: string) => {
+    setIsLoading(true);
+    try {
+      const params: any = {
+        device_id: DEVICE_ID,
+        interval: type
+      };
 
-        if (!result || result.length === 0) {
-          setData([]);
-          return;
-        }
-
-        // FE chỉ việc bóc data ra và format lại cái text hiển thị (nhãn trục X)
-        const formattedData = result.map((item: any) => {
-          const dateObj = new Date(item.date_bucket);
-          const pad = (n: number) => n.toString().padStart(2, '0');
-
-          const timeStr = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}`;
-          const dateStr = `${pad(dateObj.getDate())}/${pad(dateObj.getMonth() + 1)}`;
-
-          return {
-            date_bucket: item.date_bucket,
-            label: intervalType === 'day' ? dateStr : timeStr,
-            subLabel: intervalType !== 'day' ? dateStr : '',
-            total_distance: Number(item.total_distance)
-          };
-        });
-
-        setData(formattedData);
-      } catch (error) {
-        console.error("Lỗi tải dữ liệu", error);
-        setData([]);
-      } finally {
-        setIsLoading(false);
+      // Nếu là bộ lọc tự chọn, đính kèm ngày bắt đầu và kết thúc
+      if (type === 'custom' && start && end) {
+        params.start_date = start;
+        params.end_date = end;
       }
-    };
 
-    loadData();
+      const response = await axios.get(`${API_URL}/api/analytics/distance`, {
+        params,
+        headers: {
+          'ngrok-skip-browser-warning': 'true', // Bùa vượt tường Ngrok
+          'Accept': 'application/json'
+        }
+      });
+
+      const result = response.data.chartData;
+
+      if (!result || result.length === 0) {
+        setData([]);
+        return;
+      }
+
+      // SỬA LỖI NaN/NaN: Lấy trực tiếp chuỗi đẹp từ Backend làm nhãn trục X
+      const formattedData = result.map((item: any) => {
+        return {
+          date_bucket: item.date_bucket,
+          label: item.date_bucket, // <== Sử dụng luôn chuỗi "13/05", "14:00" từ BE trả về
+          subLabel: (type === 'minute' || type === 'hour') ? 'Hôm nay' : '',
+          total_distance: Number(item.total_distance)
+        };
+      });
+
+      setData(formattedData);
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu quãng đường:", error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Tự động gọi API khi chuyển đổi giữa Phút, Giờ, Ngày, Tháng
+  useEffect(() => {
+    if (intervalType === 'custom') return; // Riêng tự chọn thì đợi bấm nút Áp dụng
+    loadData(intervalType);
   }, [intervalType]);
+
+  // Kích hoạt khi bấm nút "Áp dụng bộ lọc" ngày tùy chỉnh
+  const handleApplyCustomTime = () => {
+    if (!startDate || !endDate) {
+      alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!");
+      return;
+    }
+    loadData('custom', startDate, endDate);
+  };
 
   const maxDistance = data.length > 0 ? Math.max(...data.map(d => d.total_distance)) : 1;
   const totalDistance = data.reduce((sum, item) => sum + item.total_distance, 0);
   const avgDistance = data.length > 0 ? (totalDistance / data.length).toFixed(2) : "0.00";
 
   return (
-    <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden">
+    <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden bg-slate-50 p-2 md:p-4 rounded-xl">
 
       {/* 0. NÚT QUAY LẠI */}
       <Link href="/dashboard/doctor" className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
@@ -74,38 +102,68 @@ export default function DistanceAnalyticsPage() {
         Quay lại tổng quan
       </Link>
 
-      {/* 1. HEADER & BỘ LỌC */}
-      <div className="flex justify-between items-center shrink-0">
+      {/* 1. HEADER & BỘ LỌC CHU KỲ */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Thống kê Quãng đường</h1>
           <p className="text-[#0c4a6e]/70 mt-0.5 text-sm font-medium italic">Theo dõi mức độ vận động của bệnh nhân qua các mốc thời gian.</p>
         </div>
 
-        <div className="flex bg-white rounded-xl shadow-sm border border-gray-200 p-1">
-          {(['minute', 'hour', 'day'] as const).map((type) => (
+        <div className="flex bg-white rounded-xl shadow-sm border border-gray-200 p-1 gap-0.5">
+          {(['minute', 'hour', 'day', 'month', 'custom'] as const).map((type) => (
             <button
               key={type}
               onClick={() => setIntervalType(type)}
-              className={`px-4 py-1.5 text-sm font-bold rounded-lg transition-all ${intervalType === type ? 'bg-[#0ea5e9] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${intervalType === type ? 'bg-[#0ea5e9] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
                 }`}
             >
-              {type === 'minute' ? 'Theo Phút' : type === 'hour' ? 'Theo Giờ' : 'Theo Ngày'}
+              {type === 'minute' ? 'Theo Phút' : type === 'hour' ? 'Theo Giờ' : type === 'day' ? 'Theo Ngày' : type === 'month' ? 'Theo Tháng' : 'Tự chọn'}
             </button>
           ))}
         </div>
       </div>
 
+      {/* 1.1 PANEL DATE PICKER (Chỉ hiển thị khi chọn 'Tự chọn') */}
+      {intervalType === 'custom' && (
+        <div className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-xl text-xs shrink-0 shadow-sm animate-fadeIn">
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500 font-medium">Từ ngày:</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#0ea5e9] text-gray-700"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500 font-medium">Đến ngày:</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#0ea5e9] text-gray-700"
+            />
+          </div>
+          <button
+            onClick={handleApplyCustomTime}
+            className="bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white font-bold px-3 py-1 rounded-lg transition-colors"
+          >
+            Áp dụng bộ lọc
+          </button>
+        </div>
+      )}
+
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex-1 min-h-0 flex flex-col gap-4">
 
-        <div className="flex-1 min-h-0 bg-white rounded-2xl p-5 border border-gray-300 shadow-sm flex flex-col relative">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col relative">
           <div className="flex justify-between items-center mb-6 shrink-0 z-10">
             <h3 className="text-base font-bold text-gray-800">Biểu đồ Vận động (m)</h3>
           </div>
 
           <div className="flex-1 w-full relative min-h-0">
 
-            {/* Lớp nền chia vạch Y-axis (Dịch không gian pb-10 để nhường chỗ cho nhãn) */}
+            {/* Lớp nền chia vạch Y-axis */}
             <div className="absolute inset-0 pl-10 pb-10 flex flex-col justify-between pointer-events-none z-0">
               {[1, 0.75, 0.5, 0.25, 0].map((ratio) => {
                 const val = (maxDistance * ratio).toFixed(2);
@@ -126,13 +184,12 @@ export default function DistanceAnalyticsPage() {
               {isLoading ? (
                 <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10">Đang tải dữ liệu...</div>
               ) : data.length === 0 ? (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10">Chưa có dữ liệu.</div>
+                <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10">Chưa có dữ liệu cho mốc thời gian này.</div>
               ) : (
                 data.map((item) => {
                   const heightPercent = (item.total_distance / maxDistance) * 85;
 
                   return (
-                    // Vùng chứa 1 cột (Giữ cố định pb-10 làm đáy an toàn)
                     <div key={item.date_bucket} className="flex-1 flex flex-col items-center justify-end h-full pb-10 relative group px-1">
 
                       {/* SỐ TRÊN ĐỈNH CỘT */}
@@ -146,7 +203,7 @@ export default function DistanceAnalyticsPage() {
                         style={{ height: `${Math.max(heightPercent, 1)}%` }}
                       ></div>
 
-                      {/* NHÃN THỜI GIAN TRỤC X (Nằm trọn trong vùng pb-10 của đáy) */}
+                      {/* NHÃN THỜI GIAN TRỤC X */}
                       <div className="absolute bottom-1 w-full flex flex-col items-center justify-center">
                         <span className="text-[10px] sm:text-xs font-bold text-gray-600 whitespace-nowrap">
                           {item.label}
@@ -194,7 +251,7 @@ export default function DistanceAnalyticsPage() {
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
             <div>
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Trung bình</h3>
-              <p className="text-xs font-medium text-gray-600">Mỗi {intervalType === 'day' ? 'ngày' : intervalType === 'hour' ? 'giờ' : 'phút'}.</p>
+              <p className="text-xs font-medium text-gray-600">Mỗi {intervalType === 'day' ? 'ngày' : intervalType === 'hour' ? 'giờ' : intervalType === 'minute' ? 'phút' : intervalType === 'month' ? 'tháng' : 'chu kỳ'}.</p>
             </div>
             <div className="flex flex-col items-end">
               <span className="text-2xl font-black text-emerald-600">{avgDistance}</span>
