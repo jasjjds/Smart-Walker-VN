@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link'; // Bổ sung import Link
-
+import { useParams } from "next/navigation";
 // Cấu hình biểu đồ
 const MAX_RANGE_CM = 10; // Giới hạn hiển thị +/- 10cm
 const SVG_SIZE = 400; // Kích thước khung vẽ (px)
@@ -10,6 +10,8 @@ const CENTER = SVG_SIZE / 2;
 const SCALE = CENTER / MAX_RANGE_CM; // Tỷ lệ quy đổi từ cm sang px
 
 export default function CoGAnalysisPage() {
+  const params = useParams();
+  const patientId = params.id;
   // Dữ liệu tọa độ giả lập (x: trái-phải, y: trước-sau)
   const [points, setPoints] = useState([
     { x: 1.2, y: -0.5, id: 1 },
@@ -46,7 +48,7 @@ export default function CoGAnalysisPage() {
 
       {/* 0. NÚT QUAY LẠI */}
       <Link
-        href="/dashboard/doctor"
+        href={`/dashboard/doctor/patients/${patientId}`}
         className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

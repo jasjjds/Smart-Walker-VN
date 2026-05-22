@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios'; // <== Chuyển sang dùng axios trực tiếp để đồng bộ bộ lọc nâng cao
-
+import { useParams } from 'next/navigation';
 const DEVICE_ID = '14:33:5C:02:39:98';
 const API_URL = 'https://breeze-fencing-elaborate.ngrok-free.dev';
 
@@ -15,6 +15,8 @@ interface ProcessedData {
 }
 
 export default function DistanceAnalyticsPage() {
+  const params = useParams();
+  const patientID = params.id;
   // Mở rộng bộ lọc bao gồm cả Tháng và Tự chọn giống API Backend mới
   const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day' | 'month' | 'custom'>('day');
   const [startDate, setStartDate] = useState('');
@@ -95,7 +97,7 @@ export default function DistanceAnalyticsPage() {
     <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden bg-slate-50 p-2 md:p-4 rounded-xl">
 
       {/* 0. NÚT QUAY LẠI */}
-      <Link href="/dashboard/doctor" className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
+      <Link href={`/dashboard/doctor/patiens/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>

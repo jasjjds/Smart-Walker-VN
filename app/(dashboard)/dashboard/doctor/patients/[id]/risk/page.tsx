@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-
+import { useParams } from 'next/navigation';
 // Cấu hình tính toán SVG Donut
 const RADIUS = 100; // Đã thu nhỏ radius một chút để fit màn hình tốt hơn
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function FallRiskPage() {
+  const params = useParams();
+  const patientID = params.id;
   const [isSimulating, setIsSimulating] = useState(false);
   const [score, setScore] = useState(88);
 
@@ -78,7 +80,7 @@ export default function FallRiskPage() {
 
       {/* 0. NÚT QUAY LẠI */}
       <Link
-        href="/dashboard/doctor"
+        href={`/dashboard/doctor/patiens/${patientID}`}
         className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +99,6 @@ export default function FallRiskPage() {
         </div>
 
         <div className="flex gap-3">
-          {/* NÚT NGÃ LẬP TỨC */}
           <button
             onClick={triggerImmediateFall}
             className="px-5 py-2 text-sm font-bold rounded-xl shadow-md transition-all bg-red-600 hover:bg-red-700 text-white flex items-center gap-2"
@@ -238,6 +239,6 @@ export default function FallRiskPage() {
         </div>
       </div>
 
-    </div>
+    </div >
   );
 }

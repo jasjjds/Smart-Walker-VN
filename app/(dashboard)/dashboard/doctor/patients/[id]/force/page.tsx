@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-
+import { useParams } from 'next/navigation';
 const MAX_FORCE_KG = 15;
 const HISTORY_LENGTH = 40;
 
@@ -17,6 +17,8 @@ interface ForceHistoryItem {
 }
 
 export default function ForceBalancePage() {
+  const params = useParams();
+  const patientID = params.id;
   const [isLive, setIsLive] = useState(false);
   const [currentForce, setCurrentForce] = useState({ left: 0, right: 0 });
   const [history, setHistory] = useState(
@@ -161,15 +163,15 @@ export default function ForceBalancePage() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div>
-          <Link href="/dashboard/doctor" className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm mb-2">
+          <Link href={`/dashboard/doctor/patients/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm mb-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            Quay lại tổng quan
+            Quay lại
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Cân bằng lực tỳ tay</h1>
           <p className="text-[#0c4a6e]/70 mt-0.5 text-sm font-medium italic">Theo dõi sự phân bố trọng lượng lên hai tay cầm của xe tập đi.</p>
         </div>
         <button onClick={() => setIsLive(!isLive)} className={`px-5 py-2.5 text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'}`}>
-          {isLive ? '🔴 Dừng lấy dữ liệu' : '▶️ Bắt đầu Live Data'}
+          {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
         </button>
       </div>
 

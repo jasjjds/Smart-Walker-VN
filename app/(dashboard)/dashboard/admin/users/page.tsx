@@ -1,8 +1,18 @@
-"use client"; // Chú ý: Bắt buộc phải có dòng này vì chúng ta dùng useState
+"use client";
 
 import React, { useState } from 'react';
+import CustomDataTable, { ColumnDefinition } from '@/components/custom/custom_data_table'; // Nhớ trỏ đúng đường dẫn thư mục
 
-const mockUsers = [
+// Định nghĩa khuân mẫu của User
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+const mockUsers: User[] = [
   { id: 1, name: "Nguyễn Văn A", email: "nguyenvana@gmail.com", role: "Quản trị viên", status: "Active" },
   { id: 2, name: "Trần Thị B", email: "tranthib@gmail.com", role: "Bác sĩ", status: "Inactive" },
   { id: 3, name: "Lê Văn C", email: "levanc@gmail.com", role: "Kỹ thuật viên", status: "Busy" },
@@ -11,19 +21,68 @@ const mockUsers = [
 ];
 
 export default function UserManagementPage() {
-  // State quản lý việc đóng/mở Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Hàm xử lý khi bấm nút "Sửa" trong bảng
+  const handleEditUser = (user: User) => {
+    console.log("Sửa user:", user.name);
+    // TODO: Bật Modal chỉnh sửa ở đây
+  };
+
+  // Khai báo luật vẽ cột cho DataTable
+  const userColumns: ColumnDefinition<User>[] = [
+    {
+      header: 'Tên người dùng',
+      accessorKey: 'name',
+      cell: (user) => (
+        <div className="flex items-center gap-3 font-semibold">
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0c4a6e] shadow-sm border border-[#bae6fd] shrink-0">
+            {user.name.charAt(0)}
+          </div>
+          {user.name}
+        </div>
+      )
+    },
+    { header: 'Email', accessorKey: 'email' },
+    { header: 'Vai trò', accessorKey: 'role' },
+    {
+      header: 'Trạng thái',
+      accessorKey: 'status',
+      cell: (user) => (
+        <div className="flex items-center gap-2 font-semibold">
+          <span className={`w-2.5 h-2.5 rounded-full ${user.status === 'Active' ? 'bg-green-500' :
+            user.status === 'Inactive' ? 'bg-gray-400' : 'bg-red-500'
+            }`}></span>
+          {user.status}
+        </div>
+      )
+    },
+    // TỰ ĐỊNH NGHĨA CỘT THAO TÁC Ở ĐÂY
+    {
+      header: 'Thao tác',
+      // Không cần accessorKey vì không gọi dữ liệu text
+      cell: (user) => (
+        <button
+          onClick={() => handleEditUser(user)}
+          className="p-1.5 hover:bg-[#bae6fd] rounded-lg transition-colors text-[#0c4a6e]"
+          title="Chỉnh sửa"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      )
+    }
+  ];
 
   return (
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative">
 
-      {/* HEADER TRANG */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Quản lý người dùng
         </h1>
 
-        {/* Nút kích hoạt Modal */}
         <button
           onClick={() => setIsAddModalOpen(true)}
           className="flex items-center gap-2 px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold rounded-lg transition-colors duration-200 shadow-sm"
@@ -35,60 +94,11 @@ export default function UserManagementPage() {
         </button>
       </div>
 
-      {/* BẢNG DỮ LIỆU */}
-      <div className="bg-[#e0f2fe] rounded-2xl shadow-sm border border-[#bae6fd] flex flex-col flex-1 overflow-hidden">
-        {/* Tiêu đề & Search */}
-        <div className="px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#0c4a6e]/10">
-          <h2 className="text-xl md:text-2xl font-bold">Danh sách người dùng</h2>
-          <div className="relative w-full md:w-72">
-            <input type="text" placeholder="Tìm kiếm..." className="w-full pl-10 pr-4 py-2 bg-white rounded-full border border-[#bae6fd] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] text-[#0c4a6e] placeholder-[#0c4a6e]/50 font-medium" />
-            <svg className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0c4a6e]/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Khối Table (Giữ nguyên như cũ) */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
-            <thead>
-              <tr className="bg-[#e0f2fe] text-[#0c4a6e] text-sm md:text-base border-b border-[#0c4a6e]/20">
-                <th className="py-4 px-6 font-bold whitespace-nowrap">Tên người dùng</th>
-                <th className="py-4 px-6 font-bold whitespace-nowrap">Email</th>
-                <th className="py-4 px-6 font-bold whitespace-nowrap">Vai trò</th>
-                <th className="py-4 px-6 font-bold whitespace-nowrap">Trạng thái</th>
-                <th className="py-4 px-6 font-bold whitespace-nowrap text-center">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockUsers.map((user) => (
-                <tr key={user.id} className="border-b border-[#f0f9ff]/50 hover:bg-[#bae6fd]/30 transition-colors">
-                  <td className="py-4 px-6 font-semibold flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0c4a6e] shadow-sm border border-[#bae6fd]">
-                      {/* Avatar Placeholder: Lấy chữ cái đầu */}
-                      {user.name.charAt(0)}
-                    </div>
-                    {user.name}
-                  </td>
-                  <td className="py-4 px-6 font-medium text-[#0c4a6e]/80">{user.email}</td>
-                  <td className="py-4 px-6 font-medium">{user.role}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 font-semibold">
-                      <span className={`w-2.5 h-2.5 rounded-full ${user.status === 'Active' ? 'bg-green-500' : user.status === 'Inactive' ? 'bg-gray-400' : 'bg-red-500'}`}></span>
-                      {user.status}
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-center">
-                    <button className="p-1.5 hover:bg-[#bae6fd] rounded-lg transition-colors text-[#0c4a6e]">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Tích hợp Component Bảng (Đã xóa thuộc tính onEdit) */}
+      <CustomDataTable
+        columns={userColumns}
+        data={mockUsers}
+      />
 
       {/* =========================================
           MODAL THÊM NGƯỜI DÙNG (POPUP)
