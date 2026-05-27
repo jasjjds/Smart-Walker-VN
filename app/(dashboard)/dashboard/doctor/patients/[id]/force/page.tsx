@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+// SỬ DỤNG useSearchParams THAY VÌ useParams
 import { useParams } from 'next/navigation';
+
 const MAX_FORCE_KG = 15;
 const HISTORY_LENGTH = 40;
-
-const DEVICE_ID = '14:33:5C:02:39:98';
 const API_URL = 'https://breeze-fencing-elaborate.ngrok-free.dev';
 
 interface ForceHistoryItem {
@@ -17,8 +17,10 @@ interface ForceHistoryItem {
 }
 
 export default function ForceBalancePage() {
+  // 1. Bắt patient_id từ URL (VD: .../force?patient_id=1)
   const params = useParams();
   const patientID = params.id;
+
   const [isLive, setIsLive] = useState(false);
   const [currentForce, setCurrentForce] = useState({ left: 0, right: 0 });
   const [history, setHistory] = useState(
@@ -30,7 +32,6 @@ export default function ForceBalancePage() {
   const [endDate, setEndDate] = useState('');
   const [forceHistory, setForceHistory] = useState<ForceHistoryItem[]>([]);
 
-  // ---- STATE CHO KÉO THẢ RESIZE GIAO DIỆN ----
   const [leftWidth, setLeftWidth] = useState(30);
   const [topHeight, setTopHeight] = useState(50);
 
@@ -38,13 +39,19 @@ export default function ForceBalancePage() {
   const rightPanelRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Hook Lấy dữ liệu Real-time (Băng chuyền thức thời)
+  // ---------------------------------------------------------------------------
+  // 2. GỌI API REAL-TIME BẰNG PATIENT_ID
+  // ---------------------------------------------------------------------------
   useEffect(() => {
+    // Nếu không có patientID thì không gọi API để tránh lỗi
+    if (!patientID) return;
+
     if (isLive) {
       const fetchForceData = async () => {
         try {
           const response = await axios.get(`${API_URL}/api/analytics/force`, {
-            params: { device_id: DEVICE_ID, limit: HISTORY_LENGTH },
+            // Thay đổi device_id thành patient_id
+            params: { patient_id: patientID, limit: HISTORY_LENGTH },
             headers: { 'ngrok-skip-browser-warning': 'true', 'Accept': 'application/json' }
           });
 
@@ -67,17 +74,20 @@ export default function ForceBalancePage() {
       if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isLive]);
+  }, [isLive, patientID]); // Thêm patientID vào mảng phụ thuộc
 
-  // ---- HÀM DÙNG CHUNG ĐỂ GỌI API LỊCH SỬ THỐNG KÊ ----
+  // ---------------------------------------------------------------------------
+  // 3. GỌI API LỊCH SỬ BẰNG PATIENT_ID
+  // ---------------------------------------------------------------------------
   const loadHistoryData = async (type: string, start?: string, end?: string) => {
+    if (!patientID) return;
+
     try {
       const params: any = {
-        device_id: DEVICE_ID,
+        patient_id: patientID, // Đổi từ device_id sang patient_id
         interval: type
       };
 
-      // Nếu chọn khoảng thời gian tùy chỉnh, đính kèm thêm 2 mốc ngày
       if (type === 'custom' && start && end) {
         params.start_date = start;
         params.end_date = end;
@@ -97,13 +107,11 @@ export default function ForceBalancePage() {
     }
   };
 
-  // Tự động kích hoạt gọi API khi người dùng đổi Phút / Giờ / Ngày / Tháng
   useEffect(() => {
-    if (intervalType === 'custom') return; // Riêng bộ lọc tự chọn thì đợi bấm nút Áp dụng
+    if (intervalType === 'custom') return;
     loadHistoryData(intervalType);
-  }, [intervalType]);
+  }, [intervalType, patientID]);
 
-  // Kích hoạt thủ công khi chọn ngày và nhấn Áp dụng
   const handleApplyCustomTime = async () => {
     if (!startDate || !endDate) return alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!");
     loadHistoryData('custom', startDate, endDate);
@@ -156,6 +164,15 @@ export default function ForceBalancePage() {
     });
     return points.join(' ');
   };
+
+  // 4. KIỂM TRA NẾU THIẾU ID TRÊN URL
+  if (!patientID) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-slate-500">
+        <p>⚠️ Không tìm thấy ID Bệnh nhân. Vui lòng truy cập lại từ danh sách.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden bg-slate-50 p-2 md:p-4 rounded-xl">

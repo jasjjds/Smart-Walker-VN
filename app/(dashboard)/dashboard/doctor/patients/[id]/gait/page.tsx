@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import axios from 'axios'; // <== Chuyển sang dùng axios trực tiếp để đồng bộ bộ lọc nâng cao
+import axios from 'axios';
+// SỬ DỤNG useSearchParams THAY VÌ useParams
 import { useParams } from 'next/navigation';
-const DEVICE_ID = '14:33:5C:02:39:98';
+
+// ĐÃ XÓA DEVICE_ID CỨNG
 const API_URL = 'https://breeze-fencing-elaborate.ngrok-free.dev';
 
 interface ProcessedData {
@@ -15,9 +17,10 @@ interface ProcessedData {
 }
 
 export default function DistanceAnalyticsPage() {
+  // 1. Bắt patient_id từ Query String (VD: .../distance?patient_id=1)
   const params = useParams();
   const patientID = params.id;
-  // Mở rộng bộ lọc bao gồm cả Tháng và Tự chọn giống API Backend mới
+
   const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day' | 'month' | 'custom'>('day');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -25,16 +28,17 @@ export default function DistanceAnalyticsPage() {
   const [data, setData] = useState<ProcessedData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hàm gọi API dùng chung
+  // 2. Hàm gọi API dùng chung bằng patient_id
   const loadData = async (type: string, start?: string, end?: string) => {
+    if (!patientID) return; // Nếu không có ID thì dừng luôn
+
     setIsLoading(true);
     try {
       const params: any = {
-        device_id: DEVICE_ID,
+        patient_id: patientID, // Truyền patient_id thay cho device_id
         interval: type
       };
 
-      // Nếu là bộ lọc tự chọn, đính kèm ngày bắt đầu và kết thúc
       if (type === 'custom' && start && end) {
         params.start_date = start;
         params.end_date = end;
@@ -43,7 +47,7 @@ export default function DistanceAnalyticsPage() {
       const response = await axios.get(`${API_URL}/api/analytics/distance`, {
         params,
         headers: {
-          'ngrok-skip-browser-warning': 'true', // Bùa vượt tường Ngrok
+          'ngrok-skip-browser-warning': 'true',
           'Accept': 'application/json'
         }
       });
@@ -55,11 +59,10 @@ export default function DistanceAnalyticsPage() {
         return;
       }
 
-      // SỬA LỖI NaN/NaN: Lấy trực tiếp chuỗi đẹp từ Backend làm nhãn trục X
       const formattedData = result.map((item: any) => {
         return {
           date_bucket: item.date_bucket,
-          label: item.date_bucket, // <== Sử dụng luôn chuỗi "13/05", "14:00" từ BE trả về
+          label: item.date_bucket,
           subLabel: (type === 'minute' || type === 'hour') ? 'Hôm nay' : '',
           total_distance: Number(item.total_distance)
         };
@@ -74,13 +77,11 @@ export default function DistanceAnalyticsPage() {
     }
   };
 
-  // Tự động gọi API khi chuyển đổi giữa Phút, Giờ, Ngày, Tháng
   useEffect(() => {
-    if (intervalType === 'custom') return; // Riêng tự chọn thì đợi bấm nút Áp dụng
+    if (intervalType === 'custom') return;
     loadData(intervalType);
-  }, [intervalType]);
+  }, [intervalType, patientID]); // Thêm patientID vào dependency
 
-  // Kích hoạt khi bấm nút "Áp dụng bộ lọc" ngày tùy chỉnh
   const handleApplyCustomTime = () => {
     if (!startDate || !endDate) {
       alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!");
@@ -89,6 +90,15 @@ export default function DistanceAnalyticsPage() {
     loadData('custom', startDate, endDate);
   };
 
+  // 3. KIỂM TRA NẾU THIẾU ID TRÊN URL
+  if (!patientID) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-slate-500">
+        <p>⚠️ Không tìm thấy ID Bệnh nhân. Vui lòng truy cập lại từ danh sách.</p>
+      </div>
+    );
+  }
+
   const maxDistance = data.length > 0 ? Math.max(...data.map(d => d.total_distance)) : 1;
   const totalDistance = data.reduce((sum, item) => sum + item.total_distance, 0);
   const avgDistance = data.length > 0 ? (totalDistance / data.length).toFixed(2) : "0.00";
@@ -96,8 +106,8 @@ export default function DistanceAnalyticsPage() {
   return (
     <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] overflow-hidden bg-slate-50 p-2 md:p-4 rounded-xl">
 
-      {/* 0. NÚT QUAY LẠI */}
-      <Link href={`/dashboard/doctor/patiens/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
+      {/* 0. NÚT QUAY LẠI (Đã sửa lỗi chính tả từ patiens thành patients) */}
+      <Link href={`/dashboard/doctor/patients/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
