@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 import { analyticsService } from '@/services/analyticsService';
 
 const MAX_FORCE_KG = 15;
@@ -16,7 +17,13 @@ interface ForceHistoryItem {
 
 export function ForceBalanceView() {
   const params = useParams();
-  const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || '');
+  const pathname = usePathname();
+  const { user } = useAuth();
+  
+  // Lấy patientID từ URL nếu là bác sĩ, hoặc từ chính user nếu là bệnh nhân
+  const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || user?.patient_id || '');
+  const isPatientView = pathname.includes('/dashboard/patient/metrics');
+  const backLink = isPatientView ? '/dashboard/patient/metrics' : `/dashboard/doctor/patients/${patientID}`;
 
   const [isLive, setIsLive] = useState(false);
   const [currentForce, setCurrentForce] = useState({ left: 0, right: 0 });
@@ -176,11 +183,10 @@ export function ForceBalanceView() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <Link href={`/dashboard/doctor/patients/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm mb-2">
+          <Link href={backLink} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm mb-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Quay lại
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Cân bằng lực tỳ tay</h1>
           <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">Theo dõi sự phân bố trọng lượng lên hai tay cầm của xe tập đi.</p>
         </div>
         <button onClick={() => setIsLive(!isLive)} className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'}`}>

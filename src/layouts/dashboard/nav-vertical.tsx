@@ -1,24 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { menuGroups, SmartWalkerLogo } from "./config-navigation";
+import { menuGroups } from "./config-navigation";
+import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth-context";
 
 interface NavVerticalProps {
   pathname: string;
   openGroups: Record<string, boolean>;
   toggleGroup: (id: string) => void;
+  width: number;
 }
 
-export function NavVertical({ pathname, openGroups, toggleGroup }: NavVerticalProps) {
-  const { logout } = useAuth();
+export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVerticalProps) {
+  const { logout, user } = useAuth();
+
+  const filteredMenuGroups = menuGroups
+    .filter((group) => {
+      if (group.allowedRoles && (!user || !group.allowedRoles.includes(user.role_id))) {
+        return false;
+      }
+      const visibleItems = group.items.filter((item) => {
+        if (item.allowedRoles && (!user || !item.allowedRoles.includes(user.role_id))) {
+          return false;
+        }
+        return true;
+      });
+      return visibleItems.length > 0;
+    })
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (item.allowedRoles && (!user || !item.allowedRoles.includes(user.role_id))) {
+          return false;
+        }
+        return true;
+      }),
+    }));
+
   return (
-    <aside className="w-[280px] h-full bg-[#0c4a6e] flex flex-col shadow-2xl relative z-20 transition-all duration-300">
+    <aside style={{ width: `${width}px` }} className="h-full bg-[#0c4a6e] flex flex-col shadow-2xl relative z-20 overflow-hidden">
       
       {/* Khu vực Logo */}
       <div className="h-24 w-full flex items-center px-6 border-b border-white/10 mt-2 shrink-0">
         <div className="w-12 h-12 rounded-xl bg-white/5 p-1.5 shadow-inner mr-4 flex-shrink-0">
-          <SmartWalkerLogo />
+          <Logo />
         </div>
         <div className="flex flex-col">
           <span className="text-[#0ea5e9] font-bold text-lg leading-tight uppercase tracking-wide">Smart Walker</span>
@@ -28,7 +54,7 @@ export function NavVertical({ pathname, openGroups, toggleGroup }: NavVerticalPr
 
       {/* Danh sách Menu (Gập Mở Accordion) */}
       <nav className="flex-1 overflow-y-auto py-4 flex flex-col custom-scrollbar">
-        {menuGroups.map((group, groupIndex) => {
+        {filteredMenuGroups.map((group, groupIndex) => {
           const isOpen = openGroups[group.id];
 
           return (
@@ -82,7 +108,7 @@ export function NavVertical({ pathname, openGroups, toggleGroup }: NavVerticalPr
               </div>
 
               {/* Dấu gạch ngang mờ */}
-              {groupIndex < menuGroups.length - 1 && (
+              {groupIndex < filteredMenuGroups.length - 1 && (
                 <div className="mx-6 border-b border-white/5 my-2"></div>
               )}
 

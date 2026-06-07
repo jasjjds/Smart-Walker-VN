@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 import { analyticsService } from '@/services/analyticsService';
 
 interface ProcessedData {
@@ -14,7 +15,13 @@ interface ProcessedData {
 
 export function GaitAnalysisView() {
   const params = useParams();
-  const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || '');
+  const pathname = usePathname();
+  const { user } = useAuth();
+  
+  // Lấy patientID từ URL nếu là bác sĩ, hoặc từ chính user nếu là bệnh nhân
+  const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || user?.patient_id || '');
+  const isPatientView = pathname.includes('/dashboard/patient/metrics');
+  const backLink = isPatientView ? '/dashboard/patient/metrics' : `/dashboard/doctor/patients/${patientID}`;
 
   const [intervalType, setIntervalType] = useState<'minute' | 'hour' | 'day' | 'month' | 'custom'>('day');
   const [startDate, setStartDate] = useState('');
@@ -93,7 +100,7 @@ export function GaitAnalysisView() {
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl bg-slate-50">
 
       {/* 0. NÚT QUAY LẠI */}
-      <Link href={`/dashboard/doctor/patients/${patientID}`} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
+      <Link href={backLink} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -103,7 +110,6 @@ export function GaitAnalysisView() {
       {/* 1. HEADER & BỘ LỌC CHU KỲ */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Thống kê Quãng đường (Chu kỳ dáng đi)</h1>
           <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">Theo dõi mức độ vận động của bệnh nhân qua các mốc thời gian.</p>
         </div>
 

@@ -11,6 +11,9 @@ export interface User {
   role_name?: string;
   patient_id?: number | null;
   full_name?: string;
+  phone_number?: string | null;
+  gender?: string | null;
+  date_of_birth?: string | null;
 }
 
 interface AuthContextType {
@@ -21,6 +24,8 @@ interface AuthContextType {
   register: (email: string, password: string, confirmPassword: string) => Promise<any>;
   loginWithGoogle: (idToken: string) => Promise<any>;
   logout: () => Promise<void>;
+  updateProfile: (data: any) => Promise<any>;
+  changePassword: (data: any) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -150,8 +155,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: any) => {
+    try {
+      const res = await authService.updateProfile(data) as any;
+      if (res.success && res.user) {
+        const updatedUser = { ...user, ...res.user };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const changePassword = async (data: any) => {
+    try {
+      const res = await authService.changePassword(data) as any;
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Ping mechanism for online status tracking
+  useEffect(() => {
+    if (!user || !accessToken) return;
+
+    const performPing = async () => {
+      try {
+        await authService.ping();
+      } catch (error) {
+        console.warn("Lỗi ping trạng thái trực tuyến:", error);
+      }
+    };
+
+    // Initial ping on session load
+    performPing();
+
+    // Ping every 3 minutes
+    const interval = setInterval(performPing, 3 * 60 * 1000);
+
+    // Ping immediately when user switches back to this tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        performPing();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [user?.id, accessToken]);
+
   return (
-    <AuthContext.Provider value={{ user, accessToken, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, loading, login, register, loginWithGoogle, logout, updateProfile, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

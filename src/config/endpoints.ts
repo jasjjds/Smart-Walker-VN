@@ -6,6 +6,8 @@ export const ENDPOINTS = {
     REFRESH: '/v1/auth/refresh',
     LOGOUT: '/v1/auth/logout',
     UPDATE_PROFILE: '/v1/auth/update-profile',
+    CHANGE_PASSWORD: '/v1/auth/change-password',
+    PING: '/v1/auth/ping',
   },
   PATIENTS: {
     BASE: '/v1/patients',
@@ -25,6 +27,14 @@ export const ENDPOINTS = {
   },
   USERS: {
     BASE: '/v1/users',
+    DETAIL: (id: string | number) => `/v1/users/${id}`,
     ROLE: (id: string | number) => `/v1/users/${id}/role`,
+  },
+  ROLES: {
+    BASE: '/v1/roles',
+    DETAIL: (id: string | number) => `/v1/roles/${id}`,
+  },
+  PERMISSIONS: {
+    BASE: '/v1/permissions',
   }
 } as const;

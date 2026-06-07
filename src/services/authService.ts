@@ -24,5 +24,13 @@ export const authService = {
 
   updateProfile: (data: any) => {
     return axiosClient.patch(ENDPOINTS.AUTH.UPDATE_PROFILE, data);
+  },
+
+  changePassword: (data: any) => {
+    return axiosClient.patch(ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
+  },
+
+  ping: () => {
+    return axiosClient.post(ENDPOINTS.AUTH.PING);
   }
 };

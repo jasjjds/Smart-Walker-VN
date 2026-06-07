@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { menuGroups, SmartWalkerLogo } from "./config-navigation";
+import { menuGroups } from "./config-navigation";
+import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth-context";
 
 interface NavMobileProps {
@@ -14,7 +15,31 @@ interface NavMobileProps {
 }
 
 export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }: NavMobileProps) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  
+  const filteredMenuGroups = menuGroups
+    .filter((group) => {
+      if (group.allowedRoles && (!user || !group.allowedRoles.includes(user.role_id))) {
+        return false;
+      }
+      const visibleItems = group.items.filter((item) => {
+        if (item.allowedRoles && (!user || !item.allowedRoles.includes(user.role_id))) {
+          return false;
+        }
+        return true;
+      });
+      return visibleItems.length > 0;
+    })
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (item.allowedRoles && (!user || !item.allowedRoles.includes(user.role_id))) {
+          return false;
+        }
+        return true;
+      }),
+    }));
+
   // Tự động đóng drawer khi chuyển route
   useEffect(() => {
     if (isOpen) {
@@ -38,7 +63,7 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
         <div className="h-24 w-full flex items-center justify-between px-6 border-b border-white/10 mt-2 shrink-0">
           <div className="flex items-center">
             <div className="w-12 h-12 rounded-xl bg-white/5 p-1.5 shadow-inner mr-4 flex-shrink-0">
-              <SmartWalkerLogo />
+              <Logo />
             </div>
             <div className="flex flex-col">
               <span className="text-[#0ea5e9] font-bold text-lg leading-tight uppercase tracking-wide">Smart Walker</span>
@@ -55,7 +80,7 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
 
         {/* Danh sách Menu */}
         <nav className="flex-1 overflow-y-auto py-4 flex flex-col custom-scrollbar">
-          {menuGroups.map((group, groupIndex) => {
+          {filteredMenuGroups.map((group, groupIndex) => {
             const groupOpen = openGroups[group.id];
 
             return (
@@ -108,7 +133,7 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
                   })}
                 </div>
 
-                {groupIndex < menuGroups.length - 1 && (
+                {groupIndex < filteredMenuGroups.length - 1 && (
                   <div className="mx-6 border-b border-white/5 my-2"></div>
                 )}
               </div>

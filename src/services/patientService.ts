@@ -2,8 +2,8 @@ import axiosClient from '@/lib/axios';
 import { ENDPOINTS } from '@/config/endpoints';
 
 export const patientService = {
-  getPatients: () => {
-    return axiosClient.get(ENDPOINTS.PATIENTS.BASE);
+  getPatients: (params?: any) => {
+    return axiosClient.get(ENDPOINTS.PATIENTS.BASE, { params });
   },
 
   createPatient: (data: any) => {

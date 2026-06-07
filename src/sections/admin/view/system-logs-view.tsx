@@ -29,8 +29,7 @@ export function SystemLogsView() {
           ========================================= */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0c4a6e]">Nhật ký hệ thống</h1>
-          <p className="text-[#0c4a6e]/70 mt-1 text-xs sm:text-sm font-medium">Theo dõi và phân tích các hoạt động của hệ thống theo thời gian thực.</p>
+          <p className="text-[#0c4a6e]/70 mt-1 text-xs sm:text-sm font-medium">Theo dõi hoạt động và lịch sử truy cập trên hệ thống Smart Walker.</p>
         </div>
 
         <div className="flex gap-3 w-full sm:w-auto">

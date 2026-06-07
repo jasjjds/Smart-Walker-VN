@@ -100,6 +100,13 @@ export function AuthView() {
       return;
     }
 
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(loginEmail)) {
+      setError("Định dạng email không hợp lệ (ví dụ: name@domain.com)!");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
     try {
@@ -116,6 +123,13 @@ export function AuthView() {
     e.preventDefault();
     if (!registerEmail || !registerPassword || !registerConfirmPassword) {
       setError("Vui lòng điền đầy đủ các thông tin!");
+      return;
+    }
+
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerEmail)) {
+      setError("Định dạng email không hợp lệ (ví dụ: name@domain.com)!");
       return;
     }
 

@@ -3,14 +3,14 @@
 import Link from "next/link";
 
 const clinicalMetrics = [
-  {
+  /* {
     title: "Phân tích Trọng tâm",
     description: "Theo dõi độ lệch tư thế và khả năng giữ thăng bằng.",
     path: "/dashboard/doctor/cog",
     icon: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-2a8 8 0 100-16 8 8 0 000 16z M12 8v8m-4-4h8",
     status: "Bình thường",
     color: "text-green-500"
-  },
+  }, */
   {
     title: "Cân bằng lực tỳ tay",
     description: "Đo lường sự bất đối xứng giữa tay trái và tay phải.",
@@ -20,21 +20,21 @@ const clinicalMetrics = [
     color: "text-orange-500"
   },
   {
-    title: "Chu kỳ dáng đi",
-    description: "Phân tích nhịp điệu và tốc độ bước chân của bệnh nhân.",
+    title: "Quãng đường di chuyển",
+    description: "Tổng quãng đường di chuyển của bệnh nhân.",
     path: "/dashboard/doctor/gait",
     icon: "M13 10V3L4 14h7v7l9-11h-7z",
     status: "Đều đặn",
     color: "text-green-500"
   },
-  {
+  /* {
     title: "Chỉ số nguy cơ té ngã",
     description: "Cảnh báo sớm dựa trên độ ổn định của dữ liệu cảm biến.",
     path: "/dashboard/doctor/risk",
     icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
     status: "Nguy cơ thấp",
     color: "text-blue-500"
-  }
+  } */
 ];
 
 export function DoctorOverviewView() {

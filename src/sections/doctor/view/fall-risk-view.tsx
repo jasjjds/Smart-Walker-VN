@@ -96,7 +96,6 @@ export function FallRiskView() {
       {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Chỉ số Nguy cơ Té ngã</h1>
           <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">
             Thuật toán tổng hợp đánh giá độ ổn định toàn diện của bệnh nhân.
           </p>

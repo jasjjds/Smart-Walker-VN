@@ -11,12 +11,25 @@ export interface ColumnDefinition<T> {
 interface DataTableProps<T> {
   columns: ColumnDefinition<T>[];
   data: T[];
+  onRefresh?: () => void;
+  refreshInterval?: number; // milliseconds
 }
 
 export default function CustomDataTable<T extends { id: string | number }>({
   columns,
-  data
+  data,
+  onRefresh,
+  refreshInterval
 }: DataTableProps<T>) {
+
+  React.useEffect(() => {
+    if (onRefresh && refreshInterval && refreshInterval > 0) {
+      const interval = setInterval(() => {
+        onRefresh();
+      }, refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [onRefresh, refreshInterval]);
 
   return (
     <div className="bg-[#e0f2fe] rounded-2xl shadow-sm border border-[#bae6fd] flex flex-col flex-1 overflow-hidden">

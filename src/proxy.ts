@@ -9,6 +9,14 @@ export function proxy(request: NextRequest) {
   const isAuthRoute = path.startsWith('/auth');
   const isDashboardRoute = path.startsWith('/dashboard');
 
+  // Special handling for change password page
+  if (path === '/auth/change-password') {
+    if (!token) {
+      return NextResponse.redirect(new URL('/auth', request.url));
+    }
+    return NextResponse.next();
+  }
+
   // 1. Nếu chưa đăng nhập mà truy cập dashboard -> chuyển hướng về /auth
   if (isDashboardRoute && !token) {
     return NextResponse.redirect(new URL('/auth', request.url));
@@ -29,6 +37,7 @@ export function proxy(request: NextRequest) {
   if (isDashboardRoute && token) {
     const isDoctorRoute = path.startsWith('/dashboard/doctor');
     const isAdminRoute = path.startsWith('/dashboard/admin');
+    const isPatientRoute = path.startsWith('/dashboard/patient');
 
     if (isDoctorRoute && role !== 'DOCTOR' && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
@@ -37,11 +46,15 @@ export function proxy(request: NextRequest) {
     if (isAdminRoute && role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
+
+    if (isPatientRoute && role !== 'PATIENT' && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth'],
+  matcher: ['/dashboard/:path*', '/auth/:path*'],
 };

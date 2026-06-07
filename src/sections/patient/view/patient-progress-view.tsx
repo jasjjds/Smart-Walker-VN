@@ -35,10 +35,9 @@ export function PatientProgressView() {
       </Link>
 
       {/* 1. HEADER */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Lộ trình tập luyện</h1>
-          <p className="text-[#0c4a6e]/70 text-xs sm:text-sm font-medium italic">Tuần 4: Giai đoạn tăng cường thăng bằng</p>
+          <p className="text-[#0c4a6e]/70 mt-0.5 text-sm font-medium">Theo dõi lịch sử tập luyện và tiến độ phục hồi của bạn.</p>
         </div>
         <div className="bg-white px-4 py-2 rounded-xl border border-[#bae6fd] shadow-sm text-sm">
           <span className="text-xs font-bold text-gray-400 uppercase">Tiến độ tuần:</span>

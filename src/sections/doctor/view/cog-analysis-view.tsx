@@ -57,10 +57,7 @@ export function CoGAnalysisView() {
       {/* 1. HEADER & ACTIONS */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Phân tích Trọng tâm (CoG)</h1>
-          <p className="text-[#0c4a6e]/70 mt-1 text-sm font-medium italic">
-            Mô phỏng sự dịch chuyển trọng tâm của bệnh nhân trong không gian 2D.
-          </p>
+          <p className="text-[#0c4a6e]/70 mt-1 text-xs sm:text-sm font-medium">Theo dõi độ lệch tư thế và khả năng giữ thăng bằng qua tâm áp lực (CoP).</p>
         </div>
         <button
           onClick={simulateMovement}
