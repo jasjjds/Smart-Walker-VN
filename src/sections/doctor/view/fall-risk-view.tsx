@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { BackButton } from '@/components/custom/back-button';
 
 const RADIUS = 100;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -82,16 +83,7 @@ export function FallRiskView() {
   return (
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
 
-      {/* 0. NÚT QUAY LẠI */}
-      <Link
-        href={`/dashboard/doctor/patients/${patientID}`}
-        className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Quay lại tổng quan
-      </Link>
+      <BackButton href={`/dashboard/doctor/patients/${patientID}`} />
 
       {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">

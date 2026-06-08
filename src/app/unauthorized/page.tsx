@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { BackButton } from '@/components/custom/back-button';
 
 export default function UnauthorizedPage() {
   const router = useRouter();
@@ -17,19 +18,10 @@ export default function UnauthorizedPage() {
       <h1 className="text-4xl font-bold mb-2">Truy cập bị từ chối</h1>
       <p className="text-lg opacity-80 mb-8">Bạn không có quyền truy cập vào khu vực này của hệ thống.</p>
 
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-3 bg-white text-[#0ea5e9] border border-[#0ea5e9] font-semibold rounded-lg hover:bg-[#f0f9ff] transition-colors"
-        >
-          Quay lại trang trước
-        </button>
-        <Link
-          href="/dashboard"
-          className="px-6 py-3 bg-[#0ea5e9] text-white font-semibold rounded-lg hover:bg-[#0c4a6e] transition-colors"
-        >
-          Quay lại Trang chủ
-        </Link>
+      <div className="flex items-center gap-6">
+        <BackButton onClick={() => router.back()} />
+        <span className="text-slate-300">|</span>
+        <BackButton href="/dashboard" />
       </div>
     </div>
   );

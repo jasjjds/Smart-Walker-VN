@@ -1,21 +1,118 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { patientService } from '@/services/patientService';
+import { useAuth } from '@/lib/auth-context';
 
 export function PatientOverviewView() {
+  const { user } = useAuth();
+  
   // Trạng thái mở/đóng toàn bộ Chatbox
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Trạng thái xem đang chat với ai (null = đang ở Danh sách liên hệ)
   const [activeChat, setActiveChat] = useState<string | null>(null);
 
-  const patientStats = {
-    name: "Nguyễn Văn A",
-    streak: 5,
-    totalWorkouts: 24,
-    avgStability: 85,
-    nextSession: "15:00 - Chiều nay"
+  // Sổ sức khỏe & Trạng thái tải
+  const [booklet, setBooklet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Modal xem chi tiết trang sổ / phiên tập
+  const [selectedPageId, setSelectedPageId] = useState<number | null>(null);
+  const [selectedPage, setSelectedPage] = useState<any>(null);
+  const [loadingPage, setLoadingPage] = useState(false);
+
+  const leftForce = selectedPage?.avg_force_left ?? 0;
+  const rightForce = selectedPage?.avg_force_right ?? 0;
+  const totalForce = leftForce + rightForce;
+  const totalDistance = selectedPage?.total_distance ?? 0;
+  const durationSeconds = selectedPage?.duration_seconds ?? 0;
+
+  // Tải dữ liệu Sổ y bạ của bệnh nhân
+  useEffect(() => {
+    const fetchBooklet = async () => {
+      try {
+        setLoading(true);
+        const response = await patientService.getBooklet() as any;
+        if (response.success && response.data) {
+          setBooklet(response.data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải sổ sức khỏe:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooklet();
+  }, []);
+
+  // Mở modal chi tiết trang sổ
+  const handleOpenPageDetail = async (pageId: number) => {
+    setSelectedPageId(pageId);
+    setLoadingPage(true);
+    try {
+      const response = await patientService.getBookletPage(pageId) as any;
+      if (response.success && response.data) {
+        setSelectedPage(response.data);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải chi tiết phiên tập:", err);
+    } finally {
+      setLoadingPage(false);
+    }
+  };
+
+  const handleClosePageDetail = () => {
+    setSelectedPageId(null);
+    setSelectedPage(null);
+  };
+
+  // Tính toán chỉ số tổng quan từ các trang sổ
+  const pages = booklet?.pages || [];
+  const totalWorkouts = pages.length;
+
+  // Tính quãng đường trung bình và độ ổn định trung bình
+  const calculatedStats = (() => {
+    if (pages.length === 0) {
+      return { streak: 0, totalWorkouts: 0, avgStability: 100, totalDistance: 0 };
+    }
+
+    let totalStability = 0;
+    let validStabilityCount = 0;
+    let totalDist = 0;
+
+    pages.forEach((p: any) => {
+      totalDist += p.total_distance || 0;
+      const left = p.avg_force_left || 0;
+      const right = p.avg_force_right || 0;
+      const totalForce = left + right;
+
+      if (totalForce > 0) {
+        // Độ ổn định tỉ lệ nghịch với độ lệch giữa hai bên
+        const diff = Math.abs(left - right);
+        const stability = Math.round(100 - (diff / totalForce) * 100);
+        totalStability += stability;
+        validStabilityCount++;
+      }
+    });
+
+    return {
+      streak: 5, // streak giả lập
+      totalWorkouts: pages.length,
+      avgStability: validStabilityCount > 0 ? Math.round(totalStability / validStabilityCount) : 100,
+      totalDistance: Math.round(totalDist * 10) / 10
+    };
+  })();
+
+  const formatDuration = (totalSeconds: number | null) => {
+    if (!totalSeconds) return "0 giây";
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    if (mins > 0) {
+      return `${mins} phút ${secs > 0 ? `${secs} giây` : ""}`;
+    }
+    return `${secs} giây`;
   };
 
   // Danh sách liên hệ giả lập
@@ -37,16 +134,44 @@ export function PatientOverviewView() {
     setIsChatOpen(false);
   };
 
+  // Tính toán biểu đồ SVG nếu có chi tiết trang sổ
+  const getSvgPoints = (key: 'force_left' | 'force_right') => {
+    if (!selectedPage || !selectedPage.sensor_data || selectedPage.sensor_data.length === 0) return "";
+    
+    const data = selectedPage.sensor_data;
+    const maxVal = Math.max(
+      12,
+      ...data.map((d: any) => Math.max(d.force_left || 0, d.force_right || 0))
+    );
+
+    return data.map((d: any, i: number) => {
+      const x = (i / (data.length - 1)) * 400;
+      const val = d[key] || 0;
+      const y = 110 - (val / maxVal) * 90; // chừa khoảng trống trên và dưới
+      return `${x},${y}`;
+    }).join(" ");
+  };
+
   return (
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative pr-0 lg:pr-2">
 
       {/* 1. KHỐI CHÀO MỪNG */}
       <div className="bg-gradient-to-r from-[#0c4a6e] to-[#0ea5e9] rounded-3xl p-6 sm:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6 shrink-0 text-center md:text-left">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Chào buổi sáng, {patientStats.name}! 👋</h1>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">Chào buổi sáng, {user?.full_name || booklet?.patient_info?.full_name || "Bệnh nhân"}! 👋</h1>
           <p className="text-[#f0f9ff]/80 font-medium text-sm sm:text-base">
-            Bạn đã giữ vững phong độ tập luyện <span className="font-bold text-white bg-white/20 px-2 py-0.5 rounded-md">{patientStats.streak} ngày liên tiếp</span>. Hãy tiếp tục phát huy nhé!
+            Bạn đã giữ vững phong độ tập luyện <span className="font-bold text-white bg-white/20 px-2 py-0.5 rounded-md">{calculatedStats.streak} ngày liên tiếp</span>. Hãy tiếp tục phát huy nhé!
           </p>
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-2 text-xs sm:text-sm font-semibold">
+            <span className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1.5">
+              📁 Mã số sổ y tế: <span className="font-mono font-black">{booklet?.booklet_number || "Đang tải..."}</span>
+            </span>
+            {booklet?.patient_info?.identity_card && (
+              <span className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1.5">
+                🪪 CCCD/CMND: <span className="font-mono font-black">{booklet.patient_info.identity_card}</span>
+              </span>
+            )}
+          </div>
         </div>
         <Link href="/dashboard/patient/progress" className="px-6 py-3 sm:px-8 sm:py-3 bg-white text-[#0c4a6e] font-black rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2 shrink-0 text-sm sm:text-base w-full md:w-auto">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -63,7 +188,7 @@ export function PatientOverviewView() {
           <div>
             <h3 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">Độ ổn định trung bình</h3>
             <div className="flex items-end gap-1 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-[#0c4a6e]">{patientStats.avgStability}</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#0c4a6e]">{calculatedStats.avgStability}</span>
               <span className="text-xs sm:text-sm font-bold text-gray-400 pb-0.5">/100</span>
             </div>
           </div>
@@ -76,7 +201,7 @@ export function PatientOverviewView() {
           <div>
             <h3 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">Tổng số buổi đã tập</h3>
             <div className="flex items-end gap-1 mt-1">
-              <span className="text-2xl sm:text-3xl font-black text-[#0c4a6e]">{patientStats.totalWorkouts}</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#0c4a6e]">{calculatedStats.totalWorkouts}</span>
               <span className="text-xs sm:text-sm font-bold text-gray-400 pb-0.5">buổi</span>
             </div>
           </div>
@@ -87,9 +212,10 @@ export function PatientOverviewView() {
             <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <div>
-            <h3 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">Lịch tập sắp tới</h3>
+            <h3 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">Tổng quãng đường</h3>
             <div className="flex items-end gap-1 mt-1">
-              <span className="text-lg sm:text-xl font-black text-[#0c4a6e]">{patientStats.nextSession}</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#0c4a6e]">{calculatedStats.totalDistance}</span>
+              <span className="text-xs sm:text-sm font-bold text-gray-400 pb-0.5">mét</span>
             </div>
           </div>
         </div>
@@ -98,36 +224,226 @@ export function PatientOverviewView() {
       {/* 3. HOẠT ĐỘNG GẦN NHẤT */}
       <div className="flex-1 min-h-0 bg-white rounded-2xl p-5 sm:p-6 border border-[#bae6fd] shadow-sm flex flex-col">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-6 shrink-0">
-          <h3 className="text-lg font-bold">Lịch sử hoạt động gần đây</h3>
+          <h3 className="text-lg font-bold">Sổ y tế điện tử - Lịch sử tập luyện</h3>
           <Link href="/dashboard/patient/progress" className="text-sm font-bold text-[#0ea5e9] hover:underline">Xem lịch tập chi tiết</Link>
         </div>
 
         <div className="flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
-          {[
-            { date: "Hôm qua, 15:30", duration: "15 phút", score: 88, status: "Tốt" },
-            { date: "Thứ Hai, 09:00", duration: "20 phút", score: 82, status: "Tốt" },
-            { date: "Thứ Bảy tuần trước", duration: "10 phút", score: 65, status: "Cần cố gắng" },
-            { date: "Thứ Sáu tuần trước", duration: "20 phút", score: 90, status: "Xuất sắc" },
-          ].map((log, index) => (
-            <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-[#f0f9ff] border border-[#e0f2fe] hover:border-[#bae6fd] transition-colors cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-base sm:text-lg font-black ${log.score >= 80 ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'} shrink-0`}>
-                  {log.score}
-                </div>
-                <div>
-                  <p className="font-bold text-sm sm:text-base text-[#0c4a6e]">{log.date}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Thời gian tập: {log.duration}</p>
-                </div>
-              </div>
-              <div className="text-left sm:text-right pl-15 sm:pl-0">
-                <span className={`text-xs sm:text-sm font-bold px-3 py-1 sm:py-1.5 rounded-full ${log.score >= 80 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}`}>
-                  {log.status}
-                </span>
-              </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2 text-slate-400">
+              <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-xs font-semibold">Đang tải lịch sử từ sổ khám bệnh...</span>
             </div>
-          ))}
+          ) : pages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400 gap-3 border border-dashed border-[#bae6fd] rounded-2xl">
+              <svg className="w-10 h-10 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-sm font-semibold">Chưa ghi nhận phiên tập luyện nào trong Sổ y tế.</p>
+            </div>
+          ) : (
+            pages.map((page: any, index: number) => {
+              const left = page.avg_force_left || 0;
+              const right = page.avg_force_right || 0;
+              const total = left + right;
+              const stability = total > 0 ? Math.round(100 - (Math.abs(left - right) / total) * 100) : 100;
+              
+              const dateStr = new Date(page.start_time).toLocaleString("vi-VN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+              });
+
+              return (
+                <div 
+                  key={page.id} 
+                  onClick={() => handleOpenPageDetail(page.id)}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-[#f0f9ff] border border-[#e0f2fe] hover:border-[#bae6fd] hover:bg-[#bae6fd]/15 transition-all cursor-pointer shadow-xs"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-base sm:text-lg font-black ${stability >= 80 ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'} shrink-0`}>
+                      {stability}
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm sm:text-base text-[#0c4a6e] capitalize">{dateStr}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Thiết bị: <span className="font-mono text-[#0ea5e9]">{page.device_id || "Không gán"}</span> • Thời gian: {formatDuration(page.duration_seconds)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right pl-15 sm:pl-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2">
+                    <span className="text-xs text-slate-400 font-bold">Dự lệch: {Math.abs(left - right).toFixed(1)} kg</span>
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${stability >= 85 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}`}>
+                      {stability >= 85 ? "Ổn định tốt" : "Lệch lực tỳ"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
+
+      {/* DETAILED BOOKLET PAGE MODAL */}
+      {selectedPageId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={handleClosePageDetail}></div>
+          <div className="relative w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 animate-fade-in border border-[#bae6fd]">
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-start shrink-0 border-b border-[#0c4a6e]/10 pb-4">
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-[#0c4a6e]">Chi tiết phiên tập phục hồi</h3>
+                <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider font-mono">
+                  Mã phiên: PAGE-{selectedPageId}
+                </p>
+              </div>
+              <button onClick={handleClosePageDetail} className="text-[#0c4a6e]/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {loadingPage ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
+                <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span className="text-xs font-semibold">Đang truy xuất thông số từ thiết bị...</span>
+              </div>
+            ) : selectedPage && (
+                <div className="flex flex-col gap-6">
+                  
+                  {/* Time & Device Info */}
+                  <div className="flex flex-wrap gap-4 text-xs font-semibold text-[#0c4a6e]/70 border-b border-[#0c4a6e]/5 pb-4">
+                    <span>📅 Bắt đầu: {new Date(selectedPage.start_time).toLocaleString("vi-VN")}</span>
+                    {selectedPage.end_time && (
+                      <span>🏁 Kết thúc: {new Date(selectedPage.end_time).toLocaleString("vi-VN")}</span>
+                    )}
+                    <span>🤖 Thiết bị: <span className="font-mono text-[#0ea5e9]">{selectedPage.device_id || "Không gán"}</span></span>
+                  </div>
+
+                  {/* Metric Summary Grid */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl flex flex-col items-center text-center shadow-xs">
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Quãng đường</span>
+                      <span className="text-base sm:text-lg font-black text-[#0c4a6e]">
+                        {totalDistance.toFixed(1)} <span className="text-[10px] text-slate-400 font-bold">m</span>
+                      </span>
+                    </div>
+                    <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl flex flex-col items-center text-center shadow-xs">
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Thời gian</span>
+                      <span className="text-base sm:text-lg font-black text-[#0c4a6e]">
+                        {Math.floor(durationSeconds / 60)}m {durationSeconds % 60}s
+                      </span>
+                    </div>
+                    <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl flex flex-col items-center text-center shadow-xs">
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Tổng lực tỳ</span>
+                      <span className="text-base sm:text-lg font-black text-[#0c4a6e]">
+                        {totalForce.toFixed(1)} <span className="text-[10px] text-slate-400 font-bold">kg</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Balance & Distribution Bar */}
+                  <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl p-4">
+                    <div className="flex justify-between text-xs font-black mb-2">
+                      <span className="text-[#0ea5e9]">Trái: {leftForce.toFixed(1)} kg</span>
+                      <span className="text-[#0c4a6e]">Phải: {rightForce.toFixed(1)} kg</span>
+                    </div>
+                    
+                    {/* Balance bar display */}
+                    <div className="w-full h-2.5 bg-slate-200 rounded-full flex overflow-hidden shadow-inner">
+                      {totalForce > 0 ? (
+                        <>
+                          <div 
+                            className="bg-[#0ea5e9] transition-all duration-300"
+                            style={{ width: `${(leftForce / totalForce) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-[#0c4a6e] transition-all duration-300"
+                            style={{ width: `${(rightForce / totalForce) * 100}%` }}
+                          ></div>
+                        </>
+                      ) : (
+                        <div className="w-full bg-slate-300"></div>
+                      )}
+                    </div>
+                    <p className="text-[9px] text-gray-400 text-center font-bold tracking-wider uppercase mt-2">
+                      Cân đối hai bên chịu lực
+                    </p>
+                  </div>
+
+                {/* SVG Sensor Chart */}
+                <div className="bg-white border border-[#bae6fd] rounded-2xl p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-xs font-black text-slate-700">Biểu đồ lực tỳ cảm biến thời gian thực</h4>
+                    <div className="flex gap-3 text-[9px] font-bold text-slate-500">
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-[2px] bg-[#0ea5e9]"></span> Trái</span>
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-[2px] bg-[#0c4a6e]"></span> Phải</span>
+                    </div>
+                  </div>
+                  
+                  {selectedPage.sensor_data && selectedPage.sensor_data.length > 0 ? (
+                    <div className="h-28 w-full relative pl-6 pb-2 mt-2">
+                      {/* Grid overlay */}
+                      <div className="absolute inset-0 pl-6 pb-2 flex flex-col justify-between opacity-25 pointer-events-none text-[8px] font-bold font-mono">
+                        <span>12kg</span>
+                        <span>6kg</span>
+                        <span>0kg</span>
+                      </div>
+                      
+                      {/* SVG line */}
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 400 120" preserveAspectRatio="none">
+                        <polyline
+                          points={getSvgPoints("force_left")}
+                          fill="none"
+                          stroke="#0ea5e9"
+                          strokeWidth="1.5"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                        <polyline
+                          points={getSvgPoints("force_right")}
+                          fill="none"
+                          stroke="#0c4a6e"
+                          strokeWidth="1.5"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </svg>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 italic text-center py-6">
+                      Không có thông số cảm biến chi tiết được ghi lại cho phiên này.
+                    </p>
+                  )}
+                </div>
+
+                {/* Medical Assessment Note */}
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs font-medium leading-relaxed">
+                  <div className="flex items-center gap-1.5 text-amber-700 font-extrabold mb-1.5">
+                    <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    CHẨN ĐOÁN LÂM SÀNG CỦA BÁC SĨ PHỤ TRÁCH
+                  </div>
+                  <p className="text-slate-600 bg-white/65 p-3 rounded-xl border border-amber-200/50 min-h-[50px] shadow-2xs font-semibold">
+                    {selectedPage.doctor_notes || "Chưa ghi nhận đánh giá lâm sàng cho phiên này. Bác sĩ điều trị có thể cập nhật nhận xét từ trang quản lý."}
+                  </p>
+                </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ========================================================= */}
       {/* 4. FACEBOOK-STYLE FLOATING CHATBOX */}
@@ -210,7 +526,6 @@ export function PatientOverviewView() {
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
                     </button>
-
                     <div className="relative">
                       <div className="w-8.5 h-8.5 bg-white text-[#0ea5e9] rounded-full flex items-center justify-center font-black text-xs sm:text-sm shadow-inner">
                         {currentContact?.avatar}
@@ -301,6 +616,15 @@ export function PatientOverviewView() {
         </button>
       </div>
 
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
     </div>
   );
 }

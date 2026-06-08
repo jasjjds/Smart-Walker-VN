@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { BackButton } from "@/components/custom/back-button";
 
 export function ChangePasswordView() {
   const { changePassword } = useAuth();
@@ -134,15 +135,7 @@ export function ChangePasswordView() {
         </form>
 
         {/* Nút quay lại */}
-        <button
-          onClick={() => router.back()}
-          className="mt-6 text-sm sm:text-base font-semibold text-[#0c4a6e]/70 hover:text-[#0ea5e9] transition-colors flex items-center gap-1.5 cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Quay lại bảng điều khiển
-        </button>
+        <BackButton onClick={() => router.back()} className="mt-6" />
       </div>
 
       {/* KHỐI SLIDING CHỨA ẢNH (BÊN PHẢI) */}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from "next/navigation";
+import { BackButton } from '@/components/custom/back-button';
 
 const MAX_RANGE_CM = 10;
 const SVG_SIZE = 400;
@@ -43,16 +44,7 @@ export function CoGAnalysisView() {
   return (
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
 
-      {/* 0. NÚT QUAY LẠI */}
-      <Link
-        href={`/dashboard/doctor/patients/${patientId}`}
-        className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Quay lại tổng quan
-      </Link>
+      <BackButton href={`/dashboard/doctor/patients/${patientId}`} />
 
       {/* 1. HEADER & ACTIONS */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">

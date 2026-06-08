@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import { BackButton } from '@/components/custom/back-button';
 
 export default function NotFound() {
   return (
@@ -43,12 +44,7 @@ export default function NotFound() {
         </Link>
 
         {/* Nút quay lại trang trước (Back) */}
-        <button
-          onClick={() => window.history.back()}
-          className="mt-4 text-sm font-bold text-slate-400 hover:text-[#0ea5e9] transition-colors"
-        >
-          &larr; Hoặc quay lại trang trước đó
-        </button>
+        <BackButton onClick={() => window.history.back()} className="mt-4 text-sm font-bold" />
 
       </div>
     </div>

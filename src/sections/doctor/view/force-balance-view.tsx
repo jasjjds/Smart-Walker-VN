@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { analyticsService } from '@/services/analyticsService';
+import { BackButton } from '@/components/custom/back-button';
 
 const MAX_FORCE_KG = 15;
 const HISTORY_LENGTH = 40;
@@ -19,7 +20,7 @@ export function ForceBalanceView() {
   const params = useParams();
   const pathname = usePathname();
   const { user } = useAuth();
-  
+
   // Lấy patientID từ URL nếu là bác sĩ, hoặc từ chính user nếu là bệnh nhân
   const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || user?.patient_id || '');
   const isPatientView = pathname.includes('/dashboard/patient/metrics');
@@ -39,6 +40,7 @@ export function ForceBalanceView() {
   const [leftWidth, setLeftWidth] = useState(30);
   const [topHeight, setTopHeight] = useState(50);
   const [isMobile, setIsMobile] = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -158,16 +160,8 @@ export function ForceBalanceView() {
   const leftPercent = totalForce > 0 ? (currentForce.left / totalForce) * 100 : 50;
   const rightPercent = totalForce > 0 ? (currentForce.right / totalForce) * 100 : 50;
 
-  const createSvgPath = (key: 'left' | 'right') => {
-    const points = history.map((data, index) => {
-      const x = (index / (HISTORY_LENGTH - 1)) * 100;
-      const forceValue = data[key] || 0;
-      const safeValue = Math.min(forceValue, MAX_FORCE_KG);
-      const y = 100 - (safeValue / MAX_FORCE_KG) * 100;
-      return `${x},${y}`;
-    });
-    return points.join(' ');
-  };
+  // Tự động co dãn theo lực tối đa hiện tại (tối thiểu là 5kg để tránh nhạy quá mức ở lực nhỏ)
+  const maxVal = Math.max(5, ...history.map(d => Math.max(d.left || 0, d.right || 0)));
 
   if (!patientID) {
     return (
@@ -178,15 +172,12 @@ export function ForceBalanceView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl">
-      
+    <div className="w-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <Link href={backLink} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm mb-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-            Quay lại
-          </Link>
+          <BackButton href={backLink} className="mb-2" />
           <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">Theo dõi sự phân bố trọng lượng lên hai tay cầm của xe tập đi.</p>
         </div>
         <button onClick={() => setIsLive(!isLive)} className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'}`}>
@@ -195,12 +186,15 @@ export function ForceBalanceView() {
       </div>
 
       {/* CONTAINER CHIA PANELS */}
-      <div ref={containerRef} className="flex-1 min-h-0 flex flex-col lg:flex-row gap-6 lg:gap-0 relative">
-        
-        {/* CỘT TRÁI - GAUGE CHI TIẾT (Responsive width) */}
-        <div 
-          style={{ width: isMobile ? '100%' : `${leftWidth}%` }} 
-          className="flex flex-col bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative min-h-[300px]"
+      <div ref={containerRef} className="flex-grow flex flex-col lg:flex-row gap-6 relative lg:min-h-0">
+
+        {/* CỘT TRÁI - GAUGE CHI TIẾT (Responsive width & height) */}
+        <div
+          style={{
+            width: isMobile ? '100%' : `${leftWidth}%`,
+            height: isMobile ? '380px' : '100%'
+          }}
+          className="flex flex-col bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative shrink-0 lg:shrink-1 lg:min-h-0"
         >
           <h3 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-slate-500 mb-6 shrink-0 text-center">Trạng thái hiện tại</h3>
 
@@ -243,35 +237,184 @@ export function ForceBalanceView() {
         </div>
 
         {/* CỘT PHẢI - REAL-TIME & HISTORY */}
-        <div 
-          ref={rightPanelRef} 
-          style={{ width: isMobile ? '100%' : `${100 - leftWidth}%` }} 
-          className="h-full flex flex-col gap-6 lg:gap-0 min-w-0"
+        <div
+          ref={rightPanelRef}
+          style={{
+            width: isMobile ? '100%' : `${100 - leftWidth}%`,
+            height: isMobile ? 'auto' : '100%'
+          }}
+          className="flex flex-col gap-6 lg:gap-0 min-w-0 shrink-0 lg:shrink-1 lg:min-h-0"
         >
           {/* BIỂU ĐỒ 1: REAL-TIME */}
-          <div 
-            style={{ height: isMobile ? '300px' : `${topHeight}%` }} 
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col min-h-[220px]"
+          <div
+            style={{ height: isMobile ? '320px' : `${topHeight}%` }}
+            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col shrink-0 lg:shrink-1 min-h-[220px] lg:min-h-0 relative"
           >
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 shrink-0">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-800">Biến thiên lực Real-time (Chu kỳ thức thời)</h3>
-              <div className="flex gap-4 text-[10px] sm:text-xs font-bold text-slate-600">
-                <div className="flex items-center gap-1.5"><span className="w-3 h-[2px] bg-[#0ea5e9]"></span> Tay Trái</div>
-                <div className="flex items-center gap-1.5"><span className="w-3 h-[2px] bg-[#0c4a6e]"></span> Tay Phải</div>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start sm:items-center gap-3 mb-4 shrink-0">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-800">Biến thiên lực Real-time</h3>
+
+              {/* Chú thích màu tương ứng với lệch bên */}
+              <div className="flex flex-wrap gap-3 text-[10px] sm:text-xs font-bold">
+                <div className="flex items-center gap-1.5 text-blue-600">
+                  <span className="w-3 h-3 bg-[#3b82f6] rounded-full shrink-0"></span>
+                  Lệch Trái
+                </div>
+                <div className="flex items-center gap-1.5 text-orange-600">
+                  <span className="w-3 h-3 bg-[#f97316] rounded-full shrink-0"></span>
+                  Lệch Phải
+                </div>
+                <div className="flex items-center gap-1.5 text-slate-400">
+                  <span className="w-3 h-1 bg-slate-300 rounded-sm shrink-0"></span>
+                  Cân bằng
+                </div>
               </div>
             </div>
-            <div className="flex-1 min-h-0 w-full relative pl-8 pb-4">
-              <div className="absolute inset-0 pl-8 pb-4 flex flex-col justify-between opacity-30 pointer-events-none text-[9px] sm:text-[10px]">
-                {[15, 10, 5, 0].map(val => (
-                  <div key={val} className="w-full border-b border-slate-400 border-dashed flex items-center relative h-0">
-                    <span className="absolute -left-8 text-slate-500 font-mono -translate-y-1/2 pr-2 bg-white">{val}kg</span>
-                  </div>
-                ))}
+
+            <div className="flex-grow min-h-0 w-full relative pl-10 pb-4">
+              {/* Trực Ox giữa & lưới Y-axis động */}
+              <div className="absolute inset-0 pl-10 pb-4 flex flex-col justify-between opacity-35 pointer-events-none text-[8px] sm:text-[9px]">
+                {[maxVal, maxVal / 2, 0, maxVal / 2, maxVal].map((val, idx) => {
+                  const label = val === 0 ? "0kg" : `${val.toFixed(1)}kg`;
+
+                  return (
+                    <div key={idx} className="w-full border-b border-slate-300 border-dashed flex items-center relative h-0">
+                      <span className="absolute -left-10 text-slate-500 font-mono font-bold -translate-y-1/2 pr-2 bg-white whitespace-nowrap">
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                <polyline points={createSvgPath('left')} fill="none" stroke="#0ea5e9" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" className="transition-all duration-300" />
-                <polyline points={createSvgPath('right')} fill="none" stroke="#0c4a6e" strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" className="transition-all duration-300" />
+
+              {/* Vẽ đồ thị SVG */}
+              <svg className="w-full h-full overflow-visible relative z-10" preserveAspectRatio="none" viewBox="0 0 100 100">
+                {/* Trục Ox nằm ở giữa */}
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="2 2" vectorEffect="non-scaling-stroke" />
+
+                {/* Vẽ các phân đoạn của đường biểu diễn duy nhất */}
+                {history.slice(0, -1).map((item, index) => {
+                  const nextItem = history[index + 1];
+                  const x1 = (index / (HISTORY_LENGTH - 1)) * 100;
+                  const x2 = ((index + 1) / (HISTORY_LENGTH - 1)) * 100;
+
+                  const diff1 = (item.left || 0) - (item.right || 0);
+                  const y1 = 50 - (diff1 / maxVal) * 50;
+
+                  const diff2 = (nextItem.left || 0) - (nextItem.right || 0);
+                  const y2 = 50 - (diff2 / maxVal) * 50;
+
+                  const avgDiff = (diff1 + diff2) / 2;
+
+                  // Lệch trái (>0.15): xanh dương; Lệch phải (<-0.15): cam; Cân bằng: xám
+                  const strokeColor = avgDiff > 0.15 ? "#3b82f6" : avgDiff < -0.15 ? "#f97316" : "#cbd5e1";
+
+                  return (
+                    <line
+                      key={index}
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      stroke={strokeColor}
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  );
+                })}
+
+                {/* Đường dóng đứng dọc & điểm tròn hovered */}
+                {hoveredIdx !== null && (
+                  <>
+                    <line
+                      x1={hoveredIdx / (HISTORY_LENGTH - 1) * 100}
+                      y1={0}
+                      x2={hoveredIdx / (HISTORY_LENGTH - 1) * 100}
+                      y2={100}
+                      stroke="#94a3b8"
+                      strokeWidth="1"
+                      strokeDasharray="2 2"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    <circle
+                      cx={hoveredIdx / (HISTORY_LENGTH - 1) * 100}
+                      cy={50 - (((history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0)) / maxVal) * 50}
+                      r="4.5"
+                      fill={
+                        ((history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0)) > 0.15
+                          ? "#3b82f6"
+                          : ((history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0)) < -0.15
+                            ? "#f97316"
+                            : "#94a3b8"
+                      }
+                      stroke="white"
+                      strokeWidth="1.5"
+                    />
+                  </>
+                )}
+
+                {/* Các cột cảm ứng vô hình phục vụ Hover */}
+                {history.map((_, i) => {
+                  const w = 100 / (HISTORY_LENGTH - 1);
+                  const x = (i / (HISTORY_LENGTH - 1)) * 100 - w / 2;
+                  return (
+                    <rect
+                      key={i}
+                      x={x}
+                      y={0}
+                      width={w}
+                      height={100}
+                      fill="transparent"
+                      className="cursor-pointer"
+                      onMouseEnter={() => setHoveredIdx(i)}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                    />
+                  );
+                })}
               </svg>
+
+              {/* Tooltip hiển thị số liệu chi tiết dạng hộp */}
+              {hoveredIdx !== null && (
+                <div
+                  className="absolute bg-slate-900/95 text-white text-[10px] sm:text-xs p-3 rounded-2xl shadow-xl pointer-events-none z-20 flex flex-col gap-1 backdrop-blur-md border border-white/10"
+                  style={{
+                    left: `${Math.min(
+                      Math.max((hoveredIdx / (HISTORY_LENGTH - 1)) * 100, 15),
+                      85
+                    )}%`,
+                    top: "10px",
+                    transform: "translateX(-50%)",
+                  }}
+                >
+                  <div className="font-bold border-b border-white/20 pb-1 mb-1 text-slate-300 text-[10px]">
+                    Điểm mẫu {hoveredIdx + 1}
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="font-medium text-sky-400">Lực Trái:</span>
+                    <span className="font-mono font-bold">{(history[hoveredIdx].left || 0).toFixed(1)} kg</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="font-medium text-orange-400">Lực Phải:</span>
+                    <span className="font-mono font-bold">{(history[hoveredIdx].right || 0).toFixed(1)} kg</span>
+                  </div>
+                  <div className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-1 font-bold text-[9px] sm:text-[10px]">
+                    <span>Trạng thái:</span>
+                    <span className={
+                      (() => {
+                        const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
+                        if (Math.abs(diff) < 0.2) return "text-slate-300";
+                        return diff > 0 ? "text-[#3b82f6]" : "text-[#f97316]";
+                      })()
+                    }>
+                      {(() => {
+                        const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
+                        if (Math.abs(diff) < 0.2) return "Cân bằng";
+                        return diff > 0 ? "Lệch Trái" : "Lệch Phải";
+                      })()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -281,9 +424,9 @@ export function ForceBalanceView() {
           </div>
 
           {/* BIỂU ĐỒ 2: LỊCH SỬ PHÂN BỔ TÍCH LŨY */}
-          <div 
-            style={{ height: isMobile ? '350px' : `${100 - topHeight}%` }} 
-            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col min-h-[220px]"
+          <div
+            style={{ height: isMobile ? '380px' : `${100 - topHeight}%` }}
+            className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col shrink-0 lg:shrink-1 min-h-[220px] lg:min-h-0"
           >
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4 shrink-0">
               <div>

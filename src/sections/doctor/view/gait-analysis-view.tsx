@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { analyticsService } from '@/services/analyticsService';
+import { BackButton } from '@/components/custom/back-button';
 
 interface ProcessedData {
   date_bucket: string;
@@ -97,15 +98,9 @@ export function GaitAnalysisView() {
   const avgDistance = data.length > 0 ? (totalDistance / data.length).toFixed(2) : "0.00";
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl bg-slate-50">
+    <div className="w-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl bg-slate-50 lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
 
-      {/* 0. NÚT QUAY LẠI */}
-      <Link href={backLink} className="flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0">
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Quay lại tổng quan
-      </Link>
+      <BackButton href={backLink} />
 
       {/* 1. HEADER & BỘ LỌC CHU KỲ */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
@@ -159,15 +154,15 @@ export function GaitAnalysisView() {
       )}
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="flex-1 min-h-[350px] flex flex-col gap-6">
+      <div className="flex-grow flex flex-col gap-6 lg:min-h-0">
 
         {/* BIỂU ĐỒ QUÃNG ĐƯỜNG */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col relative">
+        <div className="w-full bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col relative h-[350px] lg:h-auto lg:flex-grow lg:min-h-0">
           <div className="flex justify-between items-center mb-6 shrink-0 z-10">
             <h3 className="text-xs sm:text-sm font-bold text-gray-800">Biểu đồ Vận động (m)</h3>
           </div>
 
-          <div className="flex-1 w-full relative min-h-0">
+          <div className="flex-grow w-full relative min-h-0">
             {/* Lớp nền chia vạch Y-axis */}
             <div className="absolute inset-0 pl-10 pb-10 flex flex-col justify-between pointer-events-none z-0">
               {[1, 0.75, 0.5, 0.25, 0].map((ratio) => {
@@ -226,8 +221,8 @@ export function GaitAnalysisView() {
           </div>
         </div>
 
-        {/* 3. KHỐI CHỈ SỐ (Fixed responsive wrapper height to prevent squish) */}
-        <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4 h-auto">
+        {/* 3. KHỐI CHỈ SỐ */}
+        <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm flex items-center justify-between">
             <div>
               <h3 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Tổng quãng đường</h3>

@@ -14,13 +14,22 @@ export const ENDPOINTS = {
     STATUS: '/v1/patients/status',
     STATUS_DETAIL: (id: string | number) => `/v1/patients/status/${id}`,
     DETAIL: (id: string | number) => `/v1/patients/${id}`,
+    BOOKLET: '/v1/patients/booklet',
+    BOOKLET_DETAIL: (id: string | number) => `/v1/patients/booklet/${id}`,
+    BOOKLET_PAGE: (id: string | number) => `/v1/patients/booklet/page/${id}`,
+    BOOKLET_PAGE_ASSESSMENT: (id: string | number) => `/v1/patients/booklet/page/${id}/assessment`,
+    SEARCH: '/v1/patients/search',
   },
   ANALYTICS: {
     DISTANCE: '/v1/analytics/distance',
     FORCE: '/v1/analytics/force',
   },
   DEVICES: {
+    BASE: '/v1/devices',
+    DETAIL: (id: string | number) => `/v1/devices/${id}`,
     PING: '/v1/devices/ping',
+    SCAN_QR: '/v1/devices/scan-qr',
+    END_SESSION: '/v1/devices/end-session',
   },
   METRICS: {
     BASE: '/v1/metrics',

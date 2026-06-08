@@ -9,6 +9,17 @@ export function AuthView() {
   const { login, register, loginWithGoogle } = useAuth();
 
   const [isLogin, setIsLogin] = useState(true);
+
+  // Capture redirect path from URL query parameters
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirectParam = params.get("redirect");
+      if (redirectParam) {
+        localStorage.setItem("authRedirectPath", redirectParam);
+      }
+    }
+  }, []);
   const [isSolid, setIsSolid] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 

@@ -107,13 +107,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else if (userData.role_id === 3 || userData.role_name === 'DOCTOR') roleString = 'DOCTOR';
       setCookie('userRole', roleString, 7);
 
-      // Redirect based on role
-      if (roleString === 'DOCTOR') {
-        router.push('/dashboard/doctor/patients');
-      } else if (roleString === 'ADMIN') {
-        router.push('/dashboard/admin/users');
+      // Redirect based on role or stored redirect path
+      const savedRedirect = typeof window !== 'undefined' ? localStorage.getItem('authRedirectPath') : null;
+      if (savedRedirect) {
+        localStorage.removeItem('authRedirectPath');
+        router.push(savedRedirect);
       } else {
-        router.push('/dashboard/patient');
+        if (roleString === 'DOCTOR') {
+          router.push('/dashboard/doctor/patients');
+        } else if (roleString === 'ADMIN') {
+          router.push('/dashboard/admin/users');
+        } else {
+          router.push('/dashboard/patient');
+        }
       }
     }
     return res;
@@ -148,6 +154,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
+      const activeDevice = typeof window !== 'undefined' ? localStorage.getItem('activeDeviceId') : null;
+      if (activeDevice) {
+        const { deviceService } = await import('@/services/deviceService');
+        await deviceService.endSession(activeDevice).catch((e) => console.warn("Lỗi giải phóng thiết bị khi logout:", e));
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('activeDeviceId');
+        }
+      }
       await authService.logout().catch((e) => console.warn("Lỗi đăng xuất từ backend:", e));
     } finally {
       clearSession();

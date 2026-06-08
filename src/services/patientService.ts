@@ -30,5 +30,25 @@ export const patientService = {
 
   deletePatient: (id: string | number) => {
     return axiosClient.delete(ENDPOINTS.PATIENTS.DETAIL(id));
+  },
+
+  getBooklet: () => {
+    return axiosClient.get(ENDPOINTS.PATIENTS.BOOKLET);
+  },
+
+  getBookletById: (patientId: string | number) => {
+    return axiosClient.get(ENDPOINTS.PATIENTS.BOOKLET_DETAIL(patientId));
+  },
+
+  getBookletPage: (pageId: string | number) => {
+    return axiosClient.get(ENDPOINTS.PATIENTS.BOOKLET_PAGE(pageId));
+  },
+
+  updateBookletNotes: (pageId: string | number, notes: string) => {
+    return axiosClient.patch(ENDPOINTS.PATIENTS.BOOKLET_PAGE_ASSESSMENT(pageId), { doctor_notes: notes });
+  },
+
+  searchPatients: (query: string) => {
+    return axiosClient.get(ENDPOINTS.PATIENTS.SEARCH, { params: { query } });
   }
 };
