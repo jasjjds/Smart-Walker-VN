@@ -1,25 +1,26 @@
+// src/sections/patient/view/patient-progress-view.tsx
+
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import { BackButton } from '@/components/custom/back-button';
+import { useChat } from '@/hooks/useChat';
+import { Chatbox } from '@/components/common/chatbox';
+import { MOCK_DAILY_EXERCISES } from '@/config/mockData';
 
 export function PatientProgressView() {
-  // --- CHATBOX STATE ---
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState<string | null>(null);
+  const {
+    isChatOpen,
+    setIsChatOpen,
+    activeChat,
+    setActiveChat,
+    contacts,
+    currentContact,
+    totalUnread,
+    handleCloseChat,
+  } = useChat();
 
-  // --- DATA GIẢ LẬP ---
-  const dailyExercises = [
-    { id: 1, name: "Tập giữ thăng bằng tại chỗ", duration: "10 phút", status: "completed", instruction: "Đứng vững, tay vịn nhẹ vào Smart Walker." },
-    { id: 2, name: "Tập bước đi thẳng (Gait Training)", duration: "15 phút", status: "today", instruction: "Đi thẳng 20m, chú ý dồn lực đều 2 tay." },
-    { id: 3, name: "Tập xoay người 180 độ", duration: "5 phút", status: "upcoming", instruction: "Xoay chậm, giữ trọng tâm ở giữa." }
-  ];
-
-  const contacts = [
-    { id: 'bs_b', name: 'Bác sĩ Trần Văn B', role: 'Khoa PHCN', online: true, unread: 1, avatar: 'BS' },
-    { id: 'support', name: 'Hỗ trợ kỹ thuật', role: 'CSKH', online: true, unread: 0, avatar: 'HT' }
-  ];
+  const dailyExercises = MOCK_DAILY_EXERCISES;
 
   return (
     <div className="w-full h-full flex flex-col gap-4 text-[#0c4a6e] relative">
@@ -111,60 +112,16 @@ export function PatientProgressView() {
       </div>
 
       {/* FLOATING CHATBOX */}
-      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-8 z-45 flex flex-col items-end">
-        {/* Cửa sổ Chat */}
-        <div className={`transition-all duration-300 origin-bottom-right ease-out ${isChatOpen ? 'scale-100 opacity-100 mb-4' : 'scale-0 opacity-0 h-0 w-0 m-0 pointer-events-none'}`}>
-          <div className="w-[calc(100vw-32px)] sm:w-[340px] h-[450px] sm:h-[480px] bg-white rounded-2xl shadow-2xl border border-[#bae6fd] flex flex-col overflow-hidden">
-
-            {activeChat === null ? (
-              <div className="flex-1 flex flex-col h-full bg-white">
-                <div className="bg-[#0c4a6e] p-4 flex justify-between items-center text-white">
-                  <h3 className="font-bold text-lg">Tin nhắn</h3>
-                  <button onClick={() => setIsChatOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                  {contacts.map((c) => (
-                    <div key={c.id} onClick={() => setActiveChat(c.id)} className="flex items-center gap-3 p-4 hover:bg-[#f0f9ff] cursor-pointer transition-colors border-b border-gray-55">
-                      <div className="relative">
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 bg-[#e0f2fe] text-[#0ea5e9] rounded-full flex items-center justify-center font-black">{c.avatar}</div>
-                        {c.online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-white rounded-full"></span>}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-[#0c4a6e]">{c.name}</p>
-                        <p className="text-xs text-gray-500">{c.role}</p>
-                      </div>
-                      {c.unread > 0 && <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">{c.unread}</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col h-full bg-[#f8fafc]">
-                <div className="bg-gradient-to-r from-[#0c4a6e] to-[#0ea5e9] p-3 flex justify-between items-center text-white">
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setActiveChat(null)} className="p-1.5 hover:bg-white/20 rounded-full transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg></button>
-                    <p className="font-bold text-sm">Bác sĩ Trần Văn B</p>
-                  </div>
-                  <button onClick={() => setIsChatOpen(false)} className="p-1.5 hover:bg-white/20 rounded-full transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg></button>
-                </div>
-                <div className="flex-1 p-4 overflow-y-auto text-xs text-gray-400 text-center">Bắt đầu trò chuyện...</div>
-                <div className="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-                  <input type="text" placeholder="Nhập tin nhắn..." className="flex-1 bg-gray-100 text-xs sm:text-sm px-4 py-2 rounded-full outline-none" />
-                  <button className="text-[#0ea5e9]"><svg className="w-5 h-5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* FAB Button */}
-        <button onClick={() => setIsChatOpen(!isChatOpen)} className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all ${isChatOpen ? 'bg-white text-gray-400 border border-gray-200' : 'bg-[#0ea5e9] text-white'}`}>
-          {isChatOpen ? <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg> : <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" /></svg>}
-          {!isChatOpen && <span className="absolute top-0 right-0 flex h-4 w-4"><span className="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative rounded-full h-4 w-4 bg-red-500 border-2 border-white text-[8px] flex items-center justify-center font-bold text-white">1</span></span>}
-        </button>
-      </div>
+      <Chatbox
+        isChatOpen={isChatOpen}
+        setIsChatOpen={setIsChatOpen}
+        activeChat={activeChat}
+        setActiveChat={setActiveChat}
+        contacts={contacts}
+        currentContact={currentContact}
+        totalUnread={totalUnread}
+        handleCloseChat={handleCloseChat}
+      />
 
     </div>
   );

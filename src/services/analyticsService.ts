@@ -16,5 +16,9 @@ export const analyticsService = {
 
   getForce: (params: AnalyticsParams) => {
     return axiosClient.get(ENDPOINTS.ANALYTICS.FORCE, { params });
+  },
+
+  getVelocity: (params: AnalyticsParams) => {
+    return axiosClient.get(ENDPOINTS.ANALYTICS.VELOCITY, { params });
   }
 };

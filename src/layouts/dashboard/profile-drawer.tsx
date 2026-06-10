@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { patientService } from "@/services/patientService";
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -21,6 +22,26 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const [editDateOfBirth, setEditDateOfBirth] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Doctor in charge state
+  const [doctorName, setDoctorName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && user?.patient_id) {
+      const fetchPatientDetail = async () => {
+        try {
+          const res = await patientService.getPatientDetail(user.patient_id as number) as any;
+          const patientData = res.data || res;
+          if (patientData) {
+            setDoctorName(patientData.doctor_name || patientData.doctor?.full_name || null);
+          }
+        } catch (err) {
+          console.error("Lỗi lấy thông tin bác sĩ phụ trách:", err);
+        }
+      };
+      fetchPatientDetail();
+    }
+  }, [isOpen, user?.patient_id]);
 
   // Reset editing mode when profile drawer is closed
   useEffect(() => {
@@ -116,10 +137,18 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
             {getInitials(user?.full_name)}
           </div>
           
-          <h4 className="text-xl font-bold mb-1 text-center w-full truncate">{user?.full_name || 'Unknown'}</h4>
-          <span className="px-3 py-1 bg-[#0ea5e9]/10 text-[#0ea5e9] rounded-full text-xs font-bold uppercase tracking-wider mb-8 shrink-0">
+          <span className="px-3 py-1 bg-[#0ea5e9]/10 text-[#0ea5e9] rounded-full text-xs font-bold uppercase tracking-wider mb-2 shrink-0">
             {getRoleLabel(user?.role_id)}
           </span>
+
+          <div className="flex flex-col items-center gap-0.5 mb-4 shrink-0 text-slate-500 font-mono text-[10px] sm:text-xs">
+            <span>ID Người dùng: {user?.id || 'N/A'}</span>
+            {user?.patient_id && (
+              <span className="font-bold text-[#0ea5e9]">Mã HSBN: {user.patient_id}</span>
+            )}
+          </div>
+
+          <h4 className="text-xl font-bold mb-6 text-center w-full truncate">{user?.full_name || 'Unknown'}</h4>
           
           {/* Info details list / Form */}
           {isEditing ? (
@@ -232,20 +261,12 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">Vai trò</span>
-                <span className="text-sm font-semibold">{getRoleLabel(user?.role_id)}</span>
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">ID Người dùng</span>
-                <span className="text-sm font-mono font-semibold">{user?.id || 'N/A'}</span>
-              </div>
-              
               {user?.patient_id && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">Mã hồ sơ bệnh nhân</span>
-                  <span className="text-sm font-mono font-semibold">{user.patient_id}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">Bác sĩ phụ trách</span>
+                  <span className="text-sm font-semibold text-emerald-700 font-bold bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-1.5 w-fit">
+                    {doctorName ? `BS. ${doctorName}` : 'Chưa gán bác sĩ'}
+                  </span>
                 </div>
               )}
 

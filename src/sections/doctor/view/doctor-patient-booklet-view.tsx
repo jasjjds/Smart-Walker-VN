@@ -2,27 +2,53 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { patientService } from '@/services/patientService';
 import { BackButton } from '@/components/custom/back-button';
+import { usePatientBooklet } from '@/hooks/usePatientBooklet';
+import { MetricCard } from '@/components/common/metric-card';
+
+const ForceRealtimeChart = dynamic(
+  () => import('@/components/custom/force-realtime-chart').then(m => m.ForceRealtimeChart),
+  { ssr: false, loading: () => <div className="h-44 w-full bg-slate-55 animate-pulse rounded-2xl" /> }
+);
+
+const VelocityChart = dynamic(
+  () => import('@/components/custom/velocity-chart').then(m => m.VelocityChart),
+  { ssr: false, loading: () => <div className="h-44 w-full bg-slate-55 animate-pulse rounded-2xl" /> }
+);
 
 export function DoctorPatientBookletView() {
   const params = useParams();
   const patientId = Array.isArray(params.id) ? params.id[0] : (params.id || "");
 
-  const [booklet, setBooklet] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Modal chi tiết trang sổ & chẩn đoán
-  const [selectedPageId, setSelectedPageId] = useState<number | null>(null);
-  const [selectedPage, setSelectedPage] = useState<any>(null);
-  const [loadingPage, setLoadingPage] = useState(false);
+  const {
+    booklet,
+    setBooklet,
+    loading,
+    error,
+    selectedPageId,
+    selectedPage,
+    setSelectedPage,
+    loadingPage,
+    handleOpenPageDetail,
+    handleClosePageDetail,
+  } = usePatientBooklet(patientId);
 
   // Form ghi chú chẩn đoán
   const [doctorNotes, setDoctorNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Sync doctorNotes when selectedPage changes
+  useEffect(() => {
+    if (selectedPage) {
+      setDoctorNotes(selectedPage.doctor_notes || "");
+    } else {
+      setDoctorNotes("");
+    }
+  }, [selectedPage]);
 
   const leftForce = selectedPage?.avg_force_left ?? 0;
   const rightForce = selectedPage?.avg_force_right ?? 0;
@@ -30,55 +56,16 @@ export function DoctorPatientBookletView() {
   const totalDistance = selectedPage?.total_distance ?? 0;
   const durationSeconds = selectedPage?.duration_seconds ?? 0;
 
+  const forceChartData = (selectedPage?.sensor_data || []).map((d: any) => ({
+    left: d.force_left || 0,
+    right: d.force_right || 0
+  }));
+
+  const velocityChartData = (selectedPage?.sensor_data || []).map((d: any) => ({
+    velocity: d.velocity || 0
+  }));
+
   const backLink = `/dashboard/doctor/patients/${patientId}`;
-
-  // Tải dữ liệu sổ khám bệnh của bệnh nhân này
-  const loadBooklet = async () => {
-    if (!patientId) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await patientService.getBookletById(patientId) as any;
-      if (res.success && res.data) {
-        setBooklet(res.data);
-      } else {
-        setError(res.message || "Không thể lấy sổ khám bệnh của bệnh nhân.");
-      }
-    } catch (err: any) {
-      console.error("Lỗi lấy sổ y tế:", err);
-      setError(err.response?.data?.message || "Lỗi kết nối máy chủ khi lấy sổ khám bệnh.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadBooklet();
-  }, [patientId]);
-
-  // Xem chi tiết trang sổ & tải dữ liệu cảm biến thô
-  const handleOpenPageDetail = async (pageId: number) => {
-    setSelectedPageId(pageId);
-    setLoadingPage(true);
-    setSaveSuccess(false);
-    try {
-      const res = await patientService.getBookletPage(pageId) as any;
-      if (res.success && res.data) {
-        setSelectedPage(res.data);
-        setDoctorNotes(res.data.doctor_notes || "");
-      }
-    } catch (err) {
-      console.error("Lỗi chi tiết trang sổ:", err);
-    } finally {
-      setLoadingPage(false);
-    }
-  };
-
-  const handleClosePageDetail = () => {
-    setSelectedPageId(null);
-    setSelectedPage(null);
-    setDoctorNotes("");
-  };
 
   // Lưu chẩn đoán của bác sĩ
   const handleSaveNotes = async (e: React.FormEvent) => {
@@ -121,23 +108,7 @@ export function DoctorPatientBookletView() {
     return `${secs}s`;
   };
 
-  // Tính toán vẽ biểu đồ SVG cảm biến
-  const getSvgPoints = (key: 'force_left' | 'force_right') => {
-    if (!selectedPage || !selectedPage.sensor_data || selectedPage.sensor_data.length === 0) return "";
 
-    const data = selectedPage.sensor_data;
-    const maxVal = Math.max(
-      12,
-      ...data.map((d: any) => Math.max(d.force_left || 0, d.force_right || 0))
-    );
-
-    return data.map((d: any, i: number) => {
-      const x = (i / (data.length - 1)) * 420;
-      const val = d[key] || 0;
-      const y = 110 - (val / maxVal) * 90;
-      return `${x},${y}`;
-    }).join(" ");
-  };
 
   if (!patientId) {
     return (
@@ -287,18 +258,24 @@ export function DoctorPatientBookletView() {
 
                 {/* Performance stats row */}
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl text-center shadow-2xs">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Quãng đường</p>
-                    <p className="text-base sm:text-lg font-black text-[#0c4a6e]">{totalDistance.toFixed(1)} <span className="text-[10px] text-slate-400 font-black">m</span></p>
-                  </div>
-                  <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl text-center shadow-2xs">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Thời gian</p>
-                    <p className="text-base sm:text-lg font-black text-[#0c4a6e]">{Math.floor(durationSeconds / 60)}m {durationSeconds % 60}s</p>
-                  </div>
-                  <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl text-center shadow-2xs">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Trung bình lực</p>
-                    <p className="text-base sm:text-lg font-black text-[#0c4a6e]">{totalForce.toFixed(1)} <span className="text-[10px] text-slate-400 font-black">kg</span></p>
-                  </div>
+                  <MetricCard
+                    variant="minimal"
+                    title="Quãng đường"
+                    value={totalDistance.toFixed(1)}
+                    unit="m"
+                  />
+                  <MetricCard
+                    variant="minimal"
+                    title="Thời gian tập"
+                    value={`${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`}
+                    unit=""
+                  />
+                  <MetricCard
+                    variant="minimal"
+                    title="Vận tốc trung bình"
+                    value={(selectedPage?.avg_velocity ?? 0).toFixed(1)}
+                    unit="m/s"
+                  />
                 </div>
 
                 {/* Balance & Distribution Bar */}
@@ -333,46 +310,19 @@ export function DoctorPatientBookletView() {
                   </div>
                 </div>
 
-                {/* SVG Sensor Chart */}
-                <div className="bg-white border border-[#bae6fd] rounded-2xl p-4 flex flex-col gap-3">
-                  <div className="flex justify-between items-center">
-                    <h4 className="text-xs font-black text-slate-700">Đồ thị biến thiên lực tay cầm (Cảm biến lực)</h4>
-                    <div className="flex gap-3 text-[9px] font-bold text-slate-500">
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-[2px] bg-[#0ea5e9]"></span> Tay Trái</span>
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-[2px] bg-[#0c4a6e]"></span> Tay Phải</span>
-                    </div>
+                {/* Biểu đồ cảm biến Lực & Vận tốc */}
+                {selectedPage.sensor_data && selectedPage.sensor_data.length > 0 ? (
+                  <div className="flex flex-col gap-4 mt-2">
+                    <ForceRealtimeChart history={forceChartData} className="h-44 w-full" />
+                    <VelocityChart history={velocityChartData} className="h-44 w-full" />
                   </div>
-
-                  {selectedPage.sensor_data && selectedPage.sensor_data.length > 0 ? (
-                    <div className="h-28 w-full relative pl-6 pb-2 mt-2">
-                      <div className="absolute inset-0 pl-6 pb-2 flex flex-col justify-between opacity-25 pointer-events-none text-[8px] font-bold font-mono">
-                        <span>12kg</span>
-                        <span>6kg</span>
-                        <span>0kg</span>
-                      </div>
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 420 120" preserveAspectRatio="none">
-                        <polyline
-                          points={getSvgPoints("force_left")}
-                          fill="none"
-                          stroke="#0ea5e9"
-                          strokeWidth="1.5"
-                          vectorEffect="non-scaling-stroke"
-                        />
-                        <polyline
-                          points={getSvgPoints("force_right")}
-                          fill="none"
-                          stroke="#0c4a6e"
-                          strokeWidth="1.5"
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      </svg>
-                    </div>
-                  ) : (
+                ) : (
+                  <div className="bg-white border border-[#bae6fd] rounded-2xl p-4 flex items-center justify-center">
                     <p className="text-xs text-gray-400 italic text-center py-6">
-                      Không có thông số cảm biến thô từ xe tập đi.
+                      Không có thông số cảm biến chi tiết được ghi lại cho phiên này.
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Doctor Diagnostic Input Form */}
                 <form onSubmit={handleSaveNotes} className="flex flex-col gap-3 mt-2">

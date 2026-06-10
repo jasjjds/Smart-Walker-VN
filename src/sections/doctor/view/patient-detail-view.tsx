@@ -2,98 +2,242 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { BackButton } from "@/components/custom/back-button";
-
-const clinicalMetrics = [
-  /* {
-    title: "Phân tích Trọng tâm",
-    description: "Theo dõi độ lệch tư thế và khả năng giữ thăng bằng.",
-    path: "cog",
-    icon: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-2a8 8 0 100-16 8 8 0 000 16z M12 8v8m-4-4h8",
-    status: "Bình thường",
-    color: "text-green-500"
-  }, */
-  {
-    title: "Cân bằng lực tỳ tay",
-    description: "Đo lường sự bất đối xứng giữa tay trái và tay phải.",
-    path: "force",
-    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
-    status: "Lệch trái nhẹ",
-    color: "text-orange-500"
-  },
-  {
-    title: "Quãng đường di chuyển",
-    description: "Tổng quãng đường di chuyển của bệnh nhân.",
-    path: "gait",
-    icon: "M13 10V3L4 14h7v7l9-11h-7z",
-    status: "Đều đặn",
-    color: "text-green-500"
-  },
-  {
-    title: "Sổ y tế điện tử",
-    description: "Xem chi tiết các phiên tập luyện của bệnh nhân và ghi chú chẩn đoán lâm sàng.",
-    path: "booklet",
-    icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    status: "Nhật ký y khoa",
-    color: "text-[#0ea5e9]"
-  },
-  /* {
-    title: "Chỉ số nguy cơ té ngã",
-    description: "Cảnh báo sớm dựa trên độ ổn định của dữ liệu cảm biến.",
-    path: "risk",
-    icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
-    status: "Nguy cơ thấp",
-    color: "text-blue-500"
-  } */
-];
+import { usePatientBooklet } from "@/hooks/usePatientBooklet";
+import { patientService } from "@/services/patientService";
 
 export function PatientDetailView() {
   const params = useParams();
-  const patientId = params.id;
+  const patientId = Array.isArray(params.id) ? params.id[0] : (params.id || "");
+
+  const { booklet, loading: loadingBooklet } = usePatientBooklet(patientId);
+  const [latestPageDetail, setLatestPageDetail] = useState<any>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  useEffect(() => {
+    const loadLatestPageDetail = async () => {
+      const pages = booklet?.pages || [];
+      if (pages.length > 0) {
+        const sortedPages = [...pages].sort(
+          (a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+        );
+        const latestPage = sortedPages[0];
+
+        setLoadingDetail(true);
+        try {
+          const res = await patientService.getBookletPage(latestPage.id) as any;
+          if (res.success && res.data) {
+            setLatestPageDetail(res.data);
+          }
+        } catch (err) {
+          console.error("Lỗi khi tải chi tiết phiên tập gần nhất cho bác sĩ:", err);
+        } finally {
+          setLoadingDetail(false);
+        }
+      }
+    };
+
+    if (booklet) {
+      loadLatestPageDetail();
+    }
+  }, [booklet]);
+
+  const loading = loadingBooklet || loadingDetail;
+
+  // Dữ liệu chỉ số từ phiên tập gần nhất
+  const avgForceLeft = latestPageDetail?.avg_force_left ?? 0;
+  const avgForceRight = latestPageDetail?.avg_force_right ?? 0;
+  const totalDistance = latestPageDetail?.total_distance ?? 0;
+  const avgVelocity = latestPageDetail?.avg_velocity ?? 0;
+
+  const sensorData = latestPageDetail?.sensor_data || [];
+  const velocities = sensorData.map((d: any) => d.velocity || 0).filter((v: number) => v > 0);
+  const minVelocity = velocities.length > 0 ? Math.min(...velocities) : 0;
+  const maxVelocity = velocities.length > 0 ? Math.max(...velocities) : 0;
+
+  // Đánh giá nhanh về chênh lệch lực tỳ tay
+  const diffForce = Math.abs(avgForceLeft - avgForceRight);
+  const hasData = !!latestPageDetail;
+
+  let assessmentText = "Chưa có dữ liệu luyện tập lực tì.";
+  if (hasData) {
+    if (avgForceLeft === 0 && avgForceRight === 0) {
+      assessmentText = "Không phát hiện lực tì tay đáng kể trên tay cầm xe.";
+    } else {
+      const balanceComparison = avgForceLeft === avgForceRight
+        ? "Lực tì hai bên cân bằng tuyệt đối. "
+        : `Phát hiện lực tì bên ${avgForceLeft > avgForceRight ? 'trái' : 'phải'} cao hơn bên còn lại ${diffForce.toFixed(1)} kg. `;
+
+      if (diffForce < 1.5) {
+        assessmentText = balanceComparison + "Sự đối xứng lực tì tốt. Dáng đi của bệnh nhân cân bằng so với hệ quy chiếu người bình thường, hỗ trợ tối ưu cho tiến trình phục hồi chức năng.";
+      } else if (diffForce < 3.0) {
+        assessmentText = balanceComparison + "Lực tì có độ lệch nhẹ. Bệnh nhân nên lưu ý chia đều trọng lượng cơ thể lên cả hai tay cầm để ổn định tư thế đi thẳng.";
+      } else {
+        assessmentText = balanceComparison + "Cảnh báo chênh lệch lực tì cao. Tư thế đi có xu hướng nghiêng lệch hẳn sang một bên, cần tập trung dồn lực tay yếu hơn.";
+      }
+    }
+  }
+
+  const statusForce = hasData ? (diffForce < 1.5 ? "Bình thường" : "Mất cân bằng") : "Chưa có dữ liệu";
+  const statusDistance = hasData ? "Đều đặn" : "Chưa có dữ liệu";
 
   return (
     <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
-
       {/* Nút quay lại */}
       <BackButton href="/dashboard/doctor/patients" />
 
       {/* Lưới các thẻ điều hướng */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {clinicalMetrics.map((metric) => (
-          <Link
-            key={metric.title}
-            href={`/dashboard/doctor/patients/${patientId}/${metric.path}`}
-            className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-4 relative overflow-hidden"
-          >
-            {/* Background trang trí */}
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* THẺ 1: ĐO LỰC TÌ TAY */}
+        <Link
+          href={`/dashboard/doctor/patients/${patientId}/force`}
+          className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
-                <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={metric.icon} />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold truncate">{metric.title}</h3>
-                <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${metric.color}`}>
-                  ● {metric.status}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-sm sm:text-base text-[#0c4a6e]/70 leading-relaxed font-medium">
-              {metric.description}
-            </p>
-
-            <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-sm">
-              Xem chi tiết
-              <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-          </Link>
-        ))}
+            <div className="min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold truncate">Đo lực tì tay</h3>
+              <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest ${diffForce < 1.5 ? 'text-green-500' : 'text-orange-500'}`}>
+                ● {statusForce}
+              </span>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 bg-slate-100 rounded w-3/4"></div>
+              <div className="h-4 bg-slate-100 rounded w-5/6"></div>
+              <div className="h-12 bg-slate-100 rounded"></div>
+            </div>
+          ) : (
+            <div className="flex-grow flex flex-col gap-4 text-xs sm:text-sm font-medium">
+              <div className="space-y-1">
+                <p className="text-slate-600 flex justify-between">
+                  <span>Lực tì tay trái trung bình:</span>
+                  <span className="font-bold font-mono text-[#0ea5e9]">{avgForceLeft.toFixed(1)} kg</span>
+                </p>
+                <p className="text-slate-600 flex justify-between">
+                  <span>Lực tì tay phải trung bình:</span>
+                  <span className="font-bold font-mono text-[#0c4a6e]">{avgForceRight.toFixed(1)} kg</span>
+                </p>
+              </div>
+
+              <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Đánh giá nhanh</span>
+                <p className="text-slate-500 text-xs leading-relaxed font-semibold">
+                  {assessmentText}
+                </p>
+              </div>
+
+              <div className="text-[10px] text-slate-400 font-bold italic text-right">
+                * Cập nhật từ phiên tập gần nhất
+              </div>
+            </div>
+          )}
+
+          <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-xs">
+            Xem biểu đồ chi tiết
+            <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </Link>
+
+        {/* THẺ 2: QUÃNG ĐƯỜNG DI CHUYỂN */}
+        <Link
+          href={`/dashboard/doctor/patients/${patientId}/gait`}
+          className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold truncate">Quãng đường di chuyển</h3>
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-green-500">
+                ● {statusDistance}
+              </span>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 bg-slate-100 rounded w-3/4"></div>
+              <div className="h-4 bg-slate-100 rounded w-5/6"></div>
+              <div className="h-12 bg-slate-100 rounded"></div>
+            </div>
+          ) : (
+            <div className="flex-grow flex flex-col gap-3 text-xs sm:text-sm font-medium text-slate-600">
+              <p className="flex justify-between">
+                <span>Quãng đường đi được:</span>
+                <span className="font-bold font-mono text-emerald-600">{totalDistance.toFixed(1)} m</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Vận tốc trung bình:</span>
+                <span className="font-bold font-mono text-amber-600">{avgVelocity.toFixed(1)} m/s</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Vận tốc nhỏ nhất / tối đa:</span>
+                <span className="font-bold font-mono text-[#0c4a6e]">{minVelocity.toFixed(1)} / {maxVelocity.toFixed(1)} m/s</span>
+              </p>
+
+              <div className="pt-2 text-[10px] text-slate-400 font-bold italic text-right">
+                * Cập nhật từ phiên tập gần nhất
+              </div>
+            </div>
+          )}
+
+          <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-xs">
+            Xem biểu đồ chi tiết
+            <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </Link>
+
+        {/* THẺ 3: SỔ Y TẾ ĐIỆN TỬ */}
+        <Link
+          href={`/dashboard/doctor/patients/${patientId}/booklet`}
+          className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-4 relative overflow-hidden"
+        >
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold truncate">Sổ y tế điện tử</h3>
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#0ea5e9]">
+                ● Nhật ký y khoa
+              </span>
+            </div>
+          </div>
+
+          <p className="text-sm sm:text-base text-[#0c4a6e]/70 leading-relaxed font-medium flex-grow">
+            Xem chi tiết các phiên tập luyện của bệnh nhân và ghi chú chẩn đoán lâm sàng.
+          </p>
+
+          <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-sm">
+            Xem sổ y bạ
+            <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </Link>
       </div>
 
       {/* Thông báo cập nhật nhanh */}
@@ -104,12 +248,9 @@ export function PatientDetailView() {
           </div>
           <div>
             <p className="font-bold text-sm sm:text-base">Dữ liệu thời gian thực đang hoạt động</p>
-            <p className="text-xs sm:text-sm opacity-70">Nhận dữ liệu từ 12 thiết bị Smart Walker trong khu vực.</p>
+            <p className="text-xs sm:text-sm opacity-70">Nhận dữ liệu từ thiết bị Smart Walker của bệnh nhân này.</p>
           </div>
         </div>
-        <button className="w-full sm:w-auto px-6 py-2 bg-[#0ea5e9] hover:bg-white hover:text-[#0c4a6e] rounded-xl font-bold transition-all text-sm">
-          Xem thông báo
-        </button>
       </div>
     </div>
   );

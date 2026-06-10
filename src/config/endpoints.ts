@@ -23,6 +23,7 @@ export const ENDPOINTS = {
   ANALYTICS: {
     DISTANCE: '/v1/analytics/distance',
     FORCE: '/v1/analytics/force',
+    VELOCITY: '/v1/analytics/velocity',
   },
   DEVICES: {
     BASE: '/v1/devices',

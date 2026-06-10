@@ -24,10 +24,40 @@ export default function CustomDataTable<T extends { id: string | number }>({
 
   React.useEffect(() => {
     if (onRefresh && refreshInterval && refreshInterval > 0) {
-      const interval = setInterval(() => {
-        onRefresh();
-      }, refreshInterval);
-      return () => clearInterval(interval);
+      let intervalId: NodeJS.Timeout | null = null;
+
+      const startInterval = () => {
+        if (!intervalId) {
+          intervalId = setInterval(onRefresh, refreshInterval);
+        }
+      };
+
+      const stopInterval = () => {
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+      };
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          onRefresh(); // Refresh once immediately when returning
+          startInterval();
+        } else {
+          stopInterval();
+        }
+      };
+
+      // Start initially if visible
+      if (document.visibilityState === 'visible') {
+        startInterval();
+      }
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      return () => {
+        stopInterval();
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     }
   }, [onRefresh, refreshInterval]);
 
