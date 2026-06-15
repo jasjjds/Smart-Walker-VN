@@ -223,8 +223,8 @@ export function RoleManagementView() {
       header: 'Tên vai trò',
       cell: (role) => (
         <div className="flex flex-col gap-1 font-semibold">
-          <span className="text-[#0c4a6e] font-bold text-sm">{role.name}</span>
-          <span className="text-xs text-[#0c4a6e]/70 truncate max-w-[200px]" title={role.description}>
+          <span className="text-primary-900 font-bold text-sm">{role.name}</span>
+          <span className="text-xs text-primary-900/70 truncate max-w-[200px]" title={role.description}>
             {role.description || 'Không có mô tả'}
           </span>
         </div>
@@ -243,7 +243,7 @@ export function RoleManagementView() {
       cell: (role) => (
         <div className="flex flex-wrap gap-1 max-w-[400px] py-1">
           {role.permissions.length === 0 ? (
-            <span className="text-xs italic text-[#0c4a6e]/50">Không có quyền hạn nào</span>
+            <span className="text-xs italic text-primary-900/50">Không có quyền hạn nào</span>
           ) : (
             role.permissions.map(p => (
               <span
@@ -272,7 +272,7 @@ export function RoleManagementView() {
               className={`p-1.5 rounded-lg transition-colors ${
                 role.id === 1
                   ? 'opacity-30 cursor-not-allowed text-gray-400'
-                  : 'hover:bg-[#bae6fd] text-[#0c4a6e]'
+                  : 'hover:bg-primary-200 text-primary-900'
               }`}
               title={role.id === 1 ? 'Không thể sửa Admin hệ thống' : 'Chỉnh sửa vai trò'}
             >
@@ -307,7 +307,7 @@ export function RoleManagementView() {
   ];
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div className="relative w-full sm:w-72">
           <input
@@ -315,9 +315,9 @@ export function RoleManagementView() {
             placeholder="Tìm kiếm theo vai trò..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium text-sm"
           />
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0c4a6e]/50">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-900/50">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -326,7 +326,7 @@ export function RoleManagementView() {
 
         <button
           onClick={handleOpenAddModal}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -344,8 +344,8 @@ export function RoleManagementView() {
       {/* DATA TABLE */}
       <div className="flex-1 min-h-[300px] overflow-hidden flex flex-col">
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-[#0c4a6e]/60">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-primary-900/60">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -367,16 +367,16 @@ export function RoleManagementView() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsAddModalOpen(false)}
           ></div>
 
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#0c4a6e]">Thêm vai trò mới</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-900">Thêm vai trò mới</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-[#0c4a6e]/50 hover:text-red-500 transition-colors p-1"
+                className="text-primary-900/50 hover:text-red-500 transition-colors p-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -392,7 +392,7 @@ export function RoleManagementView() {
 
             <form onSubmit={handleAddSubmit} className="flex flex-col gap-4 text-xs sm:text-sm">
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Tên vai trò</label>
+                <label className="font-bold text-primary-900">Tên vai trò</label>
                 <input
                   type="text"
                   name="name"
@@ -400,56 +400,56 @@ export function RoleManagementView() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Ví dụ: Bác sĩ trưởng khoa, Kỹ thuật viên..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Mô tả vai trò</label>
+                <label className="font-bold text-primary-900">Mô tả vai trò</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Mô tả chức năng hoặc phạm vi của vai trò này"
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium resize-none"
                 />
               </div>
 
               {/* PERMISSIONS SELECT CHECKBOXES */}
               <div className="flex flex-col gap-2 mt-2">
-                <label className="font-bold text-[#0c4a6e]">Chọn quyền hạn định cho vai trò</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-[#bae6fd] rounded-xl p-3 bg-[#f0f9ff]/30 max-h-48 overflow-y-auto">
+                <label className="font-bold text-primary-900">Chọn quyền hạn định cho vai trò</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-primary-200 rounded-xl p-3 bg-primary-50/30 max-h-48 overflow-y-auto">
                   {permissions.map(p => (
-                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-[#bae6fd]/20 rounded transition-colors">
+                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-primary-200/20 rounded transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.permissionIds.includes(p.id)}
                         onChange={() => handlePermissionToggle(p.id)}
-                        className="mt-1 rounded border-[#bae6fd] text-[#0ea5e9] focus:ring-[#0ea5e9] cursor-pointer"
+                        className="mt-1 rounded border-primary-200 text-primary-500 focus:ring-primary-500 cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0c4a6e] text-xs">{p.name}</span>
-                        <span className="text-[10px] text-[#0c4a6e]/70 leading-snug">{p.description}</span>
+                        <span className="font-bold text-primary-900 text-xs">{p.name}</span>
+                        <span className="text-[10px] text-primary-900/70 leading-snug">{p.description}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#0c4a6e]/10">
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-primary-900/10">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-[#0ea5e9] hover:bg-[#0c4a6e] shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-primary-500 hover:bg-primary-900 shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {formSubmitting && (
                     <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -471,16 +471,16 @@ export function RoleManagementView() {
       {isEditModalOpen && selectedRole && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsEditModalOpen(false)}
           ></div>
 
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#0c4a6e]">Chỉnh sửa vai trò</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-900">Chỉnh sửa vai trò</h3>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="text-[#0c4a6e]/50 hover:text-red-500 transition-colors p-1"
+                className="text-primary-900/50 hover:text-red-500 transition-colors p-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -496,7 +496,7 @@ export function RoleManagementView() {
 
             <form onSubmit={handleEditSubmit} className="flex flex-col gap-4 text-xs sm:text-sm">
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Tên vai trò</label>
+                <label className="font-bold text-primary-900">Tên vai trò</label>
                 <input
                   type="text"
                   name="name"
@@ -504,56 +504,56 @@ export function RoleManagementView() {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Nhập tên vai trò"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Mô tả vai trò</label>
+                <label className="font-bold text-primary-900">Mô tả vai trò</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Nhập mô tả"
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium resize-none"
                 />
               </div>
 
               {/* PERMISSIONS SELECT CHECKBOXES */}
               <div className="flex flex-col gap-2 mt-2">
-                <label className="font-bold text-[#0c4a6e]">Điều chỉnh các quyền hạn</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-[#bae6fd] rounded-xl p-3 bg-[#f0f9ff]/30 max-h-48 overflow-y-auto">
+                <label className="font-bold text-primary-900">Điều chỉnh các quyền hạn</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-primary-200 rounded-xl p-3 bg-primary-50/30 max-h-48 overflow-y-auto">
                   {permissions.map(p => (
-                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-[#bae6fd]/20 rounded transition-colors">
+                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-primary-200/20 rounded transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.permissionIds.includes(p.id)}
                         onChange={() => handlePermissionToggle(p.id)}
-                        className="mt-1 rounded border-[#bae6fd] text-[#0ea5e9] focus:ring-[#0ea5e9] cursor-pointer"
+                        className="mt-1 rounded border-primary-200 text-primary-500 focus:ring-primary-500 cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0c4a6e] text-xs">{p.name}</span>
-                        <span className="text-[10px] text-[#0c4a6e]/70 leading-snug">{p.description}</span>
+                        <span className="font-bold text-primary-900 text-xs">{p.name}</span>
+                        <span className="text-[10px] text-primary-900/70 leading-snug">{p.description}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#0c4a6e]/10">
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-primary-900/10">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-[#0ea5e9] hover:bg-[#0c4a6e] shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-primary-500 hover:bg-primary-900 shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {formSubmitting && (
                     <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -575,7 +575,7 @@ export function RoleManagementView() {
       {isDeleteModalOpen && selectedRole && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsDeleteModalOpen(false)}
           ></div>
 
@@ -586,8 +586,8 @@ export function RoleManagementView() {
               </svg>
             </div>
 
-            <h3 className="text-xl font-bold text-[#0c4a6e] mb-2">Xác nhận xóa vai trò</h3>
-            <p className="text-sm text-[#0c4a6e]/85 mb-6">
+            <h3 className="text-xl font-bold text-primary-900 mb-2">Xác nhận xóa vai trò</h3>
+            <p className="text-sm text-primary-900/85 mb-6">
               Bạn có chắc chắn muốn xóa vai trò <strong>{selectedRole.name}</strong>? Hành động này sẽ xóa vĩnh viễn vai trò khỏi hệ thống. Không thể hoàn tác!
             </p>
 
@@ -596,7 +596,7 @@ export function RoleManagementView() {
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
                 disabled={formSubmitting}
-                className="px-5 py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
               >
                 Hủy bỏ
               </button>

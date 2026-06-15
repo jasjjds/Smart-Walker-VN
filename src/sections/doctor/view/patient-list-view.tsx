@@ -16,6 +16,7 @@ interface Patient {
   status: string;
   doctorId: number | null;
   doctorName: string | null;
+  dateOfBirth: string;
 }
 
 export function PatientListView() {
@@ -75,6 +76,7 @@ export function PatientListView() {
           status: statusMap[p.id] || p.status || 'offline',
           doctorId: p.doctor_id,
           doctorName: p.doctor_name,
+          dateOfBirth: formatDate(p.date_of_birth),
         }));
 
         setPatients(formattedData);
@@ -94,9 +96,49 @@ export function PatientListView() {
 
   const calculateAge = (dobString: string) => {
     if (!dobString) return 'N/A';
-    const dob = new Date(dobString);
-    const ageDate = new Date(Date.now() - dob.getTime());
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    try {
+      const dob = new Date(dobString);
+      if (isNaN(dob.getTime())) return 'N/A';
+      
+      const now = new Date();
+      let yearsDiff = now.getFullYear() - dob.getFullYear();
+      const monthDiff = now.getMonth() - dob.getMonth();
+      const dayDiff = now.getDate() - dob.getDate();
+      
+      // Tính tuổi chính xác bằng cách trừ đi 1 nếu chưa tới ngày sinh nhật trong năm nay
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        yearsDiff--;
+      }
+      
+      // Nếu dưới 3 tuổi (dưới 36 tháng)
+      if (yearsDiff < 3) {
+        let monthsDiff = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+        if (dayDiff < 0) {
+          monthsDiff--;
+        }
+        const months = monthsDiff <= 0 ? 1 : monthsDiff;
+        return `${months} tháng`;
+      }
+      
+      // Nếu tròn hoặc trên 3 tuổi
+      return `${yearsDiff} tuổi`;
+    } catch (e) {
+      return 'N/A';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Chưa cập nhật';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Chưa cập nhật';
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return 'Chưa cập nhật';
+    }
   };
 
   const handleOpenAssignModal = () => {
@@ -148,32 +190,48 @@ export function PatientListView() {
 
   const patientColumns: ColumnDefinition<Patient>[] = [
     {
+      header: 'Mã bệnh nhân',
+      accessorKey: 'id',
+      cell: (patient) => (
+        <span className="font-medium text-primary-900">{patient.id}</span>
+      )
+    },
+    {
       header: 'Tên bệnh nhân',
       accessorKey: 'name',
       cell: (patient) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0c4a6e] shadow-sm border border-[#bae6fd] shrink-0 font-bold">
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary-900 shadow-sm border border-primary-200 shrink-0 font-bold">
             {patient.name.charAt(0).toUpperCase()}
           </div>
-          <span className="font-semibold text-slate-800">{patient.name}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-slate-800">{patient.name}</span>
+            {patient.gender && patient.gender !== 'N/A' && (
+              <span className="text-xs font-semibold text-slate-400">({patient.gender})</span>
+            )}
+          </div>
         </div>
       )
     },
     {
-      header: 'Mã BN / Thiết bị',
-      accessorKey: 'id',
+      header: 'Ngày sinh',
+      accessorKey: 'dateOfBirth',
       cell: (patient) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-medium text-[#0c4a6e]">{patient.id}</span>
-          <span className="text-xs text-[#0ea5e9] font-mono">{patient.deviceId}</span>
-        </div>
+        <span className="text-slate-600 font-medium">{patient.dateOfBirth}</span>
       )
     },
     {
-      header: 'Tuổi & Giới tính',
+      header: 'Tuổi',
       accessorKey: 'age',
       cell: (patient) => (
-        <span className="text-slate-600 font-medium">{patient.age} tuổi • {patient.gender}</span>
+        <span className="text-slate-600 font-medium">{patient.age}</span>
+      )
+    },
+    {
+      header: 'Giới tính',
+      accessorKey: 'gender',
+      cell: (patient) => (
+        <span className="text-slate-600 font-medium">{patient.gender}</span>
       )
     },
     {
@@ -215,7 +273,7 @@ export function PatientListView() {
         <div className="flex items-center justify-center gap-1.5">
           <Link
             href={`/dashboard/doctor/patients/${patient.rawId}`}
-            className="p-1.5 hover:bg-[#bae6fd] rounded-lg transition-colors text-[#0ea5e9]"
+            className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-500"
             title="Xem hồ sơ"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,22 +281,22 @@ export function PatientListView() {
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
           </Link>
-          <button
-            onClick={() => handleOpenEditModal(patient)}
-            className="p-1.5 hover:bg-[#bae6fd] rounded-lg transition-colors text-[#0c4a6e]"
-            title="Chỉnh sửa thông tin"
+          <Link
+            href={`/dashboard/doctor/patients/${patient.rawId}/booklet`}
+            className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
+            title="Sổ y tế điện tử"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
-          </button>
+          </Link>
         </div>
       )
     }
   ];
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-start sm:items-center">
           <div className="relative w-full sm:w-72">
@@ -247,29 +305,29 @@ export function PatientListView() {
               placeholder="Tìm kiếm theo tên, mã BN..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium text-sm"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium text-sm"
             />
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0c4a6e]/50">
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-900/50">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </div>
           
-          <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-[#bae6fd] shadow-sm hover:bg-[#f0f9ff] transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-primary-200 shadow-sm hover:bg-primary-50 transition-colors">
             <input 
               type="checkbox" 
               checked={showOnlyMyPatients}
               onChange={(e) => setShowOnlyMyPatients(e.target.checked)}
-              className="rounded text-[#0ea5e9] focus:ring-[#0ea5e9] border-[#bae6fd] w-4 h-4"
+              className="rounded text-primary-500 focus:ring-primary-500 border-primary-200 w-4 h-4"
             />
-            <span className="text-sm font-bold text-[#0c4a6e]">Chỉ hiển thị bệnh nhân của tôi</span>
+            <span className="text-sm font-bold text-primary-900">Chỉ hiển thị bệnh nhân của tôi</span>
           </label>
         </div>
 
         <button
           onClick={handleOpenAssignModal}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm whitespace-nowrap"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -286,8 +344,8 @@ export function PatientListView() {
 
       <div className="flex-1 min-h-[300px] overflow-hidden flex flex-col">
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-[#0c4a6e]/60">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-primary-900/60">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -306,11 +364,11 @@ export function PatientListView() {
       {/* MODAL GÁN BỆNH NHÂN */}
       {isAssignModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={() => setIsAssignModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={() => setIsAssignModalOpen(false)}></div>
           <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#0c4a6e]">Nhận quản lý bệnh nhân</h3>
-              <button onClick={() => setIsAssignModalOpen(false)} className="text-[#0c4a6e]/50 hover:text-red-500 p-1">
+              <h3 className="text-xl font-bold text-primary-900">Nhận quản lý bệnh nhân</h3>
+              <button onClick={() => setIsAssignModalOpen(false)} className="text-primary-900/50 hover:text-red-500 p-1">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -323,11 +381,11 @@ export function PatientListView() {
 
             <form onSubmit={handleAssignSubmit} className="flex flex-col gap-4 text-sm">
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Chọn bệnh nhân (Chưa gán bác sĩ)</label>
+                <label className="font-bold text-primary-900">Chọn bệnh nhân (Chưa gán bác sĩ)</label>
                 <select
                   value={formData.patientIdToAssign}
                   onChange={(e) => setFormData({ ...formData, patientIdToAssign: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">-- Chọn bệnh nhân --</option>
                   {unassignedPatients.map(p => (
@@ -339,11 +397,11 @@ export function PatientListView() {
                 )}
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#0c4a6e]/10">
-                <button type="button" onClick={() => setIsAssignModalOpen(false)} disabled={formSubmitting} className="px-5 py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd]">
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-primary-900/10">
+                <button type="button" onClick={() => setIsAssignModalOpen(false)} disabled={formSubmitting} className="px-5 py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200">
                   Hủy bỏ
                 </button>
-                <button type="submit" disabled={formSubmitting || unassignedPatients.length === 0} className="px-5 py-2.5 rounded-xl font-bold text-white bg-[#0ea5e9] hover:bg-[#0c4a6e] shadow-md disabled:opacity-50 flex items-center gap-2">
+                <button type="submit" disabled={formSubmitting || unassignedPatients.length === 0} className="px-5 py-2.5 rounded-xl font-bold text-white bg-primary-500 hover:bg-primary-900 shadow-md disabled:opacity-50 flex items-center gap-2">
                   {formSubmitting ? 'Đang xử lý...' : 'Xác nhận gán'}
                 </button>
               </div>
@@ -355,17 +413,17 @@ export function PatientListView() {
       {/* MODAL SỬA BỆNH NHÂN (Placeholder) */}
       {isEditModalOpen && selectedPatient && (
          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#0c4a6e]">Chỉnh sửa hồ sơ</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-[#0c4a6e]/50 hover:text-red-500 p-1">
+              <h3 className="text-xl font-bold text-primary-900">Chỉnh sửa hồ sơ</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-primary-900/50 hover:text-red-500 p-1">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <p className="text-sm text-[#0c4a6e]/70 mb-4">Tính năng cập nhật bệnh án chi tiết đang được phát triển.</p>
+            <p className="text-sm text-primary-900/70 mb-4">Tính năng cập nhật bệnh án chi tiết đang được phát triển.</p>
             <div className="flex justify-end">
-              <button onClick={() => setIsEditModalOpen(false)} className="px-5 py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd]">
+              <button onClick={() => setIsEditModalOpen(false)} className="px-5 py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200">
                 Đóng
               </button>
             </div>

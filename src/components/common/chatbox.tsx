@@ -31,13 +31,13 @@ export function Chatbox({
       <div
         className={`transition-all duration-300 origin-bottom-right ease-out ${isChatOpen ? 'scale-100 opacity-100 mb-4' : 'scale-0 opacity-0 h-0 w-0 m-0 pointer-events-none'}`}
       >
-        <div className="w-[calc(100vw-32px)] sm:w-[340px] h-[450px] sm:h-[480px] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-[#bae6fd] flex flex-col overflow-hidden">
+        <div className="w-[calc(100vw-32px)] sm:w-[340px] h-[450px] sm:h-[480px] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-primary-200 flex flex-col overflow-hidden">
 
           {/* VIEW 1: DANH SÁCH LIÊN HỆ */}
           {activeChat === null ? (
             <div className="flex-1 flex flex-col h-full bg-white">
               {/* Header Danh sách */}
-              <div className="bg-[#0c4a6e] p-4 flex justify-between items-center text-white shrink-0">
+              <div className="bg-primary-900 p-4 flex justify-between items-center text-white shrink-0">
                 <h3 className="font-bold text-lg">Tin nhắn</h3>
                 <button onClick={handleCloseChat} className="p-1 hover:bg-white/20 rounded-full transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -58,11 +58,11 @@ export function Chatbox({
                   <div
                     key={contact.id}
                     onClick={() => setActiveChat(contact.id)}
-                    className="flex items-center gap-3 p-3 hover:bg-[#f0f9ff] cursor-pointer transition-colors border-b border-gray-55"
+                    className="flex items-center gap-3 p-3 hover:bg-primary-50 cursor-pointer transition-colors border-b border-gray-55"
                   >
                     {/* Avatar */}
                     <div className="relative shrink-0">
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 bg-[#e0f2fe] text-[#0ea5e9] rounded-full flex items-center justify-center font-black text-base sm:text-lg border border-[#bae6fd]">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 bg-primary-100 text-primary-500 rounded-full flex items-center justify-center font-black text-base sm:text-lg border border-primary-200">
                         {contact.avatar}
                       </div>
                       {contact.online && (
@@ -72,7 +72,7 @@ export function Chatbox({
 
                     {/* Meta info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-sm text-[#0c4a6e] truncate">{contact.name}</h4>
+                      <h4 className="font-bold text-sm text-primary-900 truncate">{contact.name}</h4>
                       <p className="text-xs text-gray-400 font-medium truncate">{contact.role}</p>
                     </div>
 
@@ -88,9 +88,9 @@ export function Chatbox({
             </div>
           ) : (
             /* VIEW 2: KHUNG CHAT CHI TIẾT */
-            <div className="flex-1 flex flex-col h-full bg-[#f8fafc]">
+            <div className="flex-1 flex flex-col h-full bg-neutral-50">
               {/* Header Chat */}
-              <div className="bg-gradient-to-r from-[#0c4a6e] to-[#0ea5e9] p-3 flex justify-between items-center text-white shrink-0 shadow-sm">
+              <div className="bg-gradient-to-r from-primary-900 to-primary-500 p-3 flex justify-between items-center text-white shrink-0 shadow-sm">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveChat(null)}
@@ -110,7 +110,7 @@ export function Chatbox({
 
               {/* Nội dung hội thoại */}
               <div className="flex-grow p-4 overflow-y-auto flex flex-col justify-center items-center text-center text-xs text-gray-400 gap-2 font-medium">
-                <svg className="w-10 h-10 opacity-30 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-10 h-10 opacity-30 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 Bắt đầu cuộc trò chuyện tư vấn sức khỏe...
@@ -121,9 +121,9 @@ export function Chatbox({
                 <input
                   type="text"
                   placeholder="Nhập tin nhắn..."
-                  className="flex-grow bg-gray-100 text-xs sm:text-sm px-4 py-2 rounded-full outline-none focus:bg-slate-50 focus:ring-1 focus:ring-[#0ea5e9] transition-all font-medium"
+                  className="flex-grow bg-gray-100 text-xs sm:text-sm px-4 py-2 rounded-full outline-none focus:bg-slate-50 focus:ring-1 focus:ring-primary-500 transition-all font-medium"
                 />
-                <button className="text-[#0ea5e9] hover:text-[#0c4a6e] transition-colors p-1.5 hover:bg-slate-100 rounded-full">
+                <button className="text-primary-500 hover:text-primary-900 transition-colors p-1.5 hover:bg-slate-100 rounded-full">
                   <svg className="w-5 h-5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                   </svg>
@@ -137,7 +137,7 @@ export function Chatbox({
       {/* Nút FAB chính mở chatbox */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-90 ${isChatOpen ? 'bg-white text-gray-400 border border-gray-200 rotate-90' : 'bg-[#0ea5e9] text-white hover:scale-105 shadow-[#0ea5e9]/20'}`}
+        className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 transform active:scale-90 ${isChatOpen ? 'bg-white text-gray-400 border border-gray-200 rotate-90' : 'bg-primary-500 text-white hover:scale-105 shadow-primary-500/20'}`}
       >
         {isChatOpen ? (
           <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

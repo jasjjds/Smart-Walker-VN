@@ -4,6 +4,7 @@ import Link from "next/link";
 import { menuGroups } from "./config-navigation";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth-context";
+import { BRAND_CONFIG } from "@/config/brand";
 
 interface NavVerticalProps {
   pathname: string;
@@ -39,7 +40,7 @@ export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVer
     }));
 
   return (
-    <aside style={{ width: `${width}px` }} className="h-full bg-[#0c4a6e] flex flex-col shadow-2xl relative z-20 overflow-hidden">
+    <aside style={{ width: `${width}px` }} className="h-full bg-primary-900 flex flex-col shadow-2xl relative z-20 overflow-hidden">
       
       {/* Khu vực Logo */}
       <div className="h-24 w-full flex items-center px-6 border-b border-white/10 mt-2 shrink-0">
@@ -47,8 +48,8 @@ export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVer
           <Logo />
         </div>
         <div className="flex flex-col">
-          <span className="text-[#0ea5e9] font-bold text-lg leading-tight uppercase tracking-wide">Smart Walker</span>
-          <span className="text-[#f0f9ff]/70 font-medium text-xs tracking-widest uppercase mt-0.5">Việt Nam</span>
+          <span className="text-primary-500 font-bold text-lg leading-tight uppercase tracking-wide">{BRAND_CONFIG.brand.name}</span>
+          <span className="text-primary-50/70 font-medium text-xs tracking-widest uppercase mt-0.5">{BRAND_CONFIG.brand.region}</span>
         </div>
       </div>
 
@@ -65,11 +66,11 @@ export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVer
                 className="px-6 py-2 mb-1 flex items-center justify-between cursor-pointer group/header"
                 onClick={() => toggleGroup(group.id)}
               >
-                <h3 className="text-[11px] font-bold text-[#f0f9ff]/40 uppercase tracking-widest group-hover/header:text-[#f0f9ff]/80 transition-colors">
+                <h3 className="text-[11px] font-bold text-primary-50/40 uppercase tracking-widest group-hover/header:text-primary-50/80 transition-colors">
                   {group.groupLabel}
                 </h3>
                 <svg
-                  className={`w-3.5 h-3.5 text-[#f0f9ff]/40 group-hover/header:text-[#0ea5e9] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                  className={`w-3.5 h-3.5 text-primary-50/40 group-hover/header:text-primary-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
@@ -94,11 +95,11 @@ export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVer
                       href={item.path}
                       className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-[14px] ${
                         isActive
-                          ? 'bg-gradient-to-r from-[#0ea5e9] to-[#0284c7] text-white shadow-md shadow-[#0ea5e9]/20'
-                          : 'text-[#f0f9ff]/60 hover:bg-white/10 hover:text-white'
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20'
+                          : 'text-primary-50/60 hover:bg-white/10 hover:text-white'
                       }`}
                     >
-                      <svg className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#f0f9ff]/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={`w-4 h-4 ${isActive ? 'text-white' : 'text-primary-50/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                       </svg>
                       {item.name}
@@ -121,7 +122,7 @@ export function NavVertical({ pathname, openGroups, toggleGroup, width }: NavVer
       <div className="p-4 border-t border-white/10 shrink-0">
         <button
           onClick={logout}
-          className="flex items-center gap-4 px-4 py-3.5 w-full rounded-xl text-[#f0f9ff]/70 hover:bg-red-500/10 hover:text-red-400 transition-colors font-medium cursor-pointer text-left"
+          className="flex items-center gap-4 px-4 py-3.5 w-full rounded-xl text-primary-50/70 hover:bg-red-500/10 hover:text-red-400 transition-colors font-medium cursor-pointer text-left"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

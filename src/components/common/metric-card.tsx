@@ -20,14 +20,14 @@ export function MetricCard({
   unit,
   description,
   icon,
-  iconBgColor = "bg-[#e0f2fe] text-[#0ea5e9]",
+  iconBgColor = "bg-primary-100 text-primary-500",
   variant = "overview",
-  valueColorClass = "text-[#0c4a6e]",
+  valueColorClass = "text-primary-900",
   className = ""
 }: MetricCardProps) {
   if (variant === 'minimal') {
     return (
-      <div className={`bg-[#f0f9ff] border border-[#e0f2fe] p-3 rounded-2xl flex flex-col items-center text-center shadow-xs ${className}`}>
+      <div className={`bg-primary-50 border border-primary-100 p-3 rounded-2xl flex flex-col items-center text-center shadow-xs ${className}`}>
         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">{title}</span>
         <span className={`text-base sm:text-lg font-black ${valueColorClass}`}>
           {value} <span className="text-[10px] text-slate-400 font-bold">{unit}</span>
@@ -52,7 +52,7 @@ export function MetricCard({
   }
 
   return (
-    <div className={`bg-white rounded-2xl p-5 sm:p-6 border border-[#bae6fd] shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow ${className}`}>
+    <div className={`bg-white rounded-2xl p-5 sm:p-6 border border-primary-200 shadow-sm flex items-center gap-5 hover:shadow-md transition-shadow ${className}`}>
       {icon && (
         <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 ${iconBgColor}`}>
           {icon}

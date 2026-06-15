@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import { BRAND_CONFIG } from "@/config/brand";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 
@@ -14,8 +15,8 @@ const roboto = Roboto({
 
 // Tiêu đề mặc định cho toàn dự án
 export const metadata: Metadata = {
-  title: "Smart Walker VN",
-  description: "Hệ thống quản lý và theo dõi xe tập đi thông minh",
+  title: BRAND_CONFIG.brand.fullName,
+  description: BRAND_CONFIG.slogan,
 };
 
 export default function RootLayout({

@@ -73,7 +73,7 @@ export function PatientOverviewView() {
   })();
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative pr-0 lg:pr-2">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative pr-0 lg:pr-2">
       
       {/* 1. KHỐI CHÀO MỪNG */}
       <WelcomeBanner
@@ -97,7 +97,7 @@ export function PatientOverviewView() {
           value={calculatedStats.totalWorkouts}
           unit="buổi"
           icon={<svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
-          iconBgColor="bg-[#e0f2fe] text-[#0ea5e9]"
+          iconBgColor="bg-primary-100 text-primary-500"
         />
         <MetricCard
           title="Tổng quãng đường"

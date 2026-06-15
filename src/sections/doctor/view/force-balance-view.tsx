@@ -77,15 +77,15 @@ export function ForceBalanceView() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
+    <div className="w-full flex flex-col gap-6 text-primary-900 p-2 md:p-4 rounded-xl lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
 
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
           <BackButton href={backLink} className="mb-2" />
-          <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">Theo dõi sự phân bố trọng lượng lên hai tay cầm của xe tập đi.</p>
+          <p className="text-primary-900/70 mt-0.5 text-xs sm:text-sm font-medium italic">Theo dõi sự phân bố trọng lượng lên hai tay cầm của xe tập đi.</p>
         </div>
-        <button onClick={() => setIsLive(!isLive)} className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'}`}>
+        <button onClick={() => setIsLive(!isLive)} className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'}`}>
           {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
         </button>
       </div>
@@ -106,39 +106,39 @@ export function ForceBalanceView() {
           <div className="flex-1 w-full flex items-end justify-center gap-6 sm:gap-12 min-h-0 pb-6">
             {/* Tay Trái */}
             <div className="flex flex-col items-center h-full max-h-[85%] w-[40%] max-w-[140px]">
-              <div className="text-2xl sm:text-3xl xl:text-4xl font-black text-[#0ea5e9] mb-4 shrink-0 transition-all">{currentForce.left.toFixed(1)} <span className="text-xs text-slate-400 font-bold">kg</span></div>
+              <div className="text-2xl sm:text-3xl xl:text-4xl font-black text-primary-500 mb-4 shrink-0 transition-all">{currentForce.left.toFixed(1)} <span className="text-xs text-slate-400 font-bold">kg</span></div>
               <div className="w-full flex-1 bg-slate-100 rounded-full p-2 shadow-inner flex items-end relative overflow-hidden">
                 <div className="absolute inset-0 flex flex-col justify-between py-6 opacity-20 pointer-events-none">
                   {[...Array(6)].map((_, i) => <div key={i} className="w-full h-[2px] bg-slate-400"></div>)}
                 </div>
-                <div className="w-full bg-[#0ea5e9] rounded-full transition-all duration-300 ease-out relative shadow-md" style={{ height: `${(Math.min(currentForce.left, CHART_CONFIG.MAX_FORCE_KG) / CHART_CONFIG.MAX_FORCE_KG) * 100}%` }}>
+                <div className="w-full bg-primary-500 rounded-full transition-all duration-300 ease-out relative shadow-md" style={{ height: `${(Math.min(currentForce.left, CHART_CONFIG.MAX_FORCE_KG) / CHART_CONFIG.MAX_FORCE_KG) * 100}%` }}>
                   <div className="absolute top-2 left-2 right-2 h-3 bg-white/30 rounded-full"></div>
                 </div>
               </div>
               <div className="font-black text-slate-600 text-xs sm:text-sm mt-4 sm:mt-6 shrink-0 tracking-widest">TRÁI</div>
-              <div className="px-3 py-1.5 mt-2 bg-slate-100 text-[#0ea5e9] rounded-lg text-xs sm:text-sm font-black shrink-0 border border-slate-200">{leftPercent.toFixed(1)}%</div>
+              <div className="px-3 py-1.5 mt-2 bg-slate-100 text-primary-500 rounded-lg text-xs sm:text-sm font-black shrink-0 border border-slate-200">{leftPercent.toFixed(1)}%</div>
             </div>
 
             {/* Tay Phải */}
             <div className="flex flex-col items-center h-full max-h-[85%] w-[40%] max-w-[140px]">
-              <div className="text-2xl sm:text-3xl xl:text-4xl font-black text-[#0c4a6e] mb-4 shrink-0 transition-all">{currentForce.right.toFixed(1)} <span className="text-xs text-slate-400 font-bold">kg</span></div>
+              <div className="text-2xl sm:text-3xl xl:text-4xl font-black text-primary-900 mb-4 shrink-0 transition-all">{currentForce.right.toFixed(1)} <span className="text-xs text-slate-400 font-bold">kg</span></div>
               <div className="w-full flex-1 bg-slate-100 rounded-full p-2 shadow-inner flex items-end relative overflow-hidden">
                 <div className="absolute inset-0 flex flex-col justify-between py-6 opacity-20 pointer-events-none">
                   {[...Array(6)].map((_, i) => <div key={i} className="w-full h-[2px] bg-slate-400"></div>)}
                 </div>
-                <div className="w-full bg-[#0c4a6e] rounded-full transition-all duration-300 ease-out relative shadow-md" style={{ height: `${(Math.min(currentForce.right, CHART_CONFIG.MAX_FORCE_KG) / CHART_CONFIG.MAX_FORCE_KG) * 100}%` }}>
+                <div className="w-full bg-primary-900 rounded-full transition-all duration-300 ease-out relative shadow-md" style={{ height: `${(Math.min(currentForce.right, CHART_CONFIG.MAX_FORCE_KG) / CHART_CONFIG.MAX_FORCE_KG) * 100}%` }}>
                   <div className="absolute top-2 left-2 right-2 h-3 bg-white/20 rounded-full"></div>
                 </div>
               </div>
               <div className="font-black text-slate-600 text-xs sm:text-sm mt-4 sm:mt-6 shrink-0 tracking-widest">PHẢI</div>
-              <div className="px-3 py-1.5 mt-2 bg-slate-100 text-[#0c4a6e] rounded-lg text-xs sm:text-sm font-black shrink-0 border border-slate-200">{rightPercent.toFixed(1)}%</div>
+              <div className="px-3 py-1.5 mt-2 bg-slate-100 text-primary-900 rounded-lg text-xs sm:text-sm font-black shrink-0 border border-slate-200">{rightPercent.toFixed(1)}%</div>
             </div>
           </div>
         </div>
 
         {/* RESIZER X (Chỉ hiển thị trên Desktop) */}
         <div onMouseDown={startResizeX} className="w-4 -ml-2 -mr-2 z-10 cursor-col-resize flex flex-col items-center justify-center group hidden lg:flex">
-          <div className="w-[3px] h-16 bg-slate-300 rounded-full group-hover:bg-[#0ea5e9] group-hover:w-[5px] group-hover:h-24 transition-all shadow-sm"></div>
+          <div className="w-[3px] h-16 bg-slate-300 rounded-full group-hover:bg-primary-500 group-hover:w-[5px] group-hover:h-24 transition-all shadow-sm"></div>
         </div>
 
         {/* CỘT PHẢI - REAL-TIME */}

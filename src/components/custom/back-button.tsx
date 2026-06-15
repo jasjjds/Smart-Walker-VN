@@ -18,7 +18,7 @@ export function BackButton({ href, onClick, className = "" }: BackButtonProps) {
     </>
   );
 
-  const baseClasses = `flex items-center gap-2 text-[#0ea5e9] hover:text-[#0c4a6e] font-bold w-fit transition-colors text-sm shrink-0 ${className}`;
+  const baseClasses = `flex items-center gap-2 text-primary-500 hover:text-primary-900 font-bold w-fit transition-colors text-sm shrink-0 ${className}`;
 
   if (href) {
     return (

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { deviceService } from "@/services/deviceService";
 import { patientService } from "@/services/patientService";
+import { BRAND_CONFIG } from "@/config/brand";
 
 export function DeviceManagementView() {
   const [devices, setDevices] = useState<any[]>([]);
@@ -112,27 +113,26 @@ export function DeviceManagementView() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900">
       
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black">Quản lý Thiết bị</h2>
-          <p className="text-xs sm:text-sm text-gray-500 font-medium">Danh sách toàn bộ các xe tập đi Smart Walker đăng ký trên hệ thống.</p>
+          <p className="text-xs sm:text-sm text-gray-500 font-medium">{BRAND_CONFIG.admin.deviceManagementDesc}</p>
         </div>
         <button
           onClick={fetchDevices}
-          className="px-4 py-2 bg-[#f0f9ff] border border-[#bae6fd] hover:bg-[#bae6fd] text-[#0c4a6e] text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-2xs"
+          className="px-4 py-2 bg-primary-50 border border-primary-200 hover:bg-primary-200 text-primary-900 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-2xs"
         >
           🔄 Làm mới dữ liệu
         </button>
       </div>
 
       {/* DEVICES TABLE/CARD AREA */}
-      <div className="flex-1 bg-white rounded-3xl border border-[#bae6fd] p-5 sm:p-6 shadow-sm flex flex-col min-h-[400px]">
+      <div className="flex-1 bg-white rounded-3xl border border-primary-200 p-5 sm:p-6 shadow-sm flex flex-col min-h-[400px]">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 text-slate-400">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -149,7 +149,7 @@ export function DeviceManagementView() {
           <div className="flex-grow overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
-                <tr className="border-b border-[#bae6fd] text-[#0c4a6e]/50 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
+                <tr className="border-b border-primary-200 text-primary-900/50 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
                   <th className="py-3 px-4">Địa chỉ MAC (ID)</th>
                   <th className="py-3 px-4">Loại thiết bị</th>
                   <th className="py-3 px-4">Trạng thái</th>
@@ -157,7 +157,7 @@ export function DeviceManagementView() {
                   <th className="py-3 px-4 text-center">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#bae6fd]/50">
+              <tbody className="divide-y divide-primary-200/50">
                 {devices.map((device) => {
                   const isAssigned = !!device.assigned_patient_id;
                   const patientName = device.patients?.user?.full_name || "N/A";
@@ -181,8 +181,8 @@ export function DeviceManagementView() {
                   }
 
                   return (
-                    <tr key={device.id} className="hover:bg-[#f0f9ff]/50 transition-colors">
-                      <td className="py-4 px-4 font-mono font-bold text-[#0ea5e9]">
+                    <tr key={device.id} className="hover:bg-primary-50/50 transition-colors">
+                      <td className="py-4 px-4 font-mono font-bold text-primary-500">
                         {device.id}
                       </td>
                       <td className="py-4 px-4">
@@ -232,7 +232,7 @@ export function DeviceManagementView() {
                           ) : (
                             <button
                               onClick={() => handleOpenAssignModal(device)}
-                              className="px-3 py-1.5 bg-[#0ea5e9] text-white hover:bg-[#0c4a6e] text-xs font-bold rounded-lg transition-all shadow-2xs"
+                              className="px-3 py-1.5 bg-primary-500 text-white hover:bg-primary-900 text-xs font-bold rounded-lg transition-all shadow-2xs"
                             >
                               Gán bệnh nhân
                             </button>
@@ -251,17 +251,17 @@ export function DeviceManagementView() {
       {/* MODAL GÁN THIẾT BỊ CHO BỆNH NHÂN */}
       {isAssignModalOpen && selectedDevice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={() => setIsAssignModalOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 border border-[#bae6fd] animate-fade-in flex flex-col gap-6">
+          <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={() => setIsAssignModalOpen(false)}></div>
+          <div className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 border border-primary-200 animate-fade-in flex flex-col gap-6">
             
-            <div className="flex justify-between items-center pb-4 border-b border-[#0c4a6e]/10">
+            <div className="flex justify-between items-center pb-4 border-b border-primary-900/10">
               <div>
-                <h3 className="text-lg font-black text-[#0c4a6e]">Gán thiết bị cho bệnh nhân</h3>
+                <h3 className="text-lg font-black text-primary-900">Gán thiết bị cho bệnh nhân</h3>
                 <p className="text-[10px] text-slate-400 font-bold font-mono uppercase mt-1">
                   Thiết bị: {selectedDevice.id}
                 </p>
               </div>
-              <button onClick={() => setIsAssignModalOpen(false)} className="text-[#0c4a6e]/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
+              <button onClick={() => setIsAssignModalOpen(false)} className="text-primary-900/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
@@ -272,7 +272,7 @@ export function DeviceManagementView() {
                 <select
                   value={assignedPatientId}
                   onChange={(e) => setAssignedPatientId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]"
+                  className="w-full px-4 py-3 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="">-- Chọn bệnh nhân để gán --</option>
                   {patients.map((p: any) => (
@@ -295,7 +295,7 @@ export function DeviceManagementView() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-colors"
+                  className="px-5 py-2.5 bg-primary-500 hover:bg-primary-900 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-colors"
                 >
                   {submitting ? "Đang xử lý..." : "Xác nhận gán"}
                 </button>

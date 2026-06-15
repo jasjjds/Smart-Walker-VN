@@ -40,15 +40,29 @@ export function DoctorPatientBookletView() {
   const [doctorNotes, setDoctorNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+
+  const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   // Sync doctorNotes when selectedPage changes
   useEffect(() => {
     if (selectedPage) {
       setDoctorNotes(selectedPage.doctor_notes || "");
+      setIsEditingNotes(!selectedPage.doctor_notes); // Nếu chưa có ghi chú, cho phép sửa luôn; nếu đã có ghi chú, bắt đầu bằng trạng thái khóa.
     } else {
       setDoctorNotes("");
+      setIsEditingNotes(false);
     }
   }, [selectedPage]);
+
+  // Tự động mở rộng chiều cao của textarea khi thay đổi nội dung
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [doctorNotes, selectedPageId]);
 
   const leftForce = selectedPage?.avg_force_left ?? 0;
   const rightForce = selectedPage?.avg_force_right ?? 0;
@@ -90,7 +104,9 @@ export function DoctorPatientBookletView() {
             )
           });
         }
-        setTimeout(() => setSaveSuccess(false), 3000);
+        
+        // Tự động đóng modal
+        handleClosePageDetail();
       }
     } catch (err: any) {
       console.error("Lỗi khi lưu chẩn đoán bác sĩ:", err);
@@ -119,7 +135,7 @@ export function DoctorPatientBookletView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative">
 
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
@@ -131,12 +147,12 @@ export function DoctorPatientBookletView() {
         {/* Info badges */}
         {booklet && (
           <div className="flex flex-wrap gap-2 text-xs font-bold">
-            <span className="bg-white border border-[#bae6fd] px-3 py-1.5 rounded-xl text-slate-500">
-              Số sổ: <span className="font-mono text-[#0ea5e9] font-black">{booklet.booklet_number}</span>
+            <span className="bg-white border border-primary-200 px-3 py-1.5 rounded-xl text-slate-500">
+              Số sổ: <span className="font-mono text-primary-500 font-black">{booklet.booklet_number}</span>
             </span>
             {booklet.patient_info?.identity_card && (
-              <span className="bg-white border border-[#bae6fd] px-3 py-1.5 rounded-xl text-slate-500">
-                CCCD/CMND: <span className="font-mono text-[#0ea5e9] font-black">{booklet.patient_info.identity_card}</span>
+              <span className="bg-white border border-primary-200 px-3 py-1.5 rounded-xl text-slate-500">
+                CCCD/CMND: <span className="font-mono text-primary-500 font-black">{booklet.patient_info.identity_card}</span>
               </span>
             )}
           </div>
@@ -150,10 +166,10 @@ export function DoctorPatientBookletView() {
       )}
 
       {/* CORE CONTENT */}
-      <div className="flex-1 bg-white rounded-3xl border border-[#bae6fd] p-5 sm:p-6 shadow-sm flex flex-col min-h-[400px]">
+      <div className="flex-1 bg-white rounded-3xl border border-primary-200 p-5 sm:p-6 shadow-sm flex flex-col min-h-[400px]">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 text-slate-400">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -170,7 +186,7 @@ export function DoctorPatientBookletView() {
           <div className="flex-grow overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
-                <tr className="border-b border-[#bae6fd] text-[#0c4a6e]/50 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
+                <tr className="border-b border-primary-200 text-primary-900/50 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
                   <th className="py-3 px-4">Ngày bắt đầu</th>
                   <th className="py-3 px-4">Thời gian</th>
                   <th className="py-3 px-4">Quãng đường</th>
@@ -179,7 +195,7 @@ export function DoctorPatientBookletView() {
                   <th className="py-3 px-4 text-center">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#bae6fd]/50">
+              <tbody className="divide-y divide-primary-200/50">
                 {booklet.pages.map((page: any) => {
                   const hasNotes = !!page.doctor_notes;
                   const dateStr = new Date(page.start_time).toLocaleString("vi-VN", {
@@ -188,14 +204,14 @@ export function DoctorPatientBookletView() {
                   });
 
                   return (
-                    <tr key={page.id} className="hover:bg-[#f0f9ff]/50 transition-colors">
+                    <tr key={page.id} className="hover:bg-primary-50/50 transition-colors">
                       <td className="py-4 px-4 font-bold">{dateStr}</td>
                       <td className="py-4 px-4 font-semibold text-slate-600">{formatDuration(page.duration_seconds)}</td>
                       <td className="py-4 px-4 font-semibold text-slate-600">{(page.total_distance ?? 0).toFixed(1)} m</td>
                       <td className="py-4 px-4">
-                        <span className="font-mono text-xs font-bold text-[#0ea5e9]">{(page.avg_force_left ?? 0).toFixed(1)}kg</span>
+                        <span className="font-mono text-xs font-bold text-primary-500">{(page.avg_force_left ?? 0).toFixed(1)}kg</span>
                         <span className="text-slate-300 mx-1.5">•</span>
-                        <span className="font-mono text-xs font-bold text-[#0c4a6e]">{(page.avg_force_right ?? 0).toFixed(1)}kg</span>
+                        <span className="font-mono text-xs font-bold text-primary-900">{(page.avg_force_right ?? 0).toFixed(1)}kg</span>
                       </td>
                       <td className="py-4 px-4">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-black inline-block ${hasNotes ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -205,7 +221,7 @@ export function DoctorPatientBookletView() {
                       <td className="py-4 px-4 text-center">
                         <button
                           onClick={() => handleOpenPageDetail(page.id)}
-                          className="px-4 py-1.5 bg-[#f0f9ff] border border-[#bae6fd] hover:bg-[#0ea5e9] hover:text-white transition-colors text-xs font-bold rounded-lg shadow-2xs"
+                          className="px-4 py-1.5 bg-primary-50 border border-primary-200 hover:bg-primary-500 hover:text-white transition-colors text-xs font-bold rounded-lg shadow-2xs"
                         >
                           Phân tích & Chẩn đoán
                         </button>
@@ -222,23 +238,23 @@ export function DoctorPatientBookletView() {
       {/* MODAL PHÂN TÍCH & GHI CHÚ BÁC SĨ */}
       {selectedPageId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={handleClosePageDetail}></div>
-          <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 border border-[#bae6fd] animate-fade-in">
+          <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={handleClosePageDetail}></div>
+          <div className="relative w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 border border-primary-200 animate-fade-in">
 
             {/* Header */}
-            <div className="flex justify-between items-start shrink-0 border-b border-[#0c4a6e]/10 pb-4">
+            <div className="flex justify-between items-start shrink-0 border-b border-primary-900/10 pb-4">
               <div>
-                <h3 className="text-lg sm:text-xl font-black text-[#0c4a6e]">Bệnh án điện tử - Phân tích phiên tập</h3>
+                <h3 className="text-lg sm:text-xl font-black text-primary-900">Bệnh án điện tử - Phân tích phiên tập</h3>
                 <p className="text-xs text-slate-400 font-bold mt-1 font-mono uppercase">Mã buổi tập: PAGE-{selectedPageId}</p>
               </div>
-              <button onClick={handleClosePageDetail} className="text-[#0c4a6e]/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
+              <button onClick={handleClosePageDetail} className="text-primary-900/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
             {loadingPage ? (
               <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
-                <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
@@ -248,12 +264,12 @@ export function DoctorPatientBookletView() {
               <div className="flex flex-col gap-6">
 
                 {/* Details line */}
-                <div className="flex flex-wrap gap-4 text-xs font-semibold text-[#0c4a6e]/70 border-b border-[#0c4a6e]/5 pb-4">
+                <div className="flex flex-wrap gap-4 text-xs font-semibold text-primary-900/70 border-b border-primary-900/5 pb-4">
                   <span>📅 Bắt đầu: {new Date(selectedPage.start_time).toLocaleString("vi-VN")}</span>
                   {selectedPage.end_time && (
                     <span>🏁 Kết thúc: {new Date(selectedPage.end_time).toLocaleString("vi-VN")}</span>
                   )}
-                  <span>🤖 Mã xe: <span className="font-mono text-[#0ea5e9]">{selectedPage.device_id || "N/A"}</span></span>
+                  <span>🤖 Mã xe: <span className="font-mono text-primary-500">{selectedPage.device_id || "N/A"}</span></span>
                 </div>
 
                 {/* Performance stats row */}
@@ -279,16 +295,16 @@ export function DoctorPatientBookletView() {
                 </div>
 
                 {/* Balance & Distribution Bar */}
-                <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl p-4">
+                <div className="bg-neutral-50 border border-slate-100 rounded-2xl p-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phân bố cân bằng lực</span>
-                    <span className="text-xs font-black text-[#0ea5e9]">
+                    <span className="text-xs font-black text-primary-500">
                       Chênh lệch: {Math.abs(leftForce - rightForce).toFixed(1)} kg
                     </span>
                   </div>
                   <div className="flex justify-between text-xs font-bold mb-3">
-                    <span className="text-[#0ea5e9]">{leftForce.toFixed(1)} kg (Trái)</span>
-                    <span className="text-[#0c4a6e]">{rightForce.toFixed(1)} kg (Phải)</span>
+                    <span className="text-primary-500">{leftForce.toFixed(1)} kg (Trái)</span>
+                    <span className="text-primary-900">{rightForce.toFixed(1)} kg (Phải)</span>
                   </div>
 
                   {/* Balance bar display */}
@@ -296,11 +312,11 @@ export function DoctorPatientBookletView() {
                     {totalForce > 0 ? (
                       <>
                         <div
-                          className="bg-[#0ea5e9] transition-all duration-300"
+                          className="bg-primary-500 transition-all duration-300"
                           style={{ width: `${(leftForce / totalForce) * 100}%` }}
                         ></div>
                         <div
-                          className="bg-[#0c4a6e] transition-all duration-300"
+                          className="bg-primary-900 transition-all duration-300"
                           style={{ width: `${(rightForce / totalForce) * 100}%` }}
                         ></div>
                       </>
@@ -317,7 +333,7 @@ export function DoctorPatientBookletView() {
                     <VelocityChart history={velocityChartData} className="h-44 w-full" />
                   </div>
                 ) : (
-                  <div className="bg-white border border-[#bae6fd] rounded-2xl p-4 flex items-center justify-center">
+                  <div className="bg-white border border-primary-200 rounded-2xl p-4 flex items-center justify-center">
                     <p className="text-xs text-gray-400 italic text-center py-6">
                       Không có thông số cảm biến chi tiết được ghi lại cho phiên này.
                     </p>
@@ -326,18 +342,41 @@ export function DoctorPatientBookletView() {
 
                 {/* Doctor Diagnostic Input Form */}
                 <form onSubmit={handleSaveNotes} className="flex flex-col gap-3 mt-2">
-                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <svg className="w-4 h-4 text-[#0ea5e9]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  <label className="text-xs font-black text-slate-700 uppercase tracking-wider">
                     Chẩn đoán lâm sàng & Ghi chú điều trị
                   </label>
 
-                  <textarea
-                    value={doctorNotes}
-                    onChange={(e) => setDoctorNotes(e.target.value)}
-                    rows={4}
-                    placeholder="Vui lòng nhập đánh giá chẩn đoán y tế, chỉ định chịu lực, hoặc chỉnh sửa dáng đi cho bệnh nhân tại đây..."
-                    className="w-full p-4 rounded-2xl border border-[#bae6fd] bg-[#f0f9ff]/20 text-[#0c4a6e] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] placeholder-slate-400 focus:bg-white transition-all shadow-2xs"
-                  />
+                  <div className="relative w-full">
+                    <textarea
+                      ref={textareaRef}
+                      readOnly={!isEditingNotes}
+                      value={doctorNotes}
+                      onChange={(e) => setDoctorNotes(e.target.value)}
+                      placeholder="Vui lòng nhập đánh giá chẩn đoán y tế, chỉ định chịu lực, hoặc chỉnh sửa dáng đi cho bệnh nhân tại đây..."
+                      className={`w-full p-4 pr-12 rounded-2xl border border-primary-200 bg-primary-50/20 text-primary-900 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-slate-400 focus:bg-white transition-all shadow-2xs resize-none overflow-hidden min-h-[100px] ${
+                        !isEditingNotes ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-dashed' : ''
+                      }`}
+                    />
+
+                    {/* Icon ở góc dưới bên phải để mở khóa chỉnh sửa */}
+                    {selectedPage?.doctor_notes && (
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingNotes(true)}
+                        disabled={isEditingNotes}
+                        className={`absolute right-3.5 bottom-3.5 p-2 rounded-xl transition-all ${
+                          isEditingNotes 
+                            ? 'text-slate-300 cursor-default opacity-40' 
+                            : 'text-primary-500 hover:bg-primary-50 hover:scale-105 active:scale-95'
+                        }`}
+                        title="Nhấn để chỉnh sửa chẩn đoán"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
 
                   {saveSuccess && (
                     <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-black flex items-center gap-2 animate-pulse">
@@ -356,7 +395,7 @@ export function DoctorPatientBookletView() {
                     <button
                       type="submit"
                       disabled={savingNotes}
-                      className="px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm disabled:opacity-50 transition-colors"
+                      className="px-5 py-2.5 bg-primary-500 hover:bg-primary-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm disabled:opacity-50 transition-colors"
                     >
                       {savingNotes ? (
                         <>

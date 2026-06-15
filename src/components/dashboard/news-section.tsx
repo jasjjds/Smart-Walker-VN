@@ -30,11 +30,11 @@ const mockArticles = [
 // Component con để render khung Tiêu đề (có 2 đường gạch ngang)
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center w-full mb-8">
-    <div className="h-px bg-[#075985]/20 flex-1"></div>
-    <div className="px-6 py-2 border border-[#075985]/20 bg-[#f0f9ff] text-[#075985] font-bold text-lg uppercase tracking-wider mx-4 shadow-sm">
+    <div className="h-px bg-primary-800/20 flex-1"></div>
+    <div className="px-6 py-2 border border-primary-800/20 bg-primary-50 text-primary-800 font-bold text-lg uppercase tracking-wider mx-4 shadow-sm">
       {title}
     </div>
-    <div className="h-px bg-[#075985]/20 flex-1"></div>
+    <div className="h-px bg-primary-800/20 flex-1"></div>
   </div>
 );
 
@@ -51,20 +51,20 @@ const ArticleGrid = () => (
           ></div>
 
           {/* Badge Ngày Tháng giống trong hình */}
-          <div className="absolute top-0 left-0 bg-[#075985] text-white px-3 py-1.5 flex flex-col items-center text-xs font-bold shadow-md">
+          <div className="absolute top-0 left-0 bg-primary-800 text-white px-3 py-1.5 flex flex-col items-center text-xs font-bold shadow-md">
             <span className="text-sm">{article.date.split(' ')[0]}</span>
             <span className="font-normal">{article.date.split(' ')[1]}</span>
           </div>
         </div>
 
         {/* Khung Text */}
-        <h3 className="text-[#075985] font-bold text-[15px] leading-snug mb-2 group-hover:text-[#0ea5e9] transition-colors line-clamp-2">
+        <h3 className="text-primary-800 font-bold text-[15px] leading-snug mb-2 group-hover:text-primary-500 transition-colors line-clamp-2">
           {article.title}
         </h3>
         <p className="text-slate-600 text-sm leading-relaxed mb-2 line-clamp-3">
           {article.excerpt}
         </p>
-        <Link href="/" className="text-sm font-semibold text-[#075985] hover:underline mt-auto">
+        <Link href="/" className="text-sm font-semibold text-primary-800 hover:underline mt-auto">
           [Xem thêm...]
         </Link>
       </div>
@@ -74,7 +74,7 @@ const ArticleGrid = () => (
 
 export default function NewsSection() {
   return (
-    <section className="w-full bg-[#f8fafc] py-16">
+    <section className="w-full bg-neutral-50 py-16">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col gap-16">
 
         {/* Khối Mới Nhất */}

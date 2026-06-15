@@ -125,14 +125,14 @@ export function GaitAnalysisView() {
     : "0.00";
 
   return (
-    <div className="w-full flex flex-col gap-6 text-[#0c4a6e] p-2 md:p-4 rounded-xl bg-slate-50 lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
+    <div className="w-full flex flex-col gap-6 text-primary-900 p-2 md:p-4 rounded-xl bg-slate-50 lg:h-[calc(100vh-170px)] lg:min-h-[600px] lg:max-h-[900px]">
 
       <BackButton href={backLink} />
 
       {/* 1. HEADER & BỘ LỌC CHU KỲ / NÚT REAL-TIME */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">
+          <p className="text-primary-900/70 mt-0.5 text-xs sm:text-sm font-medium italic">
             {isPatientView 
               ? "Theo dõi vận tốc tập luyện thời gian thực từ thiết bị Smart Walker." 
               : "Theo dõi mức độ vận động của bệnh nhân qua các mốc thời gian."}
@@ -143,7 +143,7 @@ export function GaitAnalysisView() {
           <button 
             onClick={() => setIsLive(!isLive)} 
             className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${
-              isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white'
+              isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'
             }`}
           >
             {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
@@ -155,7 +155,7 @@ export function GaitAnalysisView() {
                 key={type}
                 onClick={() => setIntervalType(type)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
-                  intervalType === type ? 'bg-[#0ea5e9] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
+                  intervalType === type ? 'bg-primary-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
                 }`}
               >
                 {type === 'minute' ? 'Theo Phút' : type === 'hour' ? 'Theo Giờ' : type === 'day' ? 'Theo Ngày' : type === 'month' ? 'Theo Tháng' : 'Tự chọn'}
@@ -174,7 +174,7 @@ export function GaitAnalysisView() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#0ea5e9] text-gray-700 text-xs"
+              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-primary-500 text-gray-700 text-xs"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -183,12 +183,12 @@ export function GaitAnalysisView() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-[#0ea5e9] text-gray-700 text-xs"
+              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-primary-500 text-gray-700 text-xs"
             />
           </div>
           <button
             onClick={handleApplyCustomTime}
-            className="w-full sm:w-auto bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white font-bold px-3 py-1.5 rounded-lg transition-colors text-xs"
+            className="w-full sm:w-auto bg-primary-500 hover:bg-primary-900 text-white font-bold px-3 py-1.5 rounded-lg transition-colors text-xs"
           >
             Áp dụng bộ lọc
           </button>
@@ -248,13 +248,13 @@ export function GaitAnalysisView() {
                       return (
                         <div key={item.date_bucket} className="flex-1 flex flex-col items-center justify-end h-full pb-10 relative group px-1 min-w-[32px] sm:min-w-[48px]">
                           {/* SỐ TRÊN ĐỈNH CỘT */}
-                          <span className="text-[9px] sm:text-[10px] font-black text-[#0ea5e9] mb-1 opacity-95 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
+                          <span className="text-[9px] sm:text-[10px] font-black text-primary-500 mb-1 opacity-95 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
                             {item.total_distance.toFixed(2)}
                           </span>
 
                           {/* CỘT MÀU XANH */}
                           <div
-                            className="bg-[#0ea5e9] w-full max-w-[32px] sm:max-w-[48px] rounded-t-md shadow-sm transition-all duration-300 group-hover:bg-[#0c4a6e]"
+                            className="bg-primary-500 w-full max-w-[32px] sm:max-w-[48px] rounded-t-md shadow-sm transition-all duration-300 group-hover:bg-primary-900"
                             style={{ height: `${Math.max(heightPercent, 1)}%` }}
                           ></div>
 
@@ -287,7 +287,7 @@ export function GaitAnalysisView() {
               description="Đang nhận trực tiếp."
               value={currentVelocity.toFixed(2)}
               unit="m/s"
-              valueColorClass="text-[#0ea5e9]"
+              valueColorClass="text-primary-500"
             />
             <MetricCard
               variant="horizontal"
@@ -303,7 +303,7 @@ export function GaitAnalysisView() {
               description="Trong phiên này."
               value={maxVelocity.toFixed(2)}
               unit="m/s"
-              valueColorClass="text-[#0c4a6e]"
+              valueColorClass="text-primary-900"
             />
             <MetricCard
               variant="horizontal"
@@ -322,7 +322,7 @@ export function GaitAnalysisView() {
               description="Lũy kế theo bộ lọc."
               value={totalDistance.toFixed(2)}
               unit="mét"
-              valueColorClass="text-[#0ea5e9]"
+              valueColorClass="text-primary-500"
             />
             <MetricCard
               variant="horizontal"
@@ -330,7 +330,7 @@ export function GaitAnalysisView() {
               description="Trong một chu kỳ."
               value={maxDistance === 1 && totalDistance === 0 ? "0.00" : maxDistance.toFixed(2)}
               unit="mét"
-              valueColorClass="text-[#0c4a6e]"
+              valueColorClass="text-primary-900"
             />
             <MetricCard
               variant="horizontal"

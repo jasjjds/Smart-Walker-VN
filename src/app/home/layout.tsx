@@ -15,7 +15,7 @@ export default function HomeLayout({
       <HomeHeader />
 
       {/* Main content chiếm toàn bộ không gian ở giữa */}
-      <main className="flex-1 w-full bg-[#f0f9ff]">
+      <main className="flex-1 w-full bg-primary-50">
         {children}
       </main>
 

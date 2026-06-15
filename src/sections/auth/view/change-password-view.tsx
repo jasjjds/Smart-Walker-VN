@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { BackButton } from "@/components/custom/back-button";
+import { BRAND_CONFIG } from "@/config/brand";
 
 export function ChangePasswordView() {
   const { changePassword } = useAuth();
@@ -62,17 +63,17 @@ export function ChangePasswordView() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f0f9ff] flex relative overflow-hidden text-[#0c4a6e]">
+    <div className="min-h-screen w-full bg-primary-50 flex relative overflow-hidden text-primary-900">
       
       {/* KHU VỰC FORM ĐỔI MẬT KHẨU (BÊN TRÁI) */}
       <div className="w-full lg:w-1/2 min-h-screen flex flex-col items-center justify-center p-6 sm:p-10 md:p-16 z-20 relative">
         {/* Tiêu đề */}
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center leading-snug tracking-wide">
-          Chào mừng bạn đến với <br />
-          <span className="bg-gradient-to-r from-[#0ea5e9] to-[#0c4a6e] bg-clip-text text-transparent text-3xl sm:text-4xl md:text-5xl font-bold uppercase block mt-2 pb-1">
-            SMART WALKER VN
+          {BRAND_CONFIG.auth.welcome} <br />
+          <span className="bg-gradient-to-r from-primary-500 to-primary-900 bg-clip-text text-transparent text-3xl sm:text-4xl md:text-5xl font-bold uppercase block mt-2 pb-1">
+            {BRAND_CONFIG.brand.fullName}
           </span>
-          <span className="text-xl sm:text-2xl md:text-3xl font-bold uppercase block mt-3 text-[#0ea5e9]">ĐỔI MẬT KHẨU</span>
+          <span className="text-xl sm:text-2xl md:text-3xl font-bold uppercase block mt-3 text-primary-500">{BRAND_CONFIG.auth.changePasswordTitle}</span>
         </h2>
 
         {/* Form nhập liệu */}
@@ -90,45 +91,45 @@ export function ChangePasswordView() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-[#0c4a6e]/70 px-1">Mật khẩu cũ</label>
+            <label className="text-xs font-bold text-primary-900/70 px-1">Mật khẩu cũ</label>
             <input
               type="password"
               placeholder="Nhập mật khẩu hiện tại"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-[#0c4a6e]/30 bg-white/50 text-[#0c4a6e] placeholder-[#0c4a6e]/40 focus:outline-none focus:border-[#0ea5e9] focus:ring-4 focus:ring-[#0ea5e9]/10 transition-all font-medium"
+              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-[#0c4a6e]/70 px-1">Mật khẩu mới</label>
+            <label className="text-xs font-bold text-primary-900/70 px-1">Mật khẩu mới</label>
             <input
               type="password"
               placeholder="Tối thiểu 6 ký tự"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-[#0c4a6e]/30 bg-white/50 text-[#0c4a6e] placeholder-[#0c4a6e]/40 focus:outline-none focus:border-[#0ea5e9] focus:ring-4 focus:ring-[#0ea5e9]/10 transition-all font-medium"
+              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-[#0c4a6e]/70 px-1">Xác nhận mật khẩu mới</label>
+            <label className="text-xs font-bold text-primary-900/70 px-1">Xác nhận mật khẩu mới</label>
             <input
               type="password"
               placeholder="Nhập lại mật khẩu mới"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-[#0c4a6e]/30 bg-white/50 text-[#0c4a6e] placeholder-[#0c4a6e]/40 focus:outline-none focus:border-[#0ea5e9] focus:ring-4 focus:ring-[#0ea5e9]/10 transition-all font-medium"
+              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting || !!success}
-            className="w-full mt-2 py-3 sm:py-4 bg-gradient-to-r from-[#0ea5e9] to-[#0c4a6e] text-white text-base sm:text-lg font-bold rounded-xl hover:opacity-90 hover:shadow-lg transition-all duration-300 disabled:opacity-50 cursor-pointer text-center"
+            className="w-full mt-2 py-3 sm:py-4 bg-gradient-to-r from-primary-500 to-primary-900 text-white text-base sm:text-lg font-bold rounded-xl hover:opacity-90 hover:shadow-lg transition-all duration-300 disabled:opacity-50 cursor-pointer text-center"
           >
             {submitting ? "ĐANG THỰC HIỆN..." : "XÁC NHẬN ĐỔI MẬT KHẨU"}
           </button>
@@ -140,7 +141,7 @@ export function ChangePasswordView() {
 
       {/* KHỐI SLIDING CHỨA ẢNH (BÊN PHẢI) */}
       <div className="hidden lg:block absolute right-0 w-1/2 h-screen z-10 shadow-2xl">
-        <div className="relative w-full h-full bg-[#0c4a6e]">
+        <div className="relative w-full h-full bg-primary-900">
           <div
             className="absolute inset-0 bg-contain bg-bottom bg-no-repeat h-screen"
             style={{
@@ -148,7 +149,7 @@ export function ChangePasswordView() {
               backgroundColor: "#eef1f5"
             }}
           ></div>
-          <div className="absolute inset-0 h-screen bg-gradient-to-t from-[#0c4a6e]/30 to-transparent"></div>
+          <div className="absolute inset-0 h-screen bg-gradient-to-t from-primary-900/30 to-transparent"></div>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { usePatientBooklet } from "@/hooks/usePatientBooklet";
 import { patientService } from "@/services/patientService";
+import { BRAND_CONFIG } from "@/config/brand";
 
 export function PatientMetricsView() {
   const { user } = useAuth();
@@ -78,10 +79,10 @@ export function PatientMetricsView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900">
       <div>
-        <p className="text-[#0c4a6e]/70 mt-1 text-xs sm:text-sm font-medium">
-          Theo dõi các chỉ số sức khỏe của bạn thông qua thiết bị Smart Walker.
+        <p className="text-primary-900/70 mt-1 text-xs sm:text-sm font-medium">
+          {BRAND_CONFIG.patient.metricsDesc}
         </p>
       </div>
 
@@ -89,12 +90,12 @@ export function PatientMetricsView() {
         {/* THẺ 1: ĐO LỰC TÌ TAY */}
         <Link
           href="/dashboard/patient/metrics/force"
-          className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
+          className="group bg-white p-6 sm:p-8 rounded-3xl border border-primary-200 shadow-sm hover:shadow-xl hover:border-primary-500 transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
         >
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+            <div className="p-3 bg-primary-50 rounded-2xl text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-300 shrink-0">
               <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -115,11 +116,11 @@ export function PatientMetricsView() {
               <div className="space-y-1">
                 <p className="text-slate-600 flex justify-between">
                   <span>Lực tì tay trái trung bình:</span>
-                  <span className="font-bold font-mono text-[#0ea5e9]">{avgForceLeft.toFixed(1)} kg</span>
+                  <span className="font-bold font-mono text-primary-500">{avgForceLeft.toFixed(1)} kg</span>
                 </p>
                 <p className="text-slate-600 flex justify-between">
                   <span>Lực tì tay phải trung bình:</span>
-                  <span className="font-bold font-mono text-[#0c4a6e]">{avgForceRight.toFixed(1)} kg</span>
+                  <span className="font-bold font-mono text-primary-900">{avgForceRight.toFixed(1)} kg</span>
                 </p>
               </div>
 
@@ -136,7 +137,7 @@ export function PatientMetricsView() {
             </div>
           )}
 
-          <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-xs">
+          <div className="mt-2 flex items-center text-primary-500 font-bold text-xs">
             Xem biểu đồ chi tiết
             <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -147,12 +148,12 @@ export function PatientMetricsView() {
         {/* THẺ 2: QUÃNG ĐƯỜNG DI CHUYỂN */}
         <Link
           href="/dashboard/patient/metrics/gait"
-          className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
+          className="group bg-white p-6 sm:p-8 rounded-3xl border border-primary-200 shadow-sm hover:shadow-xl hover:border-primary-500 transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
         >
-          <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+            <div className="p-3 bg-primary-50 rounded-2xl text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-300 shrink-0">
               <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
@@ -180,7 +181,7 @@ export function PatientMetricsView() {
               </p>
               <p className="flex justify-between">
                 <span>Vận tốc nhỏ nhất / tối đa:</span>
-                <span className="font-bold font-mono text-[#0c4a6e]">{minVelocity.toFixed(1)} / {maxVelocity.toFixed(1)} m/s</span>
+                <span className="font-bold font-mono text-primary-900">{minVelocity.toFixed(1)} / {maxVelocity.toFixed(1)} m/s</span>
               </p>
 
               <div className="pt-2 text-[10px] text-slate-400 font-bold italic text-right">
@@ -189,7 +190,7 @@ export function PatientMetricsView() {
             </div>
           )}
 
-          <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-xs">
+          <div className="mt-2 flex items-center text-primary-500 font-bold text-xs">
             Xem biểu đồ chi tiết
             <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />

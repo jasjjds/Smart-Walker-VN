@@ -62,12 +62,12 @@ export default function CustomDataTable<T extends { id: string | number }>({
   }, [onRefresh, refreshInterval]);
 
   return (
-    <div className="bg-[#e0f2fe] rounded-2xl shadow-sm border border-[#bae6fd] flex flex-col flex-1 overflow-hidden">
+    <div className="bg-primary-100 rounded-2xl shadow-sm border border-primary-200 flex flex-col flex-1 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[700px]">
 
           <thead>
-            <tr className="bg-[#e0f2fe] text-[#0c4a6e] text-sm md:text-base border-b border-[#0c4a6e]/20">
+            <tr className="bg-primary-100 text-primary-900 text-sm md:text-base border-b border-primary-900/20">
               {columns.map((col, index) => (
                 <th
                   key={index}
@@ -83,19 +83,19 @@ export default function CustomDataTable<T extends { id: string | number }>({
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-8 text-center text-[#0c4a6e]/60 font-medium italic">
+                <td colSpan={columns.length} className="py-8 text-center text-primary-900/60 font-medium italic">
                   Không có dữ liệu để hiển thị.
                 </td>
               </tr>
             ) : (
               data.map((row) => (
-                <tr key={row.id} className="border-b border-[#f0f9ff]/50 hover:bg-[#bae6fd]/30 transition-colors">
+                <tr key={row.id} className="border-b border-primary-50/50 hover:bg-primary-200/30 transition-colors">
 
                   {columns.map((col, colIndex) => (
                     <td
                       key={colIndex}
                       // KIỂM TRA: Nếu tên cột là "Thao tác" thì căn giữa nội dung
-                      className={`py-4 px-6 font-medium text-[#0c4a6e] ${col.header === 'Thao tác' ? 'text-center' : ''}`}
+                      className={`py-4 px-6 font-medium text-primary-900 ${col.header === 'Thao tác' ? 'text-center' : ''}`}
                     >
                       {col.cell
                         ? col.cell(row)

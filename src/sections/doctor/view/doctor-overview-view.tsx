@@ -39,7 +39,7 @@ const clinicalMetrics = [
 
 export function DoctorOverviewView() {
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900">
 
       {/* Lưới các thẻ điều hướng */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -47,13 +47,13 @@ export function DoctorOverviewView() {
           <Link
             key={metric.title}
             href={metric.path}
-            className="group bg-white p-6 sm:p-8 rounded-3xl border border-[#bae6fd] shadow-sm hover:shadow-xl hover:border-[#0ea5e9] transition-all duration-300 flex flex-col gap-4 relative overflow-hidden"
+            className="group bg-white p-6 sm:p-8 rounded-3xl border border-primary-200 shadow-sm hover:shadow-xl hover:border-primary-500 transition-all duration-300 flex flex-col gap-4 relative overflow-hidden"
           >
             {/* Background trang trí */}
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#0ea5e9]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-[#f0f9ff] rounded-2xl text-[#0ea5e9] group-hover:bg-[#0ea5e9] group-hover:text-white transition-colors duration-300 shrink-0">
+              <div className="p-3 bg-primary-50 rounded-2xl text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-300 shrink-0">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={metric.icon} />
                 </svg>
@@ -66,11 +66,11 @@ export function DoctorOverviewView() {
               </div>
             </div>
 
-            <p className="text-sm sm:text-base text-[#0c4a6e]/70 leading-relaxed font-medium">
+            <p className="text-sm sm:text-base text-primary-900/70 leading-relaxed font-medium">
               {metric.description}
             </p>
 
-            <div className="mt-2 flex items-center text-[#0ea5e9] font-bold text-sm">
+            <div className="mt-2 flex items-center text-primary-500 font-bold text-sm">
               Xem chi tiết
               <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -81,7 +81,7 @@ export function DoctorOverviewView() {
       </div>
 
       {/* Thông báo cập nhật nhanh */}
-      <div className="mt-4 p-5 sm:p-6 bg-[#0c4a6e] rounded-2xl text-[#f0f9ff] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div className="mt-4 p-5 sm:p-6 bg-primary-900 rounded-2xl text-primary-50 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center animate-pulse shrink-0">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -91,7 +91,7 @@ export function DoctorOverviewView() {
             <p className="text-xs sm:text-sm opacity-70">Nhận dữ liệu từ 12 thiết bị Smart Walker trong khu vực.</p>
           </div>
         </div>
-        <button className="w-full sm:w-auto px-6 py-2 bg-[#0ea5e9] hover:bg-white hover:text-[#0c4a6e] rounded-xl font-bold transition-all text-sm">
+        <button className="w-full sm:w-auto px-6 py-2 bg-primary-500 hover:bg-white hover:text-primary-900 rounded-xl font-bold transition-all text-sm">
           Xem thông báo
         </button>
       </div>

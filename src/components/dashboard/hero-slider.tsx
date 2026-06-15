@@ -72,7 +72,7 @@ export default function HeroSlider() {
             <h2 className="text-4xl md:text-6xl font-bold text-white tracking-wider mb-2 drop-shadow-lg">
               {banner.title}
             </h2>
-            <h3 className="text-3xl md:text-5xl font-bold text-[#38bdf8] italic mb-10 drop-shadow-lg">
+            <h3 className="text-3xl md:text-5xl font-bold text-primary-400 italic mb-10 drop-shadow-lg">
               {banner.highlight}
             </h3>
             <Link

@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#f0f9ff] overflow-hidden text-[#0c4a6e]">
+    <div className="flex h-screen w-full bg-primary-50 overflow-hidden text-primary-900">
       
       {/* 1. DESKTOP SIDEBAR NAVIGATION */}
       <div className="hidden lg:flex h-full shrink-0 relative group">
@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
         {/* Thanh kéo để resize */}
         <div 
           onMouseDown={startResizing}
-          className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#0ea5e9] opacity-0 hover:opacity-100 transition-opacity z-30"
+          className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-primary-500 opacity-0 hover:opacity-100 transition-opacity z-30"
           style={{ opacity: isResizing ? 1 : undefined, backgroundColor: isResizing ? '#0ea5e9' : undefined }}
         />
       </div>

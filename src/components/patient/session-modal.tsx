@@ -47,18 +47,18 @@ export function SessionModal({
 
   return (
     <div className="fixed inset-0 z-55 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity" onClick={onClose}></div>
-      <div className="relative w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 animate-fade-in border border-[#bae6fd]">
+      <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={onClose}></div>
+      <div className="relative w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 animate-fade-in border border-primary-200">
         
         {/* Modal Header */}
-        <div className="flex justify-between items-start shrink-0 border-b border-[#0c4a6e]/10 pb-4">
+        <div className="flex justify-between items-start shrink-0 border-b border-primary-900/10 pb-4">
           <div>
-            <h3 className="text-lg sm:text-xl font-black text-[#0c4a6e]">Chi tiết phiên tập phục hồi</h3>
+            <h3 className="text-lg sm:text-xl font-black text-primary-900">Chi tiết phiên tập phục hồi</h3>
             <p className="text-xs text-slate-400 font-bold mt-1 uppercase tracking-wider font-mono">
               Mã phiên: PAGE-{pageId}
             </p>
           </div>
-          <button onClick={onClose} className="text-[#0c4a6e]/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
+          <button onClick={onClose} className="text-primary-900/50 hover:text-red-500 p-1.5 hover:bg-slate-100 rounded-full transition-all">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -67,7 +67,7 @@ export function SessionModal({
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -77,12 +77,12 @@ export function SessionModal({
           <div className="flex flex-col gap-6">
             
             {/* Time & Device Info */}
-            <div className="flex flex-wrap gap-4 text-xs font-semibold text-[#0c4a6e]/70 border-b border-[#0c4a6e]/5 pb-4">
+            <div className="flex flex-wrap gap-4 text-xs font-semibold text-primary-900/70 border-b border-primary-900/5 pb-4">
               <span>📅 Bắt đầu: {new Date(page.start_time).toLocaleString("vi-VN")}</span>
               {page.end_time && (
                 <span>🏁 Kết thúc: {new Date(page.end_time).toLocaleString("vi-VN")}</span>
               )}
-              <span>🤖 Thiết bị: <span className="font-mono text-[#0ea5e9]">{page.device_id || "Không gán"}</span></span>
+              <span>🤖 Thiết bị: <span className="font-mono text-primary-500">{page.device_id || "Không gán"}</span></span>
             </div>
 
             {/* Metric Summary Grid (Using MetricCard LEGO blocks) */}
@@ -93,21 +93,21 @@ export function SessionModal({
             </div>
 
             {/* Balance & Distribution Bar */}
-            <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl p-4">
+            <div className="bg-neutral-50 border border-slate-100 rounded-2xl p-4">
               <div className="flex justify-between text-xs font-black mb-2">
-                <span className="text-[#0ea5e9]">Trái: {leftForce.toFixed(1)} kg</span>
-                <span className="text-[#0c4a6e]">Phải: {rightForce.toFixed(1)} kg</span>
+                <span className="text-primary-500">Trái: {leftForce.toFixed(1)} kg</span>
+                <span className="text-primary-900">Phải: {rightForce.toFixed(1)} kg</span>
               </div>
               
               <div className="w-full h-2.5 bg-slate-200 rounded-full flex overflow-hidden shadow-inner">
                 {totalForce > 0 ? (
                   <>
                     <div 
-                      className="bg-[#0ea5e9] transition-all duration-300"
+                      className="bg-primary-500 transition-all duration-300"
                       style={{ width: `${(leftForce / totalForce) * 100}%` }}
                     ></div>
                     <div 
-                      className="bg-[#0c4a6e] transition-all duration-300"
+                      className="bg-primary-900 transition-all duration-300"
                       style={{ width: `${(rightForce / totalForce) * 100}%` }}
                     ></div>
                   </>
@@ -127,7 +127,7 @@ export function SessionModal({
                 <VelocityChart history={velocityChartData} className="h-44 w-full" />
               </div>
             ) : (
-              <div className="bg-white border border-[#bae6fd] rounded-2xl p-4 flex items-center justify-center">
+              <div className="bg-white border border-primary-200 rounded-2xl p-4 flex items-center justify-center">
                 <p className="text-xs text-gray-400 italic text-center py-6">
                   Không có thông số cảm biến chi tiết được ghi lại cho phiên này.
                 </p>

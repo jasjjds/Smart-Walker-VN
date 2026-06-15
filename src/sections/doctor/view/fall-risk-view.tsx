@@ -81,14 +81,14 @@ export function FallRiskView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e]">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900">
 
       <BackButton href={`/dashboard/doctor/patients/${patientID}`} />
 
       {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
-          <p className="text-[#0c4a6e]/70 mt-0.5 text-xs sm:text-sm font-medium italic">
+          <p className="text-primary-900/70 mt-0.5 text-xs sm:text-sm font-medium italic">
             Thuật toán tổng hợp đánh giá độ ổn định toàn diện của bệnh nhân.
           </p>
         </div>
@@ -105,7 +105,7 @@ export function FallRiskView() {
           <button
             onClick={() => setIsSimulating(!isSimulating)}
             className={`flex-1 sm:flex-initial px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${
-              isSimulating ? 'bg-[#0c4a6e] hover:bg-[#0c4a6e]/80 text-white' : 'bg-[#0ea5e9] hover:bg-[#0284c7] text-white'
+              isSimulating ? 'bg-primary-900 hover:bg-primary-900/80 text-white' : 'bg-primary-500 hover:bg-primary-600 text-white'
             }`}
           >
             {isSimulating ? 'Dừng kịch bản' : 'Kịch bản tự động'}
@@ -117,7 +117,7 @@ export function FallRiskView() {
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-y-auto lg:overflow-hidden pr-0 lg:pr-2 custom-scrollbar">
 
         {/* DONUT CHART TỔNG HỢP */}
-        <div className="bg-[#e0f2fe] rounded-2xl p-6 border border-[#bae6fd] shadow-sm flex flex-col items-center justify-center relative overflow-hidden min-h-[300px]">
+        <div className="bg-primary-100 rounded-2xl p-6 border border-primary-200 shadow-sm flex flex-col items-center justify-center relative overflow-hidden min-h-[300px]">
           {score < 50 && (
             <div className="absolute inset-0 bg-red-500/15 animate-pulse pointer-events-none"></div>
           )}
@@ -148,7 +148,7 @@ export function FallRiskView() {
               <span className={`text-4xl sm:text-5xl font-black transition-colors duration-500 ${currentRisk.text}`}>
                 {score}
               </span>
-              <span className="text-[10px] sm:text-xs font-bold text-[#0c4a6e]/50 uppercase mt-1">/ 100</span>
+              <span className="text-[10px] sm:text-xs font-bold text-primary-900/50 uppercase mt-1">/ 100</span>
 
               <div className={`mt-3 px-3 py-1 rounded-full font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors duration-500 ${currentRisk.bg} ${currentRisk.text} border border-current`}>
                 {currentRisk.label}
@@ -160,46 +160,46 @@ export function FallRiskView() {
         {/* CÁC YẾU TỐ CẤU THÀNH (BREAKDOWN) */}
         <div className="flex flex-col gap-4 h-full pb-4 lg:pb-0">
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#bae6fd] shadow-sm flex items-center gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-primary-200 shadow-sm flex items-center gap-4">
             <div className={`p-2.5 rounded-xl ${getRiskLevel(factors.balance).bg} ${getRiskLevel(factors.balance).text} transition-colors duration-500 shrink-0`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-end mb-1.5 text-xs sm:text-sm">
-                <span className="font-bold text-[#0c4a6e] truncate pr-2">Kiểm soát Trọng tâm (50%)</span>
+                <span className="font-bold text-primary-900 truncate pr-2">Kiểm soát Trọng tâm (50%)</span>
                 <span className={`font-black ${getRiskLevel(factors.balance).text} transition-colors duration-500 shrink-0`}>{Math.round(factors.balance)}</span>
               </div>
-              <div className="w-full h-2 bg-[#f0f9ff] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-primary-50 rounded-full overflow-hidden">
                 <div className="h-full transition-all duration-500 rounded-full" style={{ width: `${factors.balance}%`, backgroundColor: getRiskLevel(factors.balance).color }}></div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#bae6fd] shadow-sm flex items-center gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-primary-200 shadow-sm flex items-center gap-4">
             <div className={`p-2.5 rounded-xl ${getRiskLevel(factors.force).bg} ${getRiskLevel(factors.force).text} transition-colors duration-500 shrink-0`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-end mb-1.5 text-xs sm:text-sm">
-                <span className="font-bold text-[#0c4a6e] truncate pr-2">Đối xứng Lực (30%)</span>
+                <span className="font-bold text-primary-900 truncate pr-2">Đối xứng Lực (30%)</span>
                 <span className={`font-black ${getRiskLevel(factors.force).text} transition-colors duration-500 shrink-0`}>{Math.round(factors.force)}</span>
               </div>
-              <div className="w-full h-2 bg-[#f0f9ff] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-primary-50 rounded-full overflow-hidden">
                 <div className="h-full transition-all duration-500 rounded-full" style={{ width: `${factors.force}%`, backgroundColor: getRiskLevel(factors.force).color }}></div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#bae6fd] shadow-sm flex items-center gap-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-primary-200 shadow-sm flex items-center gap-4">
             <div className={`p-2.5 rounded-xl ${getRiskLevel(factors.gait).bg} ${getRiskLevel(factors.gait).text} transition-colors duration-500 shrink-0`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-end mb-1.5 text-xs sm:text-sm">
-                <span className="font-bold text-[#0c4a6e] truncate pr-2">Nhịp độ bước đi (20%)</span>
+                <span className="font-bold text-primary-900 truncate pr-2">Nhịp độ bước đi (20%)</span>
                 <span className={`font-black ${getRiskLevel(factors.gait).text} transition-colors duration-500 shrink-0`}>{Math.round(factors.gait)}</span>
               </div>
-              <div className="w-full h-2 bg-[#f0f9ff] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-primary-50 rounded-full overflow-hidden">
                 <div className="h-full transition-all duration-500 rounded-full" style={{ width: `${factors.gait}%`, backgroundColor: getRiskLevel(factors.gait).color }}></div>
               </div>
             </div>
@@ -209,7 +209,7 @@ export function FallRiskView() {
       </div>
 
       {/* 3. NHẬT KÝ CẢNH BÁO TỰ ĐỘNG */}
-      <div className="bg-white rounded-2xl p-5 border border-[#bae6fd] shadow-sm shrink-0">
+      <div className="bg-white rounded-2xl p-5 border border-primary-200 shadow-sm shrink-0">
         <h3 className="text-sm sm:text-base font-bold mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-red-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
           Sự kiện cần chú ý
@@ -226,12 +226,12 @@ export function FallRiskView() {
             </div>
           )}
 
-          <div className="p-3 bg-[#f0f9ff] rounded-xl flex justify-between items-center opacity-70 gap-2">
+          <div className="p-3 bg-primary-50 rounded-xl flex justify-between items-center opacity-70 gap-2">
             <div className="flex flex-col">
-              <span className="font-bold text-[#0c4a6e] text-xs sm:text-sm">Khởi động thiết bị</span>
-              <span className="text-[10px] sm:text-xs text-[#0c4a6e]/70">Hệ thống cảm biến cân bằng đã được hiệu chuẩn.</span>
+              <span className="font-bold text-primary-900 text-xs sm:text-sm">Khởi động thiết bị</span>
+              <span className="text-[10px] sm:text-xs text-primary-900/70">Hệ thống cảm biến cân bằng đã được hiệu chuẩn.</span>
             </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-[#0c4a6e]/50 whitespace-nowrap">12 phút trước</span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-primary-900/50 whitespace-nowrap">12 phút trước</span>
           </div>
         </div>
       </div>

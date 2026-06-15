@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { deviceService } from "@/services/deviceService";
 import { BackButton } from "@/components/custom/back-button";
+import { BRAND_CONFIG } from "@/config/brand";
 
 interface DeviceScanViewProps {
   deviceId: string;
@@ -118,22 +119,22 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#f0f9ff] text-[#0c4a6e] flex flex-col justify-between p-6 md:p-10 font-sans relative overflow-hidden">
+    <div className="min-h-screen w-full bg-primary-50 text-primary-900 flex flex-col justify-between p-6 md:p-10 font-sans relative overflow-hidden">
       
       {/* BACKGROUND DECORATIONS */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-[#38bdf8]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-primary-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* HEADER */}
       <header className="flex justify-between items-center z-10 shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gradient-to-r from-[#0c4a6e] to-[#0ea5e9] rounded-xl flex items-center justify-center text-white font-black shadow-md">
+          <div className="w-10 h-10 bg-gradient-to-r from-primary-900 to-primary-500 rounded-xl flex items-center justify-center text-white font-black shadow-md">
             SW
           </div>
-          <span className="font-extrabold text-lg tracking-wide uppercase">Smart Walker</span>
+          <span className="font-extrabold text-lg tracking-wide uppercase">{BRAND_CONFIG.brand.name}</span>
         </div>
-        <div className="text-xs bg-white border border-[#bae6fd] px-3.5 py-1.5 rounded-full font-bold shadow-xs">
-          Thiết bị: <span className="font-mono text-[#0ea5e9] font-black">{deviceId}</span>
+        <div className="text-xs bg-white border border-primary-200 px-3.5 py-1.5 rounded-full font-bold shadow-xs">
+          Thiết bị: <span className="font-mono text-primary-500 font-black">{deviceId}</span>
         </div>
       </header>
 
@@ -145,10 +146,10 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
           <div className="flex flex-col items-center justify-center animate-fade-in">
             <div className="relative w-44 h-44 flex items-center justify-center mb-8">
               {/* Radar Rings */}
-              <div className="absolute inset-0 bg-[#0ea5e9]/10 rounded-full animate-ping pointer-events-none"></div>
-              <div className="absolute w-32 h-32 bg-[#0ea5e9]/20 rounded-full animate-pulse pointer-events-none"></div>
+              <div className="absolute inset-0 bg-primary-500/10 rounded-full animate-ping pointer-events-none"></div>
+              <div className="absolute w-32 h-32 bg-primary-500/20 rounded-full animate-pulse pointer-events-none"></div>
               <div className="absolute w-20 h-20 bg-white shadow-xl rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-[#0ea5e9] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-10 h-10 text-primary-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v1m6 11h2m-6 4v1m-8-5h2m12-9l-2 2M6 18l2-2m10 2l-2-2M6 6l2 2" />
                 </svg>
               </div>
@@ -175,7 +176,7 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
             <div className="flex flex-col gap-2 w-full">
               <button
                 onClick={() => window.location.reload()}
-                className="w-full py-3 bg-[#0ea5e9] hover:bg-[#0c4a6e] text-white font-bold rounded-xl shadow-md transition-all"
+                className="w-full py-3 bg-primary-500 hover:bg-primary-900 text-white font-bold rounded-xl shadow-md transition-all"
               >
                 Thử kết nối lại
               </button>
@@ -198,18 +199,18 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
 
             {/* Visual Ticking Timer */}
             <div className="relative w-64 h-64 flex items-center justify-center mb-8">
-              <div className="absolute inset-0 bg-[#0ea5e9]/5 rounded-full border-4 border-dashed border-[#0ea5e9]/20 animate-[spin_60s_linear_infinite]"></div>
-              <div className="absolute inset-4 bg-white shadow-xl rounded-full flex flex-col items-center justify-center border border-[#bae6fd]">
+              <div className="absolute inset-0 bg-primary-500/5 rounded-full border-4 border-dashed border-primary-500/20 animate-[spin_60s_linear_infinite]"></div>
+              <div className="absolute inset-4 bg-white shadow-xl rounded-full flex flex-col items-center justify-center border border-primary-200">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Thời gian tập</span>
-                <span className="text-4xl sm:text-5xl font-black text-[#0c4a6e] font-mono tracking-tight transition-all">
+                <span className="text-4xl sm:text-5xl font-black text-primary-900 font-mono tracking-tight transition-all">
                   {formatTime(elapsedSeconds)}
                 </span>
-                <span className="text-[10px] font-bold text-[#0ea5e9] mt-2 tracking-widest uppercase">Live Syncing</span>
+                <span className="text-[10px] font-bold text-primary-500 mt-2 tracking-widest uppercase">Live Syncing</span>
               </div>
             </div>
 
             {/* Instruction Card */}
-            <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-[#bae6fd] shadow-sm text-center mb-10 w-full">
+            <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-primary-200 shadow-sm text-center mb-10 w-full">
               <h4 className="font-extrabold text-sm mb-1.5">Hướng dẫn buổi tập</h4>
               <p className="text-xs text-gray-500 leading-relaxed font-medium">
                 Vui lòng nắm chặt tay vịn, đứng thẳng người và bắt đầu di chuyển. Cảm biến trên xe sẽ ghi nhận và chia sẻ trực tiếp dữ liệu thăng bằng, lực tỳ tay lên hệ thống.
@@ -242,7 +243,7 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
 
         {/* STATE: SUMMARY SCREEN */}
         {state === "SUMMARY" && summaryData && (
-          <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-[2rem] shadow-2xl border border-[#bae6fd] flex flex-col items-center animate-fade-in">
+          <div className="w-full max-w-md bg-white p-6 sm:p-8 rounded-[2rem] shadow-2xl border border-primary-200 flex flex-col items-center animate-fade-in">
             {/* Success icon */}
             <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,29 +256,29 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
 
             {/* Performance Grid */}
             <div className="grid grid-cols-2 gap-4 w-full mb-6">
-              <div className="bg-[#f0f9ff] border border-[#e0f2fe] rounded-2xl p-4 flex flex-col items-center">
+              <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 flex flex-col items-center">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Quãng đường</span>
-                <span className="text-xl sm:text-2xl font-black text-[#0c4a6e]">{summaryData.totalDistance.toFixed(1)} <span className="text-xs text-slate-400">m</span></span>
+                <span className="text-xl sm:text-2xl font-black text-primary-900">{summaryData.totalDistance.toFixed(1)} <span className="text-xs text-slate-400">m</span></span>
               </div>
-              <div className="bg-[#f0f9ff] border border-[#e0f2fe] rounded-2xl p-4 flex flex-col items-center">
+              <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 flex flex-col items-center">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Thời gian</span>
-                <span className="text-xl sm:text-2xl font-black text-[#0c4a6e]">{formatTime(summaryData.durationSeconds)}</span>
+                <span className="text-xl sm:text-2xl font-black text-primary-900">{formatTime(summaryData.durationSeconds)}</span>
               </div>
             </div>
 
             {/* Balance gauge */}
-            <div className="bg-[#f8fafc] border border-slate-100 rounded-2xl p-4 w-full mb-8">
+            <div className="bg-neutral-50 border border-slate-100 rounded-2xl p-4 w-full mb-8">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lực tỳ trung bình</span>
-                <span className="text-xs font-black text-[#0c4a6e]">
+                <span className="text-xs font-black text-primary-900">
                   {(summaryData.avgForceLeft + summaryData.avgForceRight).toFixed(1)} kg
                 </span>
               </div>
 
               {/* Force values display */}
               <div className="flex justify-between text-xs font-bold mb-3">
-                <span className="text-[#0ea5e9]">{summaryData.avgForceLeft.toFixed(1)} kg (Trái)</span>
-                <span className="text-[#0c4a6e]">{summaryData.avgForceRight.toFixed(1)} kg (Phải)</span>
+                <span className="text-primary-500">{summaryData.avgForceLeft.toFixed(1)} kg (Trái)</span>
+                <span className="text-primary-900">{summaryData.avgForceRight.toFixed(1)} kg (Phải)</span>
               </div>
 
               {/* Balance bar */}
@@ -285,11 +286,11 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
                 {summaryData.avgForceLeft + summaryData.avgForceRight > 0 ? (
                   <>
                     <div 
-                      className="bg-[#0ea5e9] transition-all duration-500" 
+                      className="bg-primary-500 transition-all duration-500" 
                       style={{ width: `${(summaryData.avgForceLeft / (summaryData.avgForceLeft + summaryData.avgForceRight)) * 100}%` }}
                     ></div>
                     <div 
-                      className="bg-[#0c4a6e] transition-all duration-500" 
+                      className="bg-primary-900 transition-all duration-500" 
                       style={{ width: `${(summaryData.avgForceRight / (summaryData.avgForceLeft + summaryData.avgForceRight)) * 100}%` }}
                     ></div>
                   </>
@@ -320,7 +321,7 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
 
       {/* FOOTER */}
       <footer className="text-center text-[10px] text-gray-400 z-10 font-bold tracking-wider uppercase mt-4 shrink-0">
-        © 2026 Smart Walker VN • Healthcare Tech
+        © {BRAND_CONFIG.footer.year} {BRAND_CONFIG.footer.shortCopyright}
       </footer>
 
       {/* Animation helpers inside style */}

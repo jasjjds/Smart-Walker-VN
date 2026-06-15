@@ -253,7 +253,7 @@ export function UserManagementView() {
         const letter = displayName.charAt(0).toUpperCase();
         return (
           <div className="flex items-center gap-3 font-semibold">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#0c4a6e] shadow-sm border border-[#bae6fd] shrink-0 font-bold">
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary-900 shadow-sm border border-primary-200 shrink-0 font-bold">
               {letter}
             </div>
             <span className="truncate">{displayName}</span>
@@ -299,7 +299,7 @@ export function UserManagementView() {
         <div className="flex items-center justify-center gap-1.5">
           <button
             onClick={() => handleOpenEditModal(user)}
-            className="p-1.5 hover:bg-[#bae6fd] rounded-lg transition-colors text-[#0c4a6e]"
+            className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
             title="Chỉnh sửa tài khoản"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,7 +321,7 @@ export function UserManagementView() {
   ];
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 text-[#0c4a6e] relative">
+    <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative">
       {/* HEADER SECTION - NO TITLE SHOWN FOR CONCISE INTEGRATED LOOK */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div className="relative w-full sm:w-72">
@@ -330,9 +330,9 @@ export function UserManagementView() {
             placeholder="Tìm kiếm theo tên, email, vai trò..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium text-sm"
           />
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#0c4a6e]/50">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-900/50">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -341,7 +341,7 @@ export function UserManagementView() {
 
         <button
           onClick={handleOpenAddModal}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 shadow-sm"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -360,8 +360,8 @@ export function UserManagementView() {
       {/* DATA TABLE AREA */}
       <div className="flex-1 min-h-[300px] overflow-hidden flex flex-col">
         {loading ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-[#0c4a6e]/60">
-            <svg className="w-8 h-8 animate-spin text-[#0ea5e9]" fill="none" viewBox="0 0 24 24">
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 text-primary-900/60">
+            <svg className="w-8 h-8 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
@@ -383,16 +383,16 @@ export function UserManagementView() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsAddModalOpen(false)}
           ></div>
 
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#0c4a6e]">Thêm người dùng mới</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-900">Thêm người dùng mới</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-[#0c4a6e]/50 hover:text-red-500 transition-colors p-1"
+                className="text-primary-900/50 hover:text-red-500 transition-colors p-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -408,19 +408,19 @@ export function UserManagementView() {
 
             <form onSubmit={handleAddSubmit} className="flex flex-col gap-4 text-xs sm:text-sm">
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Họ và tên (Tùy chọn)</label>
+                <label className="font-bold text-primary-900">Họ và tên (Tùy chọn)</label>
                 <input
                   type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
                   placeholder="Nhập họ tên đầy đủ"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Email đăng nhập</label>
+                <label className="font-bold text-primary-900">Email đăng nhập</label>
                 <input
                   type="email"
                   name="email"
@@ -428,13 +428,13 @@ export function UserManagementView() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="example@email.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-[#0c4a6e]">Mật khẩu</label>
+                  <label className="font-bold text-primary-900">Mật khẩu</label>
                   <input
                     type="password"
                     name="password"
@@ -442,17 +442,17 @@ export function UserManagementView() {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Tối thiểu 6 ký tự"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                    className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-[#0c4a6e]">Vai trò (Role)</label>
+                  <label className="font-bold text-primary-900">Vai trò (Role)</label>
                   <select
                     name="roleId"
                     value={formData.roleId}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium cursor-pointer"
                   >
                     {roles.map(r => (
                       <option key={r.id} value={r.id}>{r.name}</option>
@@ -463,38 +463,38 @@ export function UserManagementView() {
 
               {/* EXTRA PERMISSIONS CHECKBOXES */}
               <div className="flex flex-col gap-2 mt-2">
-                <label className="font-bold text-[#0c4a6e]">Cấp thêm quyền riêng biệt (Tùy chọn)</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-[#bae6fd] rounded-xl p-3 bg-[#f0f9ff]/30 max-h-40 overflow-y-auto">
+                <label className="font-bold text-primary-900">Cấp thêm quyền riêng biệt (Tùy chọn)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-primary-200 rounded-xl p-3 bg-primary-50/30 max-h-40 overflow-y-auto">
                   {permissions.map(p => (
-                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-[#bae6fd]/20 rounded transition-colors">
+                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-primary-200/20 rounded transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.extraPermissions.includes(p.id)}
                         onChange={() => handlePermissionToggle(p.id)}
-                        className="mt-1 rounded border-[#bae6fd] text-[#0ea5e9] focus:ring-[#0ea5e9] cursor-pointer"
+                        className="mt-1 rounded border-primary-200 text-primary-500 focus:ring-primary-500 cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0c4a6e] text-xs">{p.name}</span>
-                        <span className="text-[10px] text-[#0c4a6e]/70 leading-snug">{p.description}</span>
+                        <span className="font-bold text-primary-900 text-xs">{p.name}</span>
+                        <span className="text-[10px] text-primary-900/70 leading-snug">{p.description}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#0c4a6e]/10">
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-primary-900/10">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-[#0ea5e9] hover:bg-[#0c4a6e] shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-primary-500 hover:bg-primary-900 shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {formSubmitting && (
                     <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -516,16 +516,16 @@ export function UserManagementView() {
       {isEditModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsEditModalOpen(false)}
           ></div>
 
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold text-[#0c4a6e]">Cập nhật người dùng</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-900">Cập nhật người dùng</h3>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="text-[#0c4a6e]/50 hover:text-red-500 transition-colors p-1"
+                className="text-primary-900/50 hover:text-red-500 transition-colors p-1"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -541,12 +541,12 @@ export function UserManagementView() {
 
             <form onSubmit={handleEditSubmit} className="flex flex-col gap-4 text-xs sm:text-sm">
               <div className="flex flex-col gap-1.5 bg-gray-50 p-3 rounded-xl border border-gray-150 mb-2">
-                <span className="text-xs text-[#0c4a6e]/70 font-semibold uppercase tracking-wider">Thông tin cá nhân (Đọc)</span>
-                <span className="font-bold text-[#0c4a6e] text-base mt-1">{selectedUser.full_name || 'Chưa cập nhật'}</span>
+                <span className="text-xs text-primary-900/70 font-semibold uppercase tracking-wider">Thông tin cá nhân (Đọc)</span>
+                <span className="font-bold text-primary-900 text-base mt-1">{selectedUser.full_name || 'Chưa cập nhật'}</span>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-bold text-[#0c4a6e]">Email đăng nhập</label>
+                <label className="font-bold text-primary-900">Email đăng nhập</label>
                 <input
                   type="email"
                   name="email"
@@ -554,30 +554,30 @@ export function UserManagementView() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="example@email.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-[#0c4a6e]">Mật khẩu mới (Để trống nếu giữ nguyên)</label>
+                  <label className="font-bold text-primary-900">Mật khẩu mới (Để trống nếu giữ nguyên)</label>
                   <input
                     type="password"
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="Tối thiểu 6 ký tự"
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium"
+                    className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-bold text-[#0c4a6e]">Vai trò (Role)</label>
+                  <label className="font-bold text-primary-900">Vai trò (Role)</label>
                   <select
                     name="roleId"
                     value={formData.roleId}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#bae6fd] bg-[#f0f9ff]/50 text-[#0c4a6e] focus:outline-none focus:ring-2 focus:ring-[#0ea5e9] focus:bg-white transition-all font-medium cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium cursor-pointer"
                   >
                     {roles.map(r => (
                       <option key={r.id} value={r.id}>{r.name}</option>
@@ -588,38 +588,38 @@ export function UserManagementView() {
 
               {/* EXTRA PERMISSIONS CHECKBOXES */}
               <div className="flex flex-col gap-2 mt-2">
-                <label className="font-bold text-[#0c4a6e]">Quyền hạn riêng biệt bổ sung</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-[#bae6fd] rounded-xl p-3 bg-[#f0f9ff]/30 max-h-40 overflow-y-auto">
+                <label className="font-bold text-primary-900">Quyền hạn riêng biệt bổ sung</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 border border-primary-200 rounded-xl p-3 bg-primary-50/30 max-h-40 overflow-y-auto">
                   {permissions.map(p => (
-                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-[#bae6fd]/20 rounded transition-colors">
+                    <label key={p.id} className="flex items-start gap-2 cursor-pointer p-1 hover:bg-primary-200/20 rounded transition-colors">
                       <input
                         type="checkbox"
                         checked={formData.extraPermissions.includes(p.id)}
                         onChange={() => handlePermissionToggle(p.id)}
-                        className="mt-1 rounded border-[#bae6fd] text-[#0ea5e9] focus:ring-[#0ea5e9] cursor-pointer"
+                        className="mt-1 rounded border-primary-200 text-primary-500 focus:ring-primary-500 cursor-pointer"
                       />
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0c4a6e] text-xs">{p.name}</span>
-                        <span className="text-[10px] text-[#0c4a6e]/70 leading-snug">{p.description}</span>
+                        <span className="font-bold text-primary-900 text-xs">{p.name}</span>
+                        <span className="text-[10px] text-primary-900/70 leading-snug">{p.description}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-[#0c4a6e]/10">
+              <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-primary-900/10">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-[#0ea5e9] hover:bg-[#0c4a6e] shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl font-bold text-white bg-primary-500 hover:bg-primary-900 shadow-md transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
                   {formSubmitting && (
                     <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -641,7 +641,7 @@ export function UserManagementView() {
       {isDeleteModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-[#0c4a6e]/40 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsDeleteModalOpen(false)}
           ></div>
 
@@ -652,8 +652,8 @@ export function UserManagementView() {
               </svg>
             </div>
 
-            <h3 className="text-xl font-bold text-[#0c4a6e] mb-2">Xác nhận xóa tài khoản</h3>
-            <p className="text-sm text-[#0c4a6e]/85 mb-6">
+            <h3 className="text-xl font-bold text-primary-900 mb-2">Xác nhận xóa tài khoản</h3>
+            <p className="text-sm text-primary-900/85 mb-6">
               Bạn có chắc chắn muốn xóa tài khoản <strong>{selectedUser.full_name || selectedUser.email}</strong>? Hành động này sẽ xóa vĩnh viễn tài khoản và các dữ liệu liên quan. Không thể hoàn tác!
             </p>
 
@@ -662,7 +662,7 @@ export function UserManagementView() {
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
                 disabled={formSubmitting}
-                className="px-5 py-2.5 rounded-xl font-bold text-[#0c4a6e] bg-[#f0f9ff] hover:bg-[#bae6fd] transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl font-bold text-primary-900 bg-primary-50 hover:bg-primary-200 transition-colors disabled:opacity-50"
               >
                 Hủy bỏ
               </button>
