@@ -8,6 +8,9 @@ import { menuGroups } from "./config-navigation";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { ProfileDrawer } from "./profile-drawer";
+import { Layout } from "antd";
+
+const { Header: AntHeader, Content: AntContent, Footer: AntFooter, Sider: AntSider } = Layout;
 
 export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
@@ -70,10 +73,14 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
   };
 
   return (
-    <div className="flex h-screen w-full bg-primary-50 overflow-hidden text-primary-900">
+    <Layout className="flex h-screen w-full bg-primary-50 overflow-hidden text-primary-900 !flex-row">
       
       {/* 1. DESKTOP SIDEBAR NAVIGATION */}
-      <div className="hidden lg:flex h-full shrink-0 relative group">
+      <AntSider
+        width={sidebarWidth}
+        trigger={null}
+        className="!hidden lg:!flex !h-full !bg-primary-900 !relative !z-20 !overflow-hidden !border-none"
+      >
         <NavVertical 
           pathname={pathname}
           openGroups={openGroups}
@@ -86,7 +93,7 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
           className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-primary-500 opacity-0 hover:opacity-100 transition-opacity z-30"
           style={{ opacity: isResizing ? 1 : undefined, backgroundColor: isResizing ? '#0ea5e9' : undefined }}
         />
-      </div>
+      </AntSider>
 
       {/* 2. MOBILE DRAWER NAVIGATION */}
       <NavMobile 
@@ -98,30 +105,34 @@ export default function DashboardLayout({ children }: Readonly<{ children: React
       />
 
       {/* 3. RIGHT CONTENT CONTAINER */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <Layout className="flex-1 flex flex-col h-full overflow-hidden relative !bg-transparent">
         
         {/* HEADER BAR */}
-        <Header 
-          onMenuOpen={() => setIsMobileOpen(true)}
-          onProfileOpen={() => setIsProfileOpen(true)}
-        />
+        <AntHeader className="!bg-transparent !p-0 !h-auto !leading-normal shrink-0">
+          <Header 
+            onMenuOpen={() => setIsMobileOpen(true)}
+            onProfileOpen={() => setIsProfileOpen(true)}
+          />
+        </AntHeader>
 
         {/* MAIN WORKSPACE CONTENT */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 lg:p-8 relative flex flex-col min-h-0 bg-transparent">
+        <AntContent className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 lg:p-8 relative flex flex-col min-h-0 bg-transparent">
           <div className="flex-grow flex flex-col">
             {children}
           </div>
-        </main>
+        </AntContent>
 
         {/* FOOTER BAR */}
-        <Footer />
-      </div>
+        <AntFooter className="!bg-transparent !p-0 shrink-0">
+          <Footer />
+        </AntFooter>
+      </Layout>
 
       {/* 4. USER PROFILE RIGHT DRAWER */}
       <ProfileDrawer 
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
       />
-    </div>
+    </Layout>
   );
 }

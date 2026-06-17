@@ -44,8 +44,8 @@ export const BRAND_CONFIG = {
 
   // Văn bản bản quyền chân trang (Copyrights)
   footer: {
-    copyright: "Smart Walker VN. Bảo lưu mọi quyền.",
-    shortCopyright: "Smart Walker VN • Healthcare Tech",
+    copyright: "StepAid-LBK. Bảo lưu mọi quyền.",
+    shortCopyright: "StepAid-LBK • Healthcare Tech",
     year: "2026",
   }
 } as const;

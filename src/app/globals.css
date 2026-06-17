@@ -133,3 +133,12 @@ html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 4px;
 }
+
+/* Reset Ant Design global link color overrides */
+body .ant-layout a,
+body .ant-layout a:hover,
+body .ant-layout a:focus,
+body .ant-layout a:active {
+  color: inherit;
+  text-decoration: none;
+}

@@ -22,11 +22,11 @@ export function WelcomeBanner({
         <h1 className="text-2xl sm:text-3xl font-bold">Chào buổi sáng, {userName}! 👋</h1>
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-2 text-xs sm:text-sm font-semibold">
           <span className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1.5">
-            📁 Mã số sổ y tế: <span className="font-mono font-black">{bookletNumber}</span>
+            Mã số sổ y tế: <span className="font-mono font-black">{bookletNumber}</span>
           </span>
           {identityCard && (
             <span className="bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1.5">
-              🪪 CCCD/CMND: <span className="font-mono font-black">{identityCard}</span>
+              CCCD/CMND: <span className="font-mono font-black">{identityCard}</span>
             </span>
           )}
         </div>

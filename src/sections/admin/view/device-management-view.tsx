@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { deviceService } from "@/services/deviceService";
 import { patientService } from "@/services/patientService";
 import { BRAND_CONFIG } from "@/config/brand";
+import { OfflineIcon, OnlineIcon } from "@/components/common/icons";
 
 export function DeviceManagementView() {
   const [devices, setDevices] = useState<any[]>([]);
@@ -165,18 +166,14 @@ export function DeviceManagementView() {
                   
                   // Xác định màu trạng thái
                   const isOnline = device.status === "online";
-                  const isBusy = isOnline && isAssigned; // Có bệnh nhân dùng và đang online
                   
                   let statusLabel = "Ngoại tuyến";
-                  let statusClass = "bg-gray-400";
                   
                   if (isOnline) {
                     if (isAssigned) {
                       statusLabel = "Đang tập luyện";
-                      statusClass = "bg-amber-500 animate-pulse";
                     } else {
                       statusLabel = "Trực tuyến (Rảnh)";
-                      statusClass = "bg-emerald-500 animate-pulse";
                     }
                   }
 
@@ -196,7 +193,13 @@ export function DeviceManagementView() {
                       </td>
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-2 font-bold text-xs">
-                          <span className={`w-2.5 h-2.5 rounded-full ${statusClass}`}></span>
+                          {isOnline ? (
+                            <span className={`w-2.5 h-2.5 rounded-full shadow-sm animate-pulse ${
+                              isAssigned ? "bg-amber-500 shadow-amber-500/50" : "bg-emerald-500 shadow-emerald-500/50"
+                            }`}></span>
+                          ) : (
+                            <OfflineIcon className="text-gray-400 text-base" />
+                          )}
                           <span>{statusLabel}</span>
                         </div>
                       </td>

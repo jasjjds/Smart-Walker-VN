@@ -104,7 +104,7 @@ export function DoctorPatientBookletView() {
             )
           });
         }
-        
+
         // Tự động đóng modal
         handleClosePageDetail();
       }
@@ -265,11 +265,10 @@ export function DoctorPatientBookletView() {
 
                 {/* Details line */}
                 <div className="flex flex-wrap gap-4 text-xs font-semibold text-primary-900/70 border-b border-primary-900/5 pb-4">
-                  <span>📅 Bắt đầu: {new Date(selectedPage.start_time).toLocaleString("vi-VN")}</span>
+                  <span>Bắt đầu: {new Date(selectedPage.start_time).toLocaleString("vi-VN")}</span>
                   {selectedPage.end_time && (
-                    <span>🏁 Kết thúc: {new Date(selectedPage.end_time).toLocaleString("vi-VN")}</span>
+                    <span>Kết thúc: {new Date(selectedPage.end_time).toLocaleString("vi-VN")}</span>
                   )}
-                  <span>🤖 Mã xe: <span className="font-mono text-primary-500">{selectedPage.device_id || "N/A"}</span></span>
                 </div>
 
                 {/* Performance stats row */}
@@ -353,9 +352,8 @@ export function DoctorPatientBookletView() {
                       value={doctorNotes}
                       onChange={(e) => setDoctorNotes(e.target.value)}
                       placeholder="Vui lòng nhập đánh giá chẩn đoán y tế, chỉ định chịu lực, hoặc chỉnh sửa dáng đi cho bệnh nhân tại đây..."
-                      className={`w-full p-4 pr-12 rounded-2xl border border-primary-200 bg-primary-50/20 text-primary-900 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-slate-400 focus:bg-white transition-all shadow-2xs resize-none overflow-hidden min-h-[100px] ${
-                        !isEditingNotes ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-dashed' : ''
-                      }`}
+                      className={`w-full p-4 pr-12 rounded-2xl border border-primary-200 bg-primary-50/20 text-primary-900 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-slate-400 focus:bg-white transition-all shadow-2xs resize-none overflow-hidden min-h-[100px] ${!isEditingNotes ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-dashed' : ''
+                        }`}
                     />
 
                     {/* Icon ở góc dưới bên phải để mở khóa chỉnh sửa */}
@@ -364,11 +362,10 @@ export function DoctorPatientBookletView() {
                         type="button"
                         onClick={() => setIsEditingNotes(true)}
                         disabled={isEditingNotes}
-                        className={`absolute right-3.5 bottom-3.5 p-2 rounded-xl transition-all ${
-                          isEditingNotes 
-                            ? 'text-slate-300 cursor-default opacity-40' 
-                            : 'text-primary-500 hover:bg-primary-50 hover:scale-105 active:scale-95'
-                        }`}
+                        className={`absolute right-3.5 bottom-3.5 p-2 rounded-xl transition-all ${isEditingNotes
+                          ? 'text-slate-300 cursor-default opacity-40'
+                          : 'text-primary-500 hover:bg-primary-50 hover:scale-105 active:scale-95'
+                          }`}
                         title="Nhấn để chỉnh sửa chẩn đoán"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -27,7 +27,7 @@ export function SessionModal({
   loading,
   onClose
 }: SessionModalProps) {
-  
+
   if (!pageId) return null;
 
   const leftForce = page?.avg_force_left ?? 0;
@@ -49,7 +49,7 @@ export function SessionModal({
     <div className="fixed inset-0 z-55 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={onClose}></div>
       <div className="relative w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-6 animate-fade-in border border-primary-200">
-        
+
         {/* Modal Header */}
         <div className="flex justify-between items-start shrink-0 border-b border-primary-900/10 pb-4">
           <div>
@@ -75,14 +75,13 @@ export function SessionModal({
           </div>
         ) : page && (
           <div className="flex flex-col gap-6">
-            
+
             {/* Time & Device Info */}
             <div className="flex flex-wrap gap-4 text-xs font-semibold text-primary-900/70 border-b border-primary-900/5 pb-4">
-              <span>📅 Bắt đầu: {new Date(page.start_time).toLocaleString("vi-VN")}</span>
+              <span>Bắt đầu: {new Date(page.start_time).toLocaleString("vi-VN")}</span>
               {page.end_time && (
-                <span>🏁 Kết thúc: {new Date(page.end_time).toLocaleString("vi-VN")}</span>
+                <span>Kết thúc: {new Date(page.end_time).toLocaleString("vi-VN")}</span>
               )}
-              <span>🤖 Thiết bị: <span className="font-mono text-primary-500">{page.device_id || "Không gán"}</span></span>
             </div>
 
             {/* Metric Summary Grid (Using MetricCard LEGO blocks) */}
@@ -98,15 +97,15 @@ export function SessionModal({
                 <span className="text-primary-500">Trái: {leftForce.toFixed(1)} kg</span>
                 <span className="text-primary-900">Phải: {rightForce.toFixed(1)} kg</span>
               </div>
-              
+
               <div className="w-full h-2.5 bg-slate-200 rounded-full flex overflow-hidden shadow-inner">
                 {totalForce > 0 ? (
                   <>
-                    <div 
+                    <div
                       className="bg-primary-500 transition-all duration-300"
                       style={{ width: `${(leftForce / totalForce) * 100}%` }}
                     ></div>
-                    <div 
+                    <div
                       className="bg-primary-900 transition-all duration-300"
                       style={{ width: `${(rightForce / totalForce) * 100}%` }}
                     ></div>

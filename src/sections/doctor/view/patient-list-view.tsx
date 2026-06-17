@@ -5,6 +5,8 @@ import Link from 'next/link';
 import CustomDataTable, { ColumnDefinition } from '@/components/custom/custom_data_table';
 import { patientService } from '@/services/patientService';
 import { useAuth } from '@/lib/auth-context';
+import { CustomInput } from '@/components/custom/custom-input';
+import { SearchIcon, EyeIcon, BookletIcon, OfflineIcon, OnlineIcon } from '@/components/common/icons';
 
 interface Patient {
   id: string; // BN-xxx
@@ -99,17 +101,17 @@ export function PatientListView() {
     try {
       const dob = new Date(dobString);
       if (isNaN(dob.getTime())) return 'N/A';
-      
+
       const now = new Date();
       let yearsDiff = now.getFullYear() - dob.getFullYear();
       const monthDiff = now.getMonth() - dob.getMonth();
       const dayDiff = now.getDate() - dob.getDate();
-      
+
       // Tính tuổi chính xác bằng cách trừ đi 1 nếu chưa tới ngày sinh nhật trong năm nay
       if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
         yearsDiff--;
       }
-      
+
       // Nếu dưới 3 tuổi (dưới 36 tháng)
       if (yearsDiff < 3) {
         let monthsDiff = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
@@ -119,7 +121,7 @@ export function PatientListView() {
         const months = monthsDiff <= 0 ? 1 : monthsDiff;
         return `${months} tháng`;
       }
-      
+
       // Nếu tròn hoặc trên 3 tuổi
       return `${yearsDiff} tuổi`;
     } catch (e) {
@@ -153,7 +155,7 @@ export function PatientListView() {
       setFormError('Vui lòng chọn một bệnh nhân.');
       return;
     }
-    
+
     setFormError(null);
     setFormSubmitting(true);
 
@@ -182,8 +184,8 @@ export function PatientListView() {
   const filteredPatients = patients.filter(patient => {
     const query = searchQuery.toLowerCase().trim();
     return patient.name.toLowerCase().includes(query) ||
-           patient.id.toLowerCase().includes(query) ||
-           (patient.doctorName && patient.doctorName.toLowerCase().includes(query));
+      patient.id.toLowerCase().includes(query) ||
+      (patient.doctorName && patient.doctorName.toLowerCase().includes(query));
   });
 
   const unassignedPatients = patients.filter(p => !p.doctorId);
@@ -239,14 +241,10 @@ export function PatientListView() {
       cell: (patient) => (
         <div className="flex flex-col gap-0.5">
           {patient.doctorName ? (
-            <span className="font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md text-xs inline-block w-fit">
+            <span className="font-semibold text-slate-700 text-sm">
               BS. {patient.doctorName}
             </span>
-          ) : (
-            <span className="font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md text-xs inline-block w-fit">
-              Chưa gán
-            </span>
-          )}
+          ) : null}
         </div>
       )
     },
@@ -256,11 +254,16 @@ export function PatientListView() {
       cell: (patient) => {
         let isOnline = patient.status === 'online';
         let statusText = isOnline ? 'Trực tuyến' : (patient.status === 'Busy' ? 'Cần chú ý' : 'Ngoại tuyến');
-        let statusColor = isOnline ? 'bg-green-500 shadow-green-500/50' : (patient.status === 'Busy' ? 'bg-red-500 shadow-red-500/50' : 'bg-gray-400');
 
         return (
           <div className="flex items-center gap-2 font-semibold text-sm">
-            <span className={`w-2.5 h-2.5 rounded-full shadow-sm ${statusColor} ${isOnline ? 'animate-pulse' : ''}`}></span>
+            {isOnline ? (
+              <span className="w-2.5 h-2.5 rounded-full shadow-sm bg-green-500 shadow-green-500/50 animate-pulse"></span>
+            ) : patient.status === 'Busy' ? (
+              <span className="w-2.5 h-2.5 rounded-full shadow-sm bg-red-500 shadow-red-500/50"></span>
+            ) : (
+              <OfflineIcon className="text-gray-400 text-base" />
+            )}
             <span>{statusText}</span>
           </div>
         );
@@ -273,22 +276,17 @@ export function PatientListView() {
         <div className="flex items-center justify-center gap-1.5">
           <Link
             href={`/dashboard/doctor/patients/${patient.rawId}`}
-            className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-500"
-            title="Xem hồ sơ"
+            className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
+            title="Xem chi tiết"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
+            <EyeIcon className="w-5 h-5" />
           </Link>
           <Link
             href={`/dashboard/doctor/patients/${patient.rawId}/booklet`}
             className="p-1.5 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
             title="Sổ y tế điện tử"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+            <BookletIcon className="w-5 h-5" />
           </Link>
         </div>
       )
@@ -299,29 +297,23 @@ export function PatientListView() {
     <div className="w-full h-full flex flex-col gap-6 text-primary-900 relative">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0">
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-start sm:items-center">
-          <div className="relative w-full sm:w-72">
+          <CustomInput
+            placeholder="Tìm kiếm theo tên, mã BN..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            prefix={<SearchIcon className="w-4 h-4 text-primary-900/50" />}
+            variant="search"
+            className="w-full sm:w-72"
+          />
+
+          <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-primary-200 shadow-sm hover:bg-primary-50 transition-colors whitespace-nowrap shrink-0">
             <input
-              type="text"
-              placeholder="Tìm kiếm theo tên, mã BN..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-primary-200 bg-primary-50/50 text-primary-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all font-medium text-sm"
-            />
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-900/50">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
-          
-          <label className="flex items-center gap-2 cursor-pointer bg-white px-4 py-2.5 rounded-xl border border-primary-200 shadow-sm hover:bg-primary-50 transition-colors">
-            <input 
-              type="checkbox" 
+              type="checkbox"
               checked={showOnlyMyPatients}
               onChange={(e) => setShowOnlyMyPatients(e.target.checked)}
               className="rounded text-primary-500 focus:ring-primary-500 border-primary-200 w-4 h-4"
             />
-            <span className="text-sm font-bold text-primary-900">Chỉ hiển thị bệnh nhân của tôi</span>
+            <span className="text-sm font-bold text-primary-900">Bệnh nhân của tôi</span>
           </label>
         </div>
 
@@ -412,7 +404,7 @@ export function PatientListView() {
 
       {/* MODAL SỬA BỆNH NHÂN (Placeholder) */}
       {isEditModalOpen && selectedPatient && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={() => setIsEditModalOpen(false)}></div>
           <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6 sm:p-8 z-10 transform transition-all">
             <div className="flex justify-between items-center mb-6">

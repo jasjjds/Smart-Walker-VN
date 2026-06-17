@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { BackButton } from "@/components/custom/back-button";
 import { BRAND_CONFIG } from "@/config/brand";
+import { CustomInput } from "@/components/custom/custom-input";
+import { CustomButton } from "@/components/custom/custom-button";
+import { Layout } from "antd";
 
 export function ChangePasswordView() {
   const { changePassword } = useAuth();
@@ -63,21 +66,15 @@ export function ChangePasswordView() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-primary-50 flex relative overflow-hidden text-primary-900">
-      
-      {/* KHU VỰC FORM ĐỔI MẬT KHẨU (BÊN TRÁI) */}
-      <div className="w-full lg:w-1/2 min-h-screen flex flex-col items-center justify-center p-6 sm:p-10 md:p-16 z-20 relative">
+    <Layout className="min-h-screen w-full !bg-primary-50 flex !items-center !justify-center p-4 sm:p-6 !text-primary-900">
+      <Layout.Content className="w-full max-w-[420px] flex flex-col items-center justify-center">
         {/* Tiêu đề */}
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center leading-snug tracking-wide">
-          {BRAND_CONFIG.auth.welcome} <br />
-          <span className="bg-gradient-to-r from-primary-500 to-primary-900 bg-clip-text text-transparent text-3xl sm:text-4xl md:text-5xl font-bold uppercase block mt-2 pb-1">
-            {BRAND_CONFIG.brand.fullName}
-          </span>
-          <span className="text-xl sm:text-2xl md:text-3xl font-bold uppercase block mt-3 text-primary-500">{BRAND_CONFIG.auth.changePasswordTitle}</span>
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center bg-gradient-to-r from-primary-500 to-primary-900 bg-clip-text text-transparent uppercase tracking-wider">
+          Đổi mật khẩu
         </h2>
 
         {/* Form nhập liệu */}
-        <form onSubmit={handleSubmit} className="w-full max-w-[420px] flex flex-col gap-4 sm:gap-5">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 sm:gap-5">
           {error && (
             <div className="w-full px-4 py-3 bg-red-50 border border-red-200 text-red-600 font-semibold rounded-xl text-sm transition-all animate-shake">
               ⚠️ {error}
@@ -90,68 +87,53 @@ export function ChangePasswordView() {
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full">
             <label className="text-xs font-bold text-primary-900/70 px-1">Mật khẩu cũ</label>
-            <input
-              type="password"
+            <CustomInput
+              isPassword
               placeholder="Nhập mật khẩu hiện tại"
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full">
             <label className="text-xs font-bold text-primary-900/70 px-1">Mật khẩu mới</label>
-            <input
-              type="password"
+            <CustomInput
+              isPassword
               placeholder="Tối thiểu 6 ký tự"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full">
             <label className="text-xs font-bold text-primary-900/70 px-1">Xác nhận mật khẩu mới</label>
-            <input
-              type="password"
+            <CustomInput
+              isPassword
               placeholder="Nhập lại mật khẩu mới"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-lg rounded-xl border-2 border-primary-900/30 bg-white/50 text-primary-900 placeholder-primary-900/40 focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all font-medium"
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting || !!success}
-            className="w-full mt-2 py-3 sm:py-4 bg-gradient-to-r from-primary-500 to-primary-900 text-white text-base sm:text-lg font-bold rounded-xl hover:opacity-90 hover:shadow-lg transition-all duration-300 disabled:opacity-50 cursor-pointer text-center"
+          <CustomButton
+            htmlType="submit"
+            loading={submitting}
+            disabled={!!success}
+            loadingText="ĐANG THỰC HIỆN..."
+            className="mt-2"
           >
-            {submitting ? "ĐANG THỰC HIỆN..." : "XÁC NHẬN ĐỔI MẬT KHẨU"}
-          </button>
+            XÁC NHẬN ĐỔI MẬT KHẨU
+          </CustomButton>
         </form>
 
         {/* Nút quay lại */}
         <BackButton onClick={() => router.back()} className="mt-6" />
-      </div>
-
-      {/* KHỐI SLIDING CHỨA ẢNH (BÊN PHẢI) */}
-      <div className="hidden lg:block absolute right-0 w-1/2 h-screen z-10 shadow-2xl">
-        <div className="relative w-full h-full bg-primary-900">
-          <div
-            className="absolute inset-0 bg-contain bg-bottom bg-no-repeat h-screen"
-            style={{
-              backgroundImage: "url('/auth_pic1.svg')",
-              backgroundColor: "#eef1f5"
-            }}
-          ></div>
-          <div className="absolute inset-0 h-screen bg-gradient-to-t from-primary-900/30 to-transparent"></div>
-        </div>
-      </div>
-    </div>
+      </Layout.Content>
+    </Layout>
   );
 }

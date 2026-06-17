@@ -9,6 +9,7 @@ import { analyticsService } from '@/services/analyticsService';
 import { BackButton } from '@/components/custom/back-button';
 import { MetricCard } from '@/components/common/metric-card';
 import { useGaitRealtime } from '@/hooks/useGaitRealtime';
+import { CustomDatePicker } from '@/components/custom/custom-datepicker';
 
 const VelocityChart = dynamic(
   () => import('@/components/custom/velocity-chart').then(m => m.VelocityChart),
@@ -170,20 +171,18 @@ export function GaitAnalysisView() {
         <div className="flex flex-wrap items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl text-xs shrink-0 shadow-sm animate-fadeIn">
           <div className="flex items-center gap-1.5">
             <span className="text-gray-500 font-medium">Từ ngày:</span>
-            <input
-              type="date"
+            <CustomDatePicker
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-primary-500 text-gray-700 text-xs"
+              className="!w-32 !px-2 !py-1 !text-xs !rounded-lg !border !border-gray-300 focus-within:!border-primary-500 !bg-white !text-gray-700 font-medium"
             />
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-gray-500 font-medium">Đến ngày:</span>
-            <input
-              type="date"
+            <CustomDatePicker
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-2 py-1 outline-none focus:border-primary-500 text-gray-700 text-xs"
+              className="!w-32 !px-2 !py-1 !text-xs !rounded-lg !border !border-gray-300 focus-within:!border-primary-500 !bg-white !text-gray-700 font-medium"
             />
           </div>
           <button

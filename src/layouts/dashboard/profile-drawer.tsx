@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { patientService } from "@/services/patientService";
+import { CustomDatePicker } from "@/components/custom/custom-datepicker";
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -206,11 +207,10 @@ export function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-primary-900/50 uppercase tracking-wider font-sans">Ngày sinh</label>
-                <input
-                  type="date"
+                <CustomDatePicker
                   value={editDateOfBirth}
                   onChange={(e) => setEditDateOfBirth(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border-2 border-slate-200 focus:outline-none focus:border-primary-500 bg-slate-50 text-primary-900 font-semibold"
+                  className="!rounded-lg !border-slate-200 !bg-slate-50 !text-primary-900 !font-semibold"
                 />
               </div>
 

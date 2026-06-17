@@ -92,7 +92,7 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
                   className="px-6 py-2 mb-1 flex items-center justify-between cursor-pointer group/header"
                   onClick={() => toggleGroup(group.id)}
                 >
-                  <h3 className="text-[11px] font-bold text-primary-50/40 uppercase tracking-widest group-hover/header:text-primary-50/80 transition-colors">
+                  <h3 className="text-[11px] font-bold !text-primary-50/40 uppercase tracking-widest group-hover/header:!text-primary-50/80 transition-colors">
                     {group.groupLabel}
                   </h3>
                   <svg
@@ -111,7 +111,9 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
                 >
                   {group.items.map((item) => {
                     const isActive =
-                      item.path === '/dashboard' || item.path === '/dashboard/doctor'
+                      item.path === '/dashboard' ||
+                      item.path === '/dashboard/doctor' ||
+                      item.path === '/dashboard/patient'
                         ? pathname === item.path
                         : pathname === item.path || pathname.startsWith(item.path + '/');
 
@@ -121,11 +123,11 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
                         href={item.path}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-[14px] ${
                           isActive
-                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-md shadow-primary-500/20'
-                            : 'text-primary-50/60 hover:bg-white/10 hover:text-white'
+                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 !text-white shadow-md shadow-primary-500/20'
+                            : '!text-primary-50/60 hover:bg-white/10 hover:!text-white'
                         }`}
                       >
-                        <svg className={`w-4 h-4 ${isActive ? 'text-white' : 'text-primary-50/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-4 h-4 ${isActive ? '!text-white' : '!text-primary-50/40'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                         </svg>
                         {item.name}
@@ -146,7 +148,7 @@ export function NavMobile({ pathname, isOpen, onClose, openGroups, toggleGroup }
         <div className="p-4 border-t border-white/10 shrink-0">
           <button
             onClick={logout}
-            className="flex items-center gap-4 px-4 py-3.5 w-full rounded-xl text-primary-50/70 hover:bg-red-500/10 hover:text-red-400 transition-colors font-medium cursor-pointer text-left"
+            className="flex items-center gap-4 px-4 py-3.5 w-full rounded-xl !text-primary-50/70 hover:bg-red-500/10 hover:!text-red-400 transition-colors font-medium cursor-pointer text-left"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

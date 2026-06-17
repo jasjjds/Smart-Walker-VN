@@ -4,6 +4,7 @@ import { Roboto } from "next/font/google";
 import { BRAND_CONFIG } from "@/config/brand";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 // Cấu hình font Roboto chuẩn có tiếng Việt
 const roboto = Roboto({
@@ -32,9 +33,11 @@ export default function RootLayout({
     >
       {/* Background #f0f9ff và Text #075985 được áp dụng toàn cục ngay từ đây */}
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AntdRegistry>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

@@ -1,6 +1,8 @@
 // src/components/patient/training-history.tsx
 
 import React from 'react';
+import { CustomInput } from '@/components/custom/custom-input';
+import { SearchIcon } from '@/components/common/icons';
 
 interface BookletPage {
   id: number;
@@ -55,18 +57,14 @@ export function TrainingHistory({
         
         <div className="flex flex-wrap items-center gap-3">
           {/* Thanh tìm kiếm theo ngày */}
-          <div className="bg-slate-100 rounded-xl flex items-center px-3 py-1.5 text-gray-500 border border-slate-200">
-            <svg className="w-4 h-4 mr-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Tìm theo ngày (DD/MM/YYYY)..." 
-              className="bg-transparent border-none outline-none w-48 text-xs font-semibold placeholder-slate-400" 
-            />
-          </div>
+          <CustomInput 
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Tìm theo ngày (DD/MM/YYYY)..."
+            prefix={<SearchIcon className="w-4 h-4 text-slate-400" />}
+            variant="search"
+            className="w-48"
+          />
         </div>
       </div>
 
