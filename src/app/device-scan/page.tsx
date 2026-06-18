@@ -5,29 +5,65 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { DeviceScanView } from "../../sections/patient/view/device-scan-view";
 import { BackButton } from "@/components/custom/back-button";
+import { patientService } from "@/services/patientService";
 
 export default function DeviceScanPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [checkingDevice, setCheckingDevice] = useState(false);
 
   useEffect(() => {
     // Lấy device_id từ URL query params an toàn trên Client
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      setDeviceId(params.get("device_id"));
+      const id = params.get("device_id");
+      setDeviceId(id);
+      if (!id) {
+        setCheckingDevice(true);
+      }
     }
   }, []);
 
   useEffect(() => {
-    if (!loading && !user && deviceId) {
-      // Lưu lại đường dẫn để tự động quay lại sau khi đăng nhập thành công
-      localStorage.setItem("authRedirectPath", `/device-scan?device_id=${deviceId}`);
-      router.push(`/auth?redirect=/device-scan?device_id=${deviceId}`);
+    if (!loading && !user) {
+      if (deviceId) {
+        // Lưu lại đường dẫn để tự động quay lại sau khi đăng nhập thành công
+        localStorage.setItem("authRedirectPath", `/device-scan?device_id=${deviceId}`);
+        router.push(`/auth?redirect=/device-scan?device_id=${deviceId}`);
+      } else {
+        localStorage.setItem("authRedirectPath", `/device-scan`);
+        router.push(`/auth?redirect=/device-scan`);
+      }
     }
   }, [loading, user, deviceId, router]);
 
-  if (loading) {
+  useEffect(() => {
+    if (checkingDevice && !loading && user) {
+      if (user.role_id === 2) {
+        const checkAssignedDevice = async () => {
+          try {
+            const res = await patientService.getBooklet() as any;
+            if (res.success && res.data && res.data.device_id) {
+              const assignedId = res.data.device_id;
+              setDeviceId(assignedId);
+              router.replace(`/device-scan?device_id=${assignedId}`);
+            }
+          } catch (error) {
+            console.error("Lỗi khi kiểm tra thiết bị cố định:", error);
+          } finally {
+            setCheckingDevice(false);
+          }
+        };
+        checkAssignedDevice();
+      } else {
+        // Không phải role bệnh nhân, không cần kiểm tra thiết bị cố định
+        setCheckingDevice(false);
+      }
+    }
+  }, [checkingDevice, loading, user, router]);
+
+  if (loading || (checkingDevice && !deviceId)) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-primary-50 text-primary-900">
         <svg className="w-10 h-10 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">

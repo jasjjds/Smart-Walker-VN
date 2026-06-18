@@ -81,6 +81,7 @@ export function PatientOverviewView() {
         streak={calculatedStats.streak}
         bookletNumber={booklet?.booklet_number || "Đang tải..."}
         identityCard={booklet?.patient_info?.identity_card}
+        deviceId={booklet?.device_id}
       />
 
       {/* 2. CHỈ SỐ TÓM TẮT */}

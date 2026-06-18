@@ -8,14 +8,18 @@ interface WelcomeBannerProps {
   streak: number;
   bookletNumber: string;
   identityCard?: string;
+  deviceId?: string | null;
 }
 
 export function WelcomeBanner({
   userName,
   streak,
   bookletNumber,
-  identityCard
+  identityCard,
+  deviceId
 }: WelcomeBannerProps) {
+  const startHref = deviceId ? `/device-scan?device_id=${deviceId}` : "/device-scan";
+
   return (
     <div className="bg-gradient-to-r from-primary-900 to-primary-500 rounded-3xl p-6 sm:p-8 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6 shrink-0 text-center md:text-left">
       <div className="flex flex-col gap-2">
@@ -31,7 +35,7 @@ export function WelcomeBanner({
           )}
         </div>
       </div>
-      <Link href="/device-scan" className="px-6 py-3 sm:px-8 sm:py-3 bg-white text-primary-900 font-black rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2 shrink-0 text-sm sm:text-base w-full md:w-auto">
+      <Link href={startHref} className="px-6 py-3 sm:px-8 sm:py-3 bg-white text-primary-900 font-black rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2 shrink-0 text-sm sm:text-base w-full md:w-auto">
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         BẮT ĐẦU BÀI TẬP
       </Link>
