@@ -88,7 +88,7 @@ export function DoctorOverviewView() {
           </div>
           <div>
             <p className="font-bold text-sm sm:text-base">Dữ liệu thời gian thực đang hoạt động</p>
-            <p className="text-xs sm:text-sm opacity-70">Nhận dữ liệu từ 12 thiết bị Smart Walker trong khu vực.</p>
+            <p className="text-xs sm:text-sm opacity-70">Nhận dữ liệu từ 12 thiết bị StepAid - LBK trong khu vực.</p>
           </div>
         </div>
         <button className="w-full sm:w-auto px-6 py-2 bg-primary-500 hover:bg-white hover:text-primary-900 rounded-xl font-bold transition-all text-sm">

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { deviceService } from "@/services/deviceService";
+import { patientService } from "@/services/patientService";
 import { BackButton } from "@/components/custom/back-button";
 import { BRAND_CONFIG } from "@/config/brand";
 
@@ -10,7 +11,7 @@ interface DeviceScanViewProps {
   deviceId: string;
 }
 
-type SessionState = "CONNECTING" | "ERROR" | "ACTIVE" | "FINISHING" | "SUMMARY";
+type SessionState = "CONNECTING" | "READY" | "ERROR" | "ACTIVE" | "FINISHING" | "SUMMARY";
 
 export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
   const router = useRouter();
@@ -30,54 +31,93 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. Kích hoạt thiết bị khi quét QR thành công
+  // 1. Kiểm tra xem có phiên tập nào đang active trên thiết bị này hay không khi load trang
   useEffect(() => {
     let isCancelled = false;
 
-    const startSession = async () => {
+    const checkExistingSession = async () => {
       try {
         setState("CONNECTING");
         setErrorMsg("");
         
-        const response = await deviceService.scanQr(deviceId) as any;
+        const response = await patientService.getBooklet() as any;
         
         if (isCancelled) return;
 
-        if (response.success) {
-          setState("ACTIVE");
-          if (typeof window !== "undefined") {
-            localStorage.setItem("activeDeviceId", deviceId);
-          }
-          setStartTime(new Date());
-          setElapsedSeconds(0);
+        if (response.success && response.data) {
+          const pages = response.data.pages || [];
+          const latestPage = pages[0];
           
-          // Khởi động bộ đếm thời gian
-          if (timerRef.current) clearInterval(timerRef.current);
-          timerRef.current = setInterval(() => {
-            setElapsedSeconds(prev => prev + 1);
-          }, 1000);
-        } else {
-          setState("ERROR");
-          setErrorMsg(response.message || "Thiết bị đang bận hoặc không thể kích hoạt.");
+          if (latestPage && latestPage.status === "active" && latestPage.device_id === deviceId) {
+            // Khôi phục trạng thái ACTIVE nếu người dùng F5 hoặc quay lại
+            setState("ACTIVE");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("activeDeviceId", deviceId);
+            }
+            const start = new Date(latestPage.start_time);
+            setStartTime(start);
+            
+            const diffSeconds = Math.max(0, Math.floor((new Date().getTime() - start.getTime()) / 1000));
+            setElapsedSeconds(diffSeconds);
+            
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = setInterval(() => {
+              setElapsedSeconds(prev => prev + 1);
+            }, 1000);
+            return;
+          }
         }
+        
+        // Không có phiên active, chuyển sang READY chờ bấm nút
+        setState("READY");
       } catch (err: any) {
         if (isCancelled) return;
-        console.error("Lỗi kích hoạt QR:", err);
-        setState("ERROR");
-        setErrorMsg(
-          err.response?.data?.message || 
-          "Kết nối đến máy chủ thất bại hoặc thiết bị đang được sử dụng."
-        );
+        console.error("Lỗi kiểm tra phiên tập:", err);
+        setState("READY");
       }
     };
 
-    startSession();
+    checkExistingSession();
 
     return () => {
       isCancelled = true;
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [deviceId]);
+
+  // 1.5 Kích hoạt thiết bị thủ công khi nhấn nút "Bắt đầu tập"
+  const handleStartSession = async () => {
+    try {
+      setState("CONNECTING");
+      setErrorMsg("");
+      
+      const response = await deviceService.scanQr(deviceId) as any;
+      
+      if (response.success) {
+        setState("ACTIVE");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("activeDeviceId", deviceId);
+        }
+        setStartTime(new Date());
+        setElapsedSeconds(0);
+        
+        if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          setElapsedSeconds(prev => prev + 1);
+        }, 1000);
+      } else {
+        setState("ERROR");
+        setErrorMsg(response.message || "Thiết bị đang bận hoặc không thể kích hoạt.");
+      }
+    } catch (err: any) {
+      console.error("Lỗi kích hoạt QR:", err);
+      setState("ERROR");
+      setErrorMsg(
+        err.response?.data?.message || 
+        "Kết nối đến máy chủ thất bại hoặc thiết bị đang được sử dụng."
+      );
+    }
+  };
 
   // 2. Kết thúc tập luyện
   const handleEndSession = async () => {
@@ -118,6 +158,28 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
+  // Định dạng thời gian phiên tập (chuẩn hóa có ngày, giờ, phút, giây)
+  const formatDuration = (totalSeconds: number | null | undefined) => {
+    if (totalSeconds === null || totalSeconds === undefined || totalSeconds === 0) return "00 phút 00 giây";
+    const days = Math.floor(totalSeconds / (24 * 3600));
+    let remaining = totalSeconds % (24 * 3600);
+    const hours = Math.floor(remaining / 3600);
+    remaining %= 3600;
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    
+    const parts = [];
+    if (days > 0) {
+      parts.push(`${String(days).padStart(2, '0')} ngày`);
+    }
+    if (hours > 0 || days > 0) {
+      parts.push(`${String(hours).padStart(2, '0')} giờ`);
+    }
+    parts.push(`${String(mins).padStart(2, '0')} phút`);
+    parts.push(`${String(secs).padStart(2, '0')} giây`);
+    return parts.join(' ');
+  };
+
   return (
     <div className="min-h-screen w-full bg-primary-50 text-primary-900 flex flex-col justify-between p-6 md:p-10 font-sans relative overflow-hidden">
       
@@ -141,6 +203,38 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col items-center justify-center py-8 z-10 min-h-0">
         
+        {/* STATE: READY */}
+        {state === "READY" && (
+          <div className="flex flex-col items-center justify-center animate-fade-in w-full max-w-md bg-white p-8 rounded-[2rem] shadow-2xl border border-primary-200 text-center">
+            <div className="relative w-44 h-44 flex items-center justify-center mb-8">
+              {/* Radar Rings Decor */}
+              <div className="absolute inset-0 bg-primary-500/10 rounded-full animate-pulse pointer-events-none"></div>
+              <div className="absolute w-32 h-32 bg-primary-500/20 rounded-full pointer-events-none"></div>
+              <div className="absolute w-20 h-20 bg-white shadow-xl rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black mb-3 text-primary-900">Thiết bị đã sẵn sàng</h2>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto leading-relaxed mb-8 font-medium">
+              Xe tập đi <span className="font-bold text-primary-500 font-mono">{deviceId}</span> đã được liên kết. Vui lòng bấm bắt đầu tập để ghi nhận dữ liệu cảm biến.
+            </p>
+            <div className="flex flex-col gap-3.5 w-full">
+              <button
+                onClick={handleStartSession}
+                className="w-full py-4.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-black rounded-2xl shadow-lg hover:shadow-primary-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-base tracking-wider"
+              >
+                BẮT ĐẦU TẬP
+              </button>
+              <BackButton
+                onClick={() => router.push("/dashboard/patient")}
+                className="justify-center w-full py-3.5"
+              />
+            </div>
+          </div>
+        )}
+
         {/* STATE: CONNECTING (RADAR SCANNER) */}
         {state === "CONNECTING" && (
           <div className="flex flex-col items-center justify-center animate-fade-in">
@@ -262,7 +356,7 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
               </div>
               <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 flex flex-col items-center">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Thời gian</span>
-                <span className="text-xl sm:text-2xl font-black text-primary-900">{formatTime(summaryData.durationSeconds)}</span>
+                <span className="text-xl sm:text-2xl font-black text-primary-900">{formatDuration(summaryData.durationSeconds)}</span>
               </div>
             </div>
 

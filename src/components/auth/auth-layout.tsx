@@ -40,7 +40,7 @@ export default function AuthLayout() {
         <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-center leading-snug tracking-wide">
           Chào mừng bạn đến với <br />
           <span className="bg-gradient-to-r from-primary-500 to-primary-900 bg-clip-text text-transparent text-4xl md:text-5xl font-bold uppercase block mt-2 pb-1">
-            SMART WALKER VN
+            StepAid - LBK
           </span>
           <span className="text-3xl md:text-4xl font-bold uppercase block mt-3">ĐĂNG KÝ</span>
         </h2>
@@ -94,7 +94,7 @@ export default function AuthLayout() {
         <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-center leading-snug tracking-wide">
           Chào mừng bạn đến với <br />
           <span className="bg-gradient-to-r from-primary-500 to-primary-900 bg-clip-text text-transparent text-4xl md:text-5xl font-bold uppercase block mt-2 pb-1">
-            SMART WALKER VN
+            StepAid - LBK
           </span>
           <span className="text-3xl md:text-4xl font-bold uppercase block mt-3">ĐĂNG NHẬP</span>
         </h2>

@@ -9,16 +9,7 @@ import { Chatbox } from '@/components/common/chatbox';
 import { MOCK_DAILY_EXERCISES } from '@/config/mockData';
 
 export function PatientProgressView() {
-  const {
-    isChatOpen,
-    setIsChatOpen,
-    activeChat,
-    setActiveChat,
-    contacts,
-    currentContact,
-    totalUnread,
-    handleCloseChat,
-  } = useChat();
+  const chatProps = useChat();
 
   const dailyExercises = MOCK_DAILY_EXERCISES;
 
@@ -112,16 +103,7 @@ export function PatientProgressView() {
       </div>
 
       {/* FLOATING CHATBOX */}
-      <Chatbox
-        isChatOpen={isChatOpen}
-        setIsChatOpen={setIsChatOpen}
-        activeChat={activeChat}
-        setActiveChat={setActiveChat}
-        contacts={contacts}
-        currentContact={currentContact}
-        totalUnread={totalUnread}
-        handleCloseChat={handleCloseChat}
-      />
+      <Chatbox {...chatProps} />
 
     </div>
   );

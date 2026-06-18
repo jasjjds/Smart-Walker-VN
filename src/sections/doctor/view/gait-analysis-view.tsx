@@ -27,7 +27,7 @@ export function GaitAnalysisView() {
   const params = useParams();
   const pathname = usePathname();
   const { user } = useAuth();
-  
+
   // Lấy patientID từ URL nếu là bác sĩ, hoặc từ chính user nếu là bệnh nhân
   const patientID = Array.isArray(params.id) ? params.id[0] : (params.id || user?.patient_id || '');
   const isPatientView = pathname.includes('/dashboard/patient/metrics');
@@ -116,10 +116,10 @@ export function GaitAnalysisView() {
   const avgDistance = data.length > 0 ? (totalDistance / data.length).toFixed(2) : "0.00";
 
   // Vận tốc Real-time stats cho bệnh nhân
-  const maxVelocity = velocityHistory.length > 0 
-    ? Math.max(...velocityHistory.map(d => d.velocity)) 
+  const maxVelocity = velocityHistory.length > 0
+    ? Math.max(...velocityHistory.map(d => d.velocity))
     : 0;
-  
+
   const validVelocityPoints = velocityHistory.filter(d => d.velocity > 0);
   const avgVelocity = validVelocityPoints.length > 0
     ? (validVelocityPoints.reduce((sum, item) => sum + item.velocity, 0) / validVelocityPoints.length).toFixed(2)
@@ -134,15 +134,14 @@ export function GaitAnalysisView() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
           <p className="text-primary-900/70 mt-0.5 text-xs sm:text-sm font-medium italic">
-            Theo dõi vận tốc tập luyện thời gian thực từ thiết bị Smart Walker.
+            Theo dõi vận tốc tập luyện thời gian thực từ thiết bị StepAid - LBK.
           </p>
         </div>
 
-        <button 
-          onClick={() => setIsLive(!isLive)} 
-          className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${
-            isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'
-          }`}
+        <button
+          onClick={() => setIsLive(!isLive)}
+          className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'
+            }`}
         >
           {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
         </button>

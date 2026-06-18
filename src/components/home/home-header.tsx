@@ -28,7 +28,7 @@ export default function HomeHeader() {
         <div className="flex items-center gap-3 shrink-0">
           <div className="w-10 h-10 bg-primary-50 rounded-lg opacity-90"></div>
           <h1 className="text-xl md:text-2xl font-bold text-primary-50 tracking-wide">
-            Smart Walker
+            StepAid - LBK
           </h1>
         </div>
 

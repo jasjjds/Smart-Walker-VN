@@ -116,12 +116,25 @@ export function DoctorPatientBookletView() {
     }
   };
 
-  const formatDuration = (totalSeconds: number | null) => {
-    if (!totalSeconds) return "0s";
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    if (mins > 0) return `${mins}m ${secs}s`;
-    return `${secs}s`;
+  const formatDuration = (totalSeconds: number | null | undefined) => {
+    if (totalSeconds === null || totalSeconds === undefined || totalSeconds === 0) return "00 phút 00 giây";
+    const days = Math.floor(totalSeconds / (24 * 3600));
+    let remaining = totalSeconds % (24 * 3600);
+    const hours = Math.floor(remaining / 3600);
+    remaining %= 3600;
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    
+    const parts = [];
+    if (days > 0) {
+      parts.push(`${String(days).padStart(2, '0')} ngày`);
+    }
+    if (hours > 0 || days > 0) {
+      parts.push(`${String(hours).padStart(2, '0')} giờ`);
+    }
+    parts.push(`${String(mins).padStart(2, '0')} phút`);
+    parts.push(`${String(secs).padStart(2, '0')} giây`);
+    return parts.join(' ');
   };
 
 
@@ -187,7 +200,8 @@ export function DoctorPatientBookletView() {
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-primary-200 text-primary-900/50 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
-                  <th className="py-3 px-4">Ngày bắt đầu</th>
+                  <th className="py-3 px-4">Bắt đầu</th>
+                  <th className="py-3 px-4">Kết thúc</th>
                   <th className="py-3 px-4">Thời gian</th>
                   <th className="py-3 px-4">Quãng đường</th>
                   <th className="py-3 px-4">Lực tỳ (Trái/Phải)</th>
@@ -198,14 +212,21 @@ export function DoctorPatientBookletView() {
               <tbody className="divide-y divide-primary-200/50">
                 {booklet.pages.map((page: any) => {
                   const hasNotes = !!page.doctor_notes;
-                  const dateStr = new Date(page.start_time).toLocaleString("vi-VN", {
+                  const startStr = new Date(page.start_time).toLocaleString("vi-VN", {
                     dateStyle: "medium",
                     timeStyle: "short"
                   });
+                  const endStr = page.end_time
+                    ? new Date(page.end_time).toLocaleString("vi-VN", {
+                        dateStyle: "medium",
+                        timeStyle: "short"
+                      })
+                    : "Chưa kết thúc";
 
                   return (
                     <tr key={page.id} className="hover:bg-primary-50/50 transition-colors">
-                      <td className="py-4 px-4 font-bold">{dateStr}</td>
+                      <td className="py-4 px-4 font-bold">{startStr}</td>
+                      <td className="py-4 px-4 font-semibold text-slate-600">{endStr}</td>
                       <td className="py-4 px-4 font-semibold text-slate-600">{formatDuration(page.duration_seconds)}</td>
                       <td className="py-4 px-4 font-semibold text-slate-600">{(page.total_distance ?? 0).toFixed(1)} m</td>
                       <td className="py-4 px-4">
@@ -282,7 +303,7 @@ export function DoctorPatientBookletView() {
                   <MetricCard
                     variant="minimal"
                     title="Thời gian tập"
-                    value={`${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`}
+                    value={formatDuration(durationSeconds)}
                     unit=""
                   />
                   <MetricCard

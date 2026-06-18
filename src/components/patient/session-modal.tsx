@@ -45,6 +45,27 @@ export function SessionModal({
     velocity: d.velocity || 0
   }));
 
+  const formatDuration = (totalSeconds: number | null | undefined) => {
+    if (totalSeconds === null || totalSeconds === undefined || totalSeconds === 0) return "00 phút 00 giây";
+    const days = Math.floor(totalSeconds / (24 * 3600));
+    let remaining = totalSeconds % (24 * 3600);
+    const hours = Math.floor(remaining / 3600);
+    remaining %= 3600;
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    
+    const parts = [];
+    if (days > 0) {
+      parts.push(`${String(days).padStart(2, '0')} ngày`);
+    }
+    if (hours > 0 || days > 0) {
+      parts.push(`${String(hours).padStart(2, '0')} giờ`);
+    }
+    parts.push(`${String(mins).padStart(2, '0')} phút`);
+    parts.push(`${String(secs).padStart(2, '0')} giây`);
+    return parts.join(' ');
+  };
+
   return (
     <div className="fixed inset-0 z-55 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-primary-900/40 backdrop-blur-xs transition-opacity" onClick={onClose}></div>
@@ -87,7 +108,7 @@ export function SessionModal({
             {/* Metric Summary Grid (Using MetricCard LEGO blocks) */}
             <div className="grid grid-cols-3 gap-3">
               <MetricCard variant="minimal" title="Quãng đường" value={totalDistance.toFixed(1)} unit="m" />
-              <MetricCard variant="minimal" title="Thời gian tập" value={`${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`} unit="" />
+              <MetricCard variant="minimal" title="Thời gian tập" value={formatDuration(durationSeconds)} unit="" />
               <MetricCard variant="minimal" title="Vận tốc trung bình" value={(page?.avg_velocity ?? 0).toFixed(1)} unit="m/s" />
             </div>
 

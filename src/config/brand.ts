@@ -17,7 +17,7 @@ export const BRAND_CONFIG = {
 
   // Slogan & Metadata mặc định
   slogan: "Hệ thống quản lý và theo dõi xe tập đi thông minh",
-  metaDescription: "Hệ thống quản lý và theo dõi xe tập đi thông minh Smart Walker Việt Nam",
+  metaDescription: "Hệ thống quản lý và theo dõi xe tập đi thông minh StepAid - LBK Việt Nam",
 
   // Văn bản trong khu vực xác thực (Auth)
   auth: {
@@ -30,16 +30,16 @@ export const BRAND_CONFIG = {
 
   // Các câu mô tả / chỉ dẫn theo phân hệ
   admin: {
-    deviceManagementDesc: "Danh sách toàn bộ các xe tập đi Smart Walker đăng ký trên hệ thống.",
-    systemLogsDesc: "Theo dõi hoạt động và lịch sử truy cập trên hệ thống Smart Walker.",
+    deviceManagementDesc: "Danh sách toàn bộ các xe tập đi StepAid - LBK đăng ký trên hệ thống.",
+    systemLogsDesc: "Theo dõi hoạt động và lịch sử truy cập trên hệ thống StepAid - LBK.",
   },
 
   doctor: {
-    overviewDesc: "Nhận dữ liệu từ các thiết bị Smart Walker trong khu vực.",
+    overviewDesc: "Nhận dữ liệu từ các thiết bị StepAid - LBK trong khu vực.",
   },
 
   patient: {
-    metricsDesc: "Theo dõi các chỉ số sức khỏe của bạn thông qua thiết bị Smart Walker.",
+    metricsDesc: "Theo dõi các chỉ số sức khỏe của bạn thông qua thiết bị StepAid - LBK.",
   },
 
   // Văn bản bản quyền chân trang (Copyrights)

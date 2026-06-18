@@ -38,7 +38,7 @@ export default function HomeFooter() {
             <div className="flex items-center gap-3 shrink-0">
               <div className="w-10 h-10 bg-primary-50 rounded-lg opacity-90"></div>
               <h2 className="text-xl font-bold tracking-wide">
-                Smart Walker
+                StepAid - LBK
               </h2>
             </div>
             <p className="text-primary-50/70 text-sm leading-relaxed mt-2 max-w-xs">
@@ -82,7 +82,7 @@ export default function HomeFooter() {
 
         {/* Phần Bottom Bar (Copyright) */}
         <div className="mt-16 pt-8 border-t border-primary-50/20 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-primary-50/60">
-          <p>© 2026 Smart Walker VN. All rights reserved.</p>
+          <p>© 2026 StepAid - LBK. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="#" className="hover:text-primary-50 transition-colors">Chính sách bảo mật</Link>
             <Link href="#" className="hover:text-primary-50 transition-colors">Điều khoản sử dụng</Link>

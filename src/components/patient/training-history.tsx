@@ -30,14 +30,25 @@ export function TrainingHistory({
   loading
 }: TrainingHistoryProps) {
   
-  const formatDuration = (totalSeconds: number | null) => {
-    if (!totalSeconds) return "0 giây";
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
-    if (mins > 0) {
-      return `${mins} phút ${secs > 0 ? `${secs} giây` : ""}`;
+  const formatDuration = (totalSeconds: number | null | undefined) => {
+    if (totalSeconds === null || totalSeconds === undefined || totalSeconds === 0) return "00 phút 00 giây";
+    const days = Math.floor(totalSeconds / (24 * 3600));
+    let remaining = totalSeconds % (24 * 3600);
+    const hours = Math.floor(remaining / 3600);
+    remaining %= 3600;
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    
+    const parts = [];
+    if (days > 0) {
+      parts.push(`${String(days).padStart(2, '0')} ngày`);
     }
-    return `${secs} giây`;
+    if (hours > 0 || days > 0) {
+      parts.push(`${String(hours).padStart(2, '0')} giờ`);
+    }
+    parts.push(`${String(mins).padStart(2, '0')} phút`);
+    parts.push(`${String(secs).padStart(2, '0')} giây`);
+    return parts.join(' ');
   };
 
   const filteredPages = pages.filter((page) => {

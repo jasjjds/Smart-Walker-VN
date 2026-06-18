@@ -26,16 +26,7 @@ export function PatientOverviewView() {
     handleClosePageDetail,
   } = usePatientBooklet();
 
-  const {
-    isChatOpen,
-    setIsChatOpen,
-    activeChat,
-    setActiveChat,
-    contacts,
-    currentContact,
-    totalUnread,
-    handleCloseChat,
-  } = useChat();
+  const chatProps = useChat();
 
   const [searchDateQuery, setSearchDateQuery] = useState("");
 
@@ -56,12 +47,9 @@ export function PatientOverviewView() {
       const right = p.avg_force_right || 0;
       const totalForce = left + right;
 
-      if (totalForce > 0) {
-        const diff = Math.abs(left - right);
-        const stability = Math.round(100 - (diff / totalForce) * 100);
-        totalStability += stability;
-        validStabilityCount++;
-      }
+      const stability = totalForce > 0 ? Math.round(100 - (Math.abs(left - right) / totalForce) * 100) : 100;
+      totalStability += stability;
+      validStabilityCount++;
     });
 
     return {
@@ -127,16 +115,7 @@ export function PatientOverviewView() {
       />
 
       {/* 5. FLOATING CHATBOX */}
-      <Chatbox
-        isChatOpen={isChatOpen}
-        setIsChatOpen={setIsChatOpen}
-        activeChat={activeChat}
-        setActiveChat={setActiveChat}
-        contacts={contacts}
-        currentContact={currentContact}
-        totalUnread={totalUnread}
-        handleCloseChat={handleCloseChat}
-      />
+      <Chatbox {...chatProps} />
 
     </div>
   );
