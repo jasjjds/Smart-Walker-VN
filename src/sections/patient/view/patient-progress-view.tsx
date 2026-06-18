@@ -3,10 +3,15 @@
 "use client";
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { BackButton } from '@/components/custom/back-button';
 import { useChat } from '@/hooks/useChat';
-import { Chatbox } from '@/components/common/chatbox';
 import { MOCK_DAILY_EXERCISES } from '@/config/mockData';
+
+const Chatbox = dynamic(
+  () => import('@/components/common/chatbox').then((mod) => mod.Chatbox),
+  { ssr: false }
+);
 
 export function PatientProgressView() {
   const chatProps = useChat();

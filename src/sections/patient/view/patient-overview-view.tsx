@@ -7,11 +7,20 @@ import { useAuth } from '@/lib/auth-context';
 import { usePatientBooklet } from '@/hooks/usePatientBooklet';
 import { useChat } from '@/hooks/useChat';
 import { MOCK_PATIENT_STATS } from '@/config/mockData';
+import dynamic from 'next/dynamic';
 import { MetricCard } from '@/components/common/metric-card';
 import { WelcomeBanner } from '@/components/patient/welcome-banner';
 import { TrainingHistory } from '@/components/patient/training-history';
-import { SessionModal } from '@/components/patient/session-modal';
-import { Chatbox } from '@/components/common/chatbox';
+
+const SessionModal = dynamic(
+  () => import('@/components/patient/session-modal').then((mod) => mod.SessionModal),
+  { ssr: false }
+);
+
+const Chatbox = dynamic(
+  () => import('@/components/common/chatbox').then((mod) => mod.Chatbox),
+  { ssr: false }
+);
 
 export function PatientOverviewView() {
   const { user } = useAuth();
