@@ -134,76 +134,30 @@ export function GaitAnalysisView() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">
         <div>
           <p className="text-primary-900/70 mt-0.5 text-xs sm:text-sm font-medium italic">
-            {isPatientView 
-              ? "Theo dõi vận tốc tập luyện thời gian thực từ thiết bị Smart Walker." 
-              : "Theo dõi mức độ vận động của bệnh nhân qua các mốc thời gian."}
+            Theo dõi vận tốc tập luyện thời gian thực từ thiết bị Smart Walker.
           </p>
         </div>
 
-        {isPatientView ? (
-          <button 
-            onClick={() => setIsLive(!isLive)} 
-            className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${
-              isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'
-            }`}
-          >
-            {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
-          </button>
-        ) : (
-          <div className="flex bg-white rounded-xl shadow-sm border border-gray-200 p-1 gap-0.5 overflow-x-auto max-w-full">
-            {(['minute', 'hour', 'day', 'month', 'custom'] as const).map((type) => (
-              <button
-                key={type}
-                onClick={() => setIntervalType(type)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
-                  intervalType === type ? 'bg-primary-500 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'
-                }`}
-              >
-                {type === 'minute' ? 'Theo Phút' : type === 'hour' ? 'Theo Giờ' : type === 'day' ? 'Theo Ngày' : type === 'month' ? 'Theo Tháng' : 'Tự chọn'}
-              </button>
-            ))}
-          </div>
-        )}
+        <button 
+          onClick={() => setIsLive(!isLive)} 
+          className={`w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 ${
+            isLive ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-primary-500 hover:bg-primary-900 text-white'
+          }`}
+        >
+          {isLive ? 'Dừng lấy dữ liệu' : 'Bắt đầu thu dữ liệu'}
+        </button>
       </div>
-
-      {/* 1.1 PANEL DATE PICKER */}
-      {!isPatientView && intervalType === 'custom' && (
-        <div className="flex flex-wrap items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl text-xs shrink-0 shadow-sm animate-fadeIn">
-          <div className="flex items-center gap-1.5">
-            <span className="text-gray-500 font-medium">Từ ngày:</span>
-            <CustomDatePicker
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="!w-32 !px-2 !py-1 !text-xs !rounded-lg !border !border-gray-300 focus-within:!border-primary-500 !bg-white !text-gray-700 font-medium"
-            />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-gray-500 font-medium">Đến ngày:</span>
-            <CustomDatePicker
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="!w-32 !px-2 !py-1 !text-xs !rounded-lg !border !border-gray-300 focus-within:!border-primary-500 !bg-white !text-gray-700 font-medium"
-            />
-          </div>
-          <button
-            onClick={handleApplyCustomTime}
-            className="w-full sm:w-auto bg-primary-500 hover:bg-primary-900 text-white font-bold px-3 py-1.5 rounded-lg transition-colors text-xs"
-          >
-            Áp dụng bộ lọc
-          </button>
-        </div>
-      )}
 
       {/* 2. MAIN CONTENT AREA */}
       <div className="flex-grow flex flex-col gap-6 lg:min-h-0">
 
-        {/* BIỂU ĐỒ QUÃNG ĐƯỜNG HOẶC VẬN TỐC REAL-TIME */}
+        {/* BIỂU ĐỒ VẬN TỐC REAL-TIME */}
         <div className="w-full bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col relative h-[350px] lg:h-auto lg:flex-grow lg:min-h-0">
           <div className="flex justify-between items-center mb-6 shrink-0 z-10">
             <h3 className="text-xs sm:text-sm font-bold text-gray-800">
-              {isPatientView ? "Biểu đồ Vận tốc Real-time (m/s)" : "Biểu đồ Vận động (m)"}
+              Biểu đồ Vận tốc Real-time (m/s)
             </h3>
-            {isPatientView && isLive && (
+            {isLive && (
               <span className="flex h-3 w-3 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
@@ -212,135 +166,46 @@ export function GaitAnalysisView() {
           </div>
 
           <div className="flex-grow w-full relative min-h-0">
-            {isPatientView ? (
-              <div className="w-full h-full pb-10">
-                <VelocityChart history={velocityHistory} className="h-full w-full" />
-              </div>
-            ) : (
-              <>
-                {/* Lớp nền chia vạch Y-axis */}
-                <div className="absolute inset-0 pl-10 pb-10 flex flex-col justify-between pointer-events-none z-0">
-                  {[1, 0.75, 0.5, 0.25, 0].map((ratio) => {
-                    const val = (maxDistance * ratio).toFixed(2);
-                    return (
-                      <div key={ratio} className="w-full flex items-center relative h-0">
-                        <div className={`w-full absolute ${ratio === 0 ? 'border-b-2 border-gray-800' : 'border-b border-dashed border-gray-200'}`}></div>
-                        <span className="absolute -left-10 text-[9px] sm:text-[10px] font-mono text-gray-500 bg-white pr-2 -translate-y-1/2">{val}m</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Trục dọc */}
-                <div className="absolute top-0 bottom-10 left-10 border-l-2 border-gray-800 pointer-events-none z-10"></div>
-
-                {/* LỚP VẼ CỘT */}
-                <div className="absolute inset-0 pl-10 flex overflow-x-auto custom-scrollbar">
-                  {isLoading ? (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10 text-sm">Đang tải dữ liệu...</div>
-                  ) : data.length === 0 ? (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold pb-10 text-sm">Chưa có dữ liệu cho mốc thời gian này.</div>
-                  ) : (
-                    data.map((item) => {
-                      const heightPercent = (item.total_distance / maxDistance) * 85;
-
-                      return (
-                        <div key={item.date_bucket} className="flex-1 flex flex-col items-center justify-end h-full pb-10 relative group px-1 min-w-[32px] sm:min-w-[48px]">
-                          {/* SỐ TRÊN ĐỈNH CỘT */}
-                          <span className="text-[9px] sm:text-[10px] font-black text-primary-500 mb-1 opacity-95 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
-                            {item.total_distance.toFixed(2)}
-                          </span>
-
-                          {/* CỘT MÀU XANH */}
-                          <div
-                            className="bg-primary-500 w-full max-w-[32px] sm:max-w-[48px] rounded-t-md shadow-sm transition-all duration-300 group-hover:bg-primary-900"
-                            style={{ height: `${Math.max(heightPercent, 1)}%` }}
-                          ></div>
-
-                          {/* NHÃN TRỤC X */}
-                          <div className="absolute bottom-1 w-full flex flex-col items-center justify-center">
-                            <span className="text-[8px] sm:text-[10px] font-bold text-gray-600 whitespace-nowrap">
-                              {item.label}
-                            </span>
-                            {item.subLabel && (
-                              <span className="text-[7px] sm:text-[8px] font-medium text-gray-400 mt-[1px]">
-                                {item.subLabel}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </>
-            )}
+            <div className="w-full h-full pb-10">
+              <VelocityChart history={velocityHistory} className="h-full w-full" />
+            </div>
           </div>
         </div>
 
-        {isPatientView ? (
-          <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard
-              variant="horizontal"
-              title="Vận tốc hiện tại"
-              description="Đang nhận trực tiếp."
-              value={currentVelocity.toFixed(2)}
-              unit="m/s"
-              valueColorClass="text-primary-500"
-            />
-            <MetricCard
-              variant="horizontal"
-              title="Quãng đường đã đi"
-              description="Tích lũy phiên này."
-              value={sessionDistance.toFixed(2)}
-              unit="mét"
-              valueColorClass="text-emerald-600"
-            />
-            <MetricCard
-              variant="horizontal"
-              title="Vận tốc cao nhất"
-              description="Trong phiên này."
-              value={maxVelocity.toFixed(2)}
-              unit="m/s"
-              valueColorClass="text-primary-900"
-            />
-            <MetricCard
-              variant="horizontal"
-              title="Vận tốc trung bình"
-              description="Khi di chuyển."
-              value={avgVelocity}
-              unit="m/s"
-              valueColorClass="text-amber-600"
-            />
-          </div>
-        ) : (
-          <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MetricCard
-              variant="horizontal"
-              title="Tổng quãng đường"
-              description="Lũy kế theo bộ lọc."
-              value={totalDistance.toFixed(2)}
-              unit="mét"
-              valueColorClass="text-primary-500"
-            />
-            <MetricCard
-              variant="horizontal"
-              title="Thành tích cao nhất"
-              description="Trong một chu kỳ."
-              value={maxDistance === 1 && totalDistance === 0 ? "0.00" : maxDistance.toFixed(2)}
-              unit="mét"
-              valueColorClass="text-primary-900"
-            />
-            <MetricCard
-              variant="horizontal"
-              title="Trung bình"
-              description={`Mỗi ${intervalType === 'day' ? 'ngày' : intervalType === 'hour' ? 'giờ' : intervalType === 'minute' ? 'phút' : intervalType === 'month' ? 'tháng' : 'chu kỳ'}.`}
-              value={avgDistance}
-              unit="mét"
-              valueColorClass="text-emerald-600"
-            />
-          </div>
-        )}
+        <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            variant="horizontal"
+            title="Vận tốc hiện tại"
+            description="Đang nhận trực tiếp."
+            value={currentVelocity.toFixed(2)}
+            unit="m/s"
+            valueColorClass="text-primary-500"
+          />
+          <MetricCard
+            variant="horizontal"
+            title="Quãng đường đã đi"
+            description="Tích lũy phiên này."
+            value={sessionDistance.toFixed(2)}
+            unit="mét"
+            valueColorClass="text-emerald-600"
+          />
+          <MetricCard
+            variant="horizontal"
+            title="Vận tốc cao nhất"
+            description="Trong phiên này."
+            value={maxVelocity.toFixed(2)}
+            unit="m/s"
+            valueColorClass="text-primary-900"
+          />
+          <MetricCard
+            variant="horizontal"
+            title="Vận tốc trung bình"
+            description="Khi di chuyển."
+            value={avgVelocity}
+            unit="m/s"
+            valueColorClass="text-amber-600"
+          />
+        </div>
 
       </div>
     </div>

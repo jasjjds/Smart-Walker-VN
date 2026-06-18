@@ -38,7 +38,7 @@ export function useGaitRealtime(patientID: string | number, isPatientView: boole
   }, [isLive]);
 
   useEffect(() => {
-    if (!patientID || !isPatientView) return;
+    if (!patientID) return;
 
     if (isLive && isTabVisible) {
       const fetchVelocityData = async () => {

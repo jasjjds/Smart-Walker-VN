@@ -49,7 +49,18 @@ export function useForceRealtime(patientID: string | number) {
             const latest = fetchedHistory[fetchedHistory.length - 1];
 
             setCurrentForce({ left: latest.left || 0, right: latest.right || 0 });
-            setHistory(prev => [...prev.slice(1), { left: latest.left || 0, right: latest.right || 0 }]);
+            
+            const mappedHistory = fetchedHistory.map((d: any) => ({
+              left: d.left || 0,
+              right: d.right || 0
+            }));
+
+            if (mappedHistory.length < CHART_CONFIG.HISTORY_LIMIT) {
+              const padding = Array(CHART_CONFIG.HISTORY_LIMIT - mappedHistory.length).fill({ left: 0, right: 0 });
+              setHistory([...padding, ...mappedHistory]);
+            } else {
+              setHistory(mappedHistory);
+            }
           }
         } catch (error) {
           console.error("❌ Lỗi lấy dữ liệu Force Real-time:", error);

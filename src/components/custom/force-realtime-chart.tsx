@@ -157,47 +157,55 @@ export function ForceRealtimeChart({ history, className = "" }: ForceRealtimeCha
         </svg>
 
         {/* Tooltip hiển thị số liệu chi tiết dạng hộp */}
-        {hoveredIdx !== null && history[hoveredIdx] && (
-          <div
-            className="absolute bg-slate-900/95 text-white text-[10px] sm:text-xs p-3 rounded-2xl shadow-xl pointer-events-none z-20 flex flex-col gap-1 backdrop-blur-md border border-white/10"
-            style={{
-              left: `${Math.min(
-                Math.max((hoveredIdx / Math.max(1, historyLength - 1)) * 100, 15),
-                85
-              )}%`,
-              top: "10px",
-              transform: "translateX(-50%)",
-            }}
-          >
-            <div className="font-bold border-b border-white/20 pb-1 mb-1 text-slate-300 text-[10px]">
-              Điểm mẫu {hoveredIdx + 1}
+        {hoveredIdx !== null && history[hoveredIdx] && (() => {
+          const leftY = 100 - (((history[hoveredIdx].left || 0) / maxVal) * 100);
+          const rightY = 100 - (((history[hoveredIdx].right || 0) / maxVal) * 100);
+          const minY = Math.min(leftY, rightY);
+          const maxY = Math.max(leftY, rightY);
+          const avgY = (leftY + rightY) / 2;
+          const isUpperHalf = avgY < 50;
+          return (
+            <div
+              className="absolute bg-slate-900/95 text-white text-[10px] sm:text-xs p-3 rounded-2xl shadow-xl pointer-events-none z-20 flex flex-col gap-1 backdrop-blur-md border border-white/10 transition-all duration-150"
+              style={{
+                left: `${Math.min(
+                  Math.max((hoveredIdx / Math.max(1, historyLength - 1)) * 100, 15),
+                  85
+                )}%`,
+                top: isUpperHalf ? `calc(${maxY}% + 15px)` : `calc(${minY}% - 105px)`,
+                transform: "translateX(-50%)",
+              }}
+            >
+              <div className="font-bold border-b border-white/20 pb-1 mb-1 text-slate-300 text-[10px]">
+                Điểm mẫu {hoveredIdx + 1}
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="font-medium text-sky-400">Lực Trái:</span>
+                <span className="font-mono font-bold">{(history[hoveredIdx].left || 0).toFixed(1)} kg</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="font-medium text-orange-400">Lực Phải:</span>
+                <span className="font-mono font-bold">{(history[hoveredIdx].right || 0).toFixed(1)} kg</span>
+              </div>
+              <div className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-1 font-bold text-[9px] sm:text-[10px]">
+                <span>Trạng thái:</span>
+                <span className={
+                  (() => {
+                    const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
+                    if (Math.abs(diff) < 0.2) return "text-slate-300";
+                    return diff > 0 ? "text-[#3b82f6]" : "text-[#f97316]";
+                  })()
+                }>
+                  {(() => {
+                    const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
+                    if (Math.abs(diff) < 0.2) return "Cân bằng";
+                    return diff > 0 ? "Lệch Trái" : "Lệch Phải";
+                  })()}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between gap-4">
-              <span className="font-medium text-sky-400">Lực Trái:</span>
-              <span className="font-mono font-bold">{(history[hoveredIdx].left || 0).toFixed(1)} kg</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="font-medium text-orange-400">Lực Phải:</span>
-              <span className="font-mono font-bold">{(history[hoveredIdx].right || 0).toFixed(1)} kg</span>
-            </div>
-            <div className="flex justify-between gap-4 border-t border-white/10 pt-1 mt-1 font-bold text-[9px] sm:text-[10px]">
-              <span>Trạng thái:</span>
-              <span className={
-                (() => {
-                  const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
-                  if (Math.abs(diff) < 0.2) return "text-slate-300";
-                  return diff > 0 ? "text-[#3b82f6]" : "text-[#f97316]";
-                })()
-              }>
-                {(() => {
-                  const diff = (history[hoveredIdx].left || 0) - (history[hoveredIdx].right || 0);
-                  if (Math.abs(diff) < 0.2) return "Cân bằng";
-                  return diff > 0 ? "Lệch Trái" : "Lệch Phải";
-                })()}
-              </span>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

@@ -56,7 +56,19 @@ export default function DeviceScanPage() {
     );
   }
 
-  if (user && user.role_id !== 2) {
+  if (!user) {
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-primary-50 text-primary-900">
+        <svg className="w-10 h-10 animate-spin text-primary-500" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p className="mt-4 font-semibold text-sm">Đang xác thực thông tin...</p>
+      </div>
+    );
+  }
+
+  if (user.role_id !== 2) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-primary-50 text-primary-900 p-6 text-center">
         <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6">

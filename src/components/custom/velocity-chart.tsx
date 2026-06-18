@@ -123,27 +123,31 @@ export function VelocityChart({ history, className = "" }: VelocityChartProps) {
         </svg>
 
         {/* Tooltip hiển thị số liệu chi tiết */}
-        {hoveredIdx !== null && history[hoveredIdx] && (
-          <div
-            className="absolute bg-slate-900/95 text-white text-[10px] sm:text-xs p-3 rounded-2xl shadow-xl pointer-events-none z-20 flex flex-col gap-1 backdrop-blur-md border border-white/10"
-            style={{
-              left: `${Math.min(
-                Math.max((hoveredIdx / Math.max(1, historyLength - 1)) * 100, 15),
-                85
-              )}%`,
-              top: "10px",
-              transform: "translateX(-50%)",
-            }}
-          >
-            <div className="font-bold border-b border-white/20 pb-1 mb-1 text-slate-300 text-[10px]">
-              Điểm mẫu {hoveredIdx + 1}
+        {hoveredIdx !== null && history[hoveredIdx] && (() => {
+          const yPercent = 100 - (((history[hoveredIdx].velocity || 0) / maxVal) * 100);
+          const isUpperHalf = yPercent < 45;
+          return (
+            <div
+              className="absolute bg-slate-900/95 text-white text-[10px] sm:text-xs p-3 rounded-2xl shadow-xl pointer-events-none z-20 flex flex-col gap-1 backdrop-blur-md border border-white/10 transition-all duration-150"
+              style={{
+                left: `${Math.min(
+                  Math.max((hoveredIdx / Math.max(1, historyLength - 1)) * 100, 15),
+                  85
+                )}%`,
+                top: isUpperHalf ? `calc(${yPercent}% + 15px)` : `calc(${yPercent}% - 65px)`,
+                transform: "translateX(-50%)",
+              }}
+            >
+              <div className="font-bold border-b border-white/20 pb-1 mb-1 text-slate-300 text-[10px]">
+                Điểm mẫu {hoveredIdx + 1}
+              </div>
+              <div className="flex justify-between gap-4">
+                <span className="font-medium text-emerald-400">Vận tốc:</span>
+                <span className="font-mono font-bold">{(history[hoveredIdx].velocity || 0).toFixed(2)} m/s</span>
+              </div>
             </div>
-            <div className="flex justify-between gap-4">
-              <span className="font-medium text-emerald-400">Vận tốc:</span>
-              <span className="font-mono font-bold">{(history[hoveredIdx].velocity || 0).toFixed(2)} m/s</span>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
