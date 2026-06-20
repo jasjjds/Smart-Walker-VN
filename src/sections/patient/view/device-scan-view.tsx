@@ -30,6 +30,11 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
   } | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const elapsedSecondsRef = useRef(0);
+
+  useEffect(() => {
+    elapsedSecondsRef.current = elapsedSeconds;
+  }, [elapsedSeconds]);
 
   // 1. Kiểm tra xem có phiên tập nào đang active trên thiết bị này hay không khi load trang
   useEffect(() => {
@@ -84,6 +89,42 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [deviceId]);
+
+  // 1.2. Cơ chế Polling tự động đồng bộ trạng thái khi ở màn ACTIVE
+  useEffect(() => {
+    if (state !== "ACTIVE") return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await patientService.getBooklet() as any;
+        if (response.success && response.data) {
+          const pages = response.data.pages || [];
+          const latestPage = pages[0];
+          
+          if (latestPage && latestPage.device_id === deviceId) {
+            if (latestPage.status === "completed") {
+              if (timerRef.current) clearInterval(timerRef.current);
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("activeDeviceId");
+              }
+              setSummaryData({
+                avgForceLeft: latestPage.avg_force_left || 0,
+                avgForceRight: latestPage.avg_force_right || 0,
+                totalDistance: latestPage.total_distance || 0,
+                durationSeconds: latestPage.duration_seconds || elapsedSecondsRef.current,
+                title: latestPage.title || "Phiên tập luyện phục hồi",
+              });
+              setState("SUMMARY");
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Lỗi kiểm tra trạng thái phiên tập nền:", err);
+      }
+    }, 10000); // Mỗi 10 giây kiểm tra một lần
+
+    return () => clearInterval(pollInterval);
+  }, [state, deviceId]);
 
   // 1.5 Kích hoạt thiết bị thủ công khi nhấn nút "Bắt đầu tập"
   const handleStartSession = async () => {
@@ -145,7 +186,35 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
         setErrorMsg("Có lỗi xảy ra khi đóng phiên tập luyện.");
       }
     } catch (err: any) {
-      console.error("Lỗi kết thúc phiên tập:", err);
+      console.error("Lỗi kết thúc phiên tập, đang thử khôi phục từ sổ khám:", err);
+      
+      // Fallback: Nếu không thể kết thúc (ví dụ 404 do phiên đã được đóng tự động bởi backend)
+      // Thử lấy lại thông tin booklet để xem phiên đã hoàn thành hay chưa
+      try {
+        const bookletRes = await patientService.getBooklet() as any;
+        if (bookletRes.success && bookletRes.data) {
+          const pages = bookletRes.data.pages || [];
+          const latestPage = pages[0];
+          
+          if (latestPage && latestPage.status === "completed" && latestPage.device_id === deviceId) {
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("activeDeviceId");
+            }
+            setSummaryData({
+              avgForceLeft: latestPage.avg_force_left || 0,
+              avgForceRight: latestPage.avg_force_right || 0,
+              totalDistance: latestPage.total_distance || 0,
+              durationSeconds: latestPage.duration_seconds || elapsedSeconds,
+              title: latestPage.title || "Phiên tập luyện phục hồi",
+            });
+            setState("SUMMARY");
+            return;
+          }
+        }
+      } catch (checkErr) {
+        console.error("Lỗi khi kiểm tra lại trạng thái phiên tập đã đóng:", checkErr);
+      }
+
       setState("ERROR");
       setErrorMsg(err.response?.data?.message || "Không thể kết thúc phiên tập.");
     }
