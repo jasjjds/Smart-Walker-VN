@@ -59,11 +59,12 @@ export function DeviceScanView({ deviceId }: DeviceScanViewProps) {
             if (typeof window !== "undefined") {
               localStorage.setItem("activeDeviceId", deviceId);
             }
+            const serverTime = response.data.server_time ? new Date(response.data.server_time) : new Date();
             const start = new Date(latestPage.start_time);
-            setStartTime(start);
             
-            const diffSeconds = Math.max(0, Math.floor((new Date().getTime() - start.getTime()) / 1000));
+            const diffSeconds = Math.max(0, Math.floor((serverTime.getTime() - start.getTime()) / 1000));
             setElapsedSeconds(diffSeconds);
+            setStartTime(new Date(new Date().getTime() - diffSeconds * 1000));
             
             if (timerRef.current) clearInterval(timerRef.current);
             timerRef.current = setInterval(() => {
