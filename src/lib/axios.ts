@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 // Clean leading/trailing spaces from environment variables
-const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'https://breeze-fencing-elaborate.ngrok-free.dev/api').trim();
+const baseURL = (process.env.NEXT_PUBLIC_API_URL || 'https://weak-ants-wait.loca.lt/api').trim();
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL,
@@ -9,6 +9,7 @@ const axiosClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true',
+    'bypass-tunnel-reminder': 'true',
     'Accept': 'application/json'
   },
   timeout: 10000,
